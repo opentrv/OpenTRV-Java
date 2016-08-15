@@ -5,7 +5,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationInput;
 import uk.org.opentrv.ETV.parse.NBulkInputs;
@@ -34,6 +33,15 @@ public final class ETVSimpleDriverNBulkInputs
         catch(final IOException e) { throw new RuntimeException(e); }
         }
 
+    /**Trivial command-line front-end. */
+    public static void main(final String args[])
+        {
+        if(args.length < 2) { throw new IllegalArgumentException(); }
+        try { doComputation(new File(args[0]), new File(args[1])); }
+        catch(final IOException e) { throw new RuntimeException(e); }
+        }
+
+    /**Process from specified input to output directories. */
     public static void doComputation(final File inDir, final File outDir) throws IOException
         {
         if(null == inDir) { throw new IllegalArgumentException(); }
