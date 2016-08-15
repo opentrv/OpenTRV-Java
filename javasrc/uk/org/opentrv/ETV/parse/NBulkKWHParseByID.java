@@ -3,8 +3,8 @@ package uk.org.opentrv.ETV.parse;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.Reader;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedMap;
@@ -12,7 +12,6 @@ import java.util.TimeZone;
 import java.util.TreeMap;
 
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationInputKWh;
-import uk.org.opentrv.hdd.Util;
 
 /**Get heating fuel energy consumption (kWh) by whole local days (local midnight-to-midnight) from bulk data.
  * Days may not be contiguous.
@@ -146,6 +145,7 @@ public final class NBulkKWHParseByID implements ETVPerHouseholdComputationInputK
             int currentDayYYYYMMDD = -1;
             Float kWhAtStartOfCurrentDay = null;
             final Calendar latestDeviceTimestamp = Calendar.getInstance(tz);
+            latestDeviceTimestamp.setTime(new Date(0));
             while(null != (row = l.readLine()))
                 {
                 final String rf[] = row.split(",");
@@ -156,7 +156,7 @@ public final class NBulkKWHParseByID implements ETVPerHouseholdComputationInputK
                 final long dtsms = 1000L * device_timestamp;
                 // Verify that device time moves monotonically forwards...
                 if((-1 != currentDayYYYYMMDD) && (dtsms <= latestDeviceTimestamp.getTimeInMillis()))
-                    { throw new IOException("device time not increased at row " + l.getLineNumber()); }
+                    { throw new IOException("device time not increased at row " + l.getLineNumber() + ": " + row + " vs " + latestDeviceTimestamp); }
                 // Now convert to local date (and time) allowing for time zone.
                 // Measurement days are local midnight to local midnight.
                 latestDeviceTimestamp.setTimeInMillis(dtsms);

@@ -8,6 +8,8 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+import uk.org.opentrv.ETV.driver.ETVSimpleDriverNBulkInputs;
+
 public class ETVDriverTest
     {
     public static final String fixedDataSetDir = "ETV-prepared-data";
