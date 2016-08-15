@@ -236,4 +236,19 @@ public class ETVParseTest
         assertTrue(mhi.containsKey("5013"));
         assertEquals("5013", mhi.get("5013").getHouseID());
         }
+
+    /**Test bulk multi-household reader. */
+    @Test public void testNBulkMultiInputs() throws IOException
+        {
+        final Map<String, ETVPerHouseholdComputationInput> mhi =
+            NBulkInputs.gatherDataForAllHouseholds(
+                    NBulk1CSVReaderSupplier,
+                DDNExtractorTest.getETVEGLLHDD2016H1CSVReader());
+        assertNotNull(mhi);
+        assertEquals(2, mhi.size());
+        assertTrue(mhi.containsKey("1001"));
+        assertTrue(mhi.containsKey("1002"));
+        assertEquals("1001", mhi.get("1001").getHouseID());
+        assertEquals("1002", mhi.get("1002").getHouseID());
+        }
     }
