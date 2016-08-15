@@ -17,10 +17,15 @@ public final class ETVSimpleDriverNBulkInputs
     /**Name within input directory of 'N' format kWh energy consumption CSV ASCII7 file. */
     public static final String INPUT_FILE_NKWH = "NkWh.csv";
 
+    /**Name within output directory of basic per-household stats as ASCII7 CSV (no efficacy computation). */
+    public static final String OUTPUT_FILE_BASIC_STATS = "basicStatsOut.csv";
+
     public static void doComputation(final File inDir, final File outDir) throws IOException
         {
         if(null == inDir) { throw new IllegalArgumentException(); }
         if(null == outDir) { throw new IllegalArgumentException(); }
+        if(!inDir.isDirectory()) { throw new IOException("Cannot open input directory " + inDir); }
+        if(!outDir.isDirectory()) { throw new IOException("Cannot open output directory " + outDir); }
 // TODO
 
         }
