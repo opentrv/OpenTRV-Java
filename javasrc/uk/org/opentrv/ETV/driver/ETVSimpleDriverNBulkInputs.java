@@ -12,6 +12,11 @@ import java.io.IOException;
  */
 public final class ETVSimpleDriverNBulkInputs
     {
+    /**Name within input directory of simple daily HDD CSV ASCII7 file. */
+    public static final String INPUT_FILE_HDD = "HDD.csv";
+    /**Name within input directory of 'N' format kWh energy consumption CSV ASCII7 file. */
+    public static final String INPUT_FILE_NKWH = "NkWh.csv";
+
     public static void doComputation(final File inDir, final File outDir) throws IOException
         {
         if(null == inDir) { throw new IllegalArgumentException(); }
