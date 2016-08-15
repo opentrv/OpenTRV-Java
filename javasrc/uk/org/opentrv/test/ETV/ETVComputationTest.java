@@ -59,4 +59,6 @@ public class ETVComputationTest
         assertEquals("5013", computed.get(0).getHouseID());
         assertEquals("slope ~ 1.5kWh/HDD12.5", 1.5f, computed.get(0).getHDDMetrics().slopeEnergyPerHDD, 0.1f);
         }
+
+
     }
