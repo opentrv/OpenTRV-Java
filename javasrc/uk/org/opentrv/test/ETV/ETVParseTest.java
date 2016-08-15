@@ -208,7 +208,7 @@ public class ETVParseTest
     public static Reader getNBulkSH2016H1CSVReaderRE()
         { try { return(getNBulkSH2016H1CSVReader()); } catch(final IOException e) { throw new RuntimeException(e); } }
     /**Return a Supplier<Reader> for the ETV sample single-home bulk HDD data for EGLL; never null. */
-    public static Supplier<Reader> NBulkSH2016H1CSVReaderSupplier = () -> getNBulkSH2016H1CSVReaderRE();
+    public final static Supplier<Reader> NBulkSH2016H1CSVReaderSupplier = () -> getNBulkSH2016H1CSVReaderRE();
 
     /**Test for correct loading for a single household into input object from alternative bulk file (2016H1). */
     @Test public void testNBulkSH2016HCInputs() throws IOException
