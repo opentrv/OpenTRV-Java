@@ -1,5 +1,8 @@
 package uk.org.opentrv.hdd;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -8,6 +11,7 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TimeZone;
 import java.util.TreeSet;
+import java.util.function.Supplier;
 
 
 /**Utility HDD methods. */
@@ -375,4 +379,14 @@ public final class Util
             }
         return(result);
         }
+
+    /**Read ASCII7 text resource from given class as Reader. */
+    public static Reader getASCIIResourceReader(final Class<?> clazz, final String path) throws IOException
+        { return(new InputStreamReader(clazz.getResourceAsStream(path), "ASCII7")); }
+    /**Read ASCII7 text resource from given class as Reader, wrapping IOException as RuntimeException. */
+    public static Reader getASCIIResourceReaderRE(final Class<?> clazz, final String path)
+        { try { return(getASCIIResourceReader(clazz, path)); } catch(final IOException e) { throw new RuntimeException(e); } }
+    /**Get Supplier of Readers of given ASCII7 text resource from given class. */
+    public static Supplier<Reader> getASCIIResourceReaderSupplier(final Class<?> clazz, final String path)
+        { return(() -> getASCIIResourceReaderRE(clazz, path)); }
     }
