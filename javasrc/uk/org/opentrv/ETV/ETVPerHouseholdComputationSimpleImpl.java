@@ -40,7 +40,19 @@ public final class ETVPerHouseholdComputationSimpleImpl implements ETVPerHouseho
             };
 
         final SortedSet<ConsumptionHDDTuple> combined;
-        try { combined = Util.combineDailyIntervalReadingsWithHDD(in.getKWhByLocalDay(), cdh); }
+        try {
+            final SortedMap<Integer, Float> kWhByLocalDay = in.getKWhByLocalDay();
+            if(kWhByLocalDay.isEmpty())
+                {
+                // Return 'not computable' result.
+                return(new ETVPerHouseholdComputationResult() {
+                    @Override public String getHouseID() { return(in.getHouseID()); }
+                    @Override public HDDMetrics getHDDMetrics() { return(null); }
+                    @Override public Float getRatiokWhPerHDDNotSmartOverSmart() { return(null); }
+                    });
+                }
+            combined = Util.combineDailyIntervalReadingsWithHDD(kWhByLocalDay, cdh);
+            }
         catch(final IOException e) { throw new IllegalArgumentException(e); }
 
         final HDDMetrics metrics = Util.computeHDDMetrics(combined);

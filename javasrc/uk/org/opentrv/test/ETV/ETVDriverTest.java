@@ -1,5 +1,7 @@
 package uk.org.opentrv.test.ETV;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeNotNull;
 import static org.junit.Assume.assumeTrue;
 
@@ -26,7 +28,13 @@ public class ETVDriverTest
         final File inDir = new File(new File(homeDir), fixedDataSetDir);
         assumeTrue(inDir.isDirectory());
         final File outDir = new File(new File(homeDir), fixedDataSetOutDir);
-//        ETVSimpleDriverNBulkInputs.doComputation(inDir, outDir);
+        assertTrue(outDir.isDirectory());
+        assertTrue(outDir.canWrite());
+        final File basicResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_FILE_BASIC_STATS);
+        basicResultFile.delete(); // Make sure no output file.
+        assertFalse("output file should not yet exist", basicResultFile.isFile());
+        ETVSimpleDriverNBulkInputs.doComputation(inDir, outDir);
+//        assertTrue("output file should exist", basicResultFile.isFile());
 
 //        final List<ETVPerHouseholdComputationResult> rl = Arrays.asList(r1, r2);
 //        final String rlCSV = (new ETVPerHouseholdComputationResultsToCSV()).apply(rl);

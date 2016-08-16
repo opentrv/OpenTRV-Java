@@ -191,8 +191,11 @@ public final class Util
         }
 
     /**Immutable store of energy efficiency metrics energy/HDD (slope), baseline (intercept) and R^2.
-     * Values all stored as (non-NaN, non-Inf) float values
-     * since that already represents more precision that is likely available from the data!
+     * Values all stored as (non-NaN, non-Inf) values
+     * other than rsqFit which is allowed to be NaN.
+     * <p>
+     * Values (other than n) stored as float
+     * since that already represents more precision that is likely available from the data.
      */
     public static final class HDDMetrics
         {
@@ -206,7 +209,7 @@ public final class Util
             if(n <= 0) { throw new IllegalArgumentException(); }
             if(Float.isNaN(slopeEnergyPerHDD) || Float.isInfinite(slopeEnergyPerHDD)) { throw new IllegalArgumentException("slopeEnergyPerHDD: "+slopeEnergyPerHDD); }
             if(Float.isNaN(interceptBaseline) || Float.isInfinite(interceptBaseline)) { throw new IllegalArgumentException("interceptBaseline: "+interceptBaseline); }
-            if(Float.isNaN(rsqFit) || Float.isInfinite(rsqFit)) { throw new IllegalArgumentException("rsqFit: "+ rsqFit); }
+            if(/*Float.isNaN(rsqFit) || */ Float.isInfinite(rsqFit)) { throw new IllegalArgumentException("rsqFit: "+ rsqFit + " (n="+n+")"); }
             this.slopeEnergyPerHDD = slopeEnergyPerHDD;
             this.interceptBaseline = interceptBaseline;
             this.rsqFit = rsqFit;
