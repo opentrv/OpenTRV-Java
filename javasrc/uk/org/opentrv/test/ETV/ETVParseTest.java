@@ -20,6 +20,7 @@ import org.junit.Test;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationInput;
 import uk.org.opentrv.ETV.parse.NBulkInputs;
 import uk.org.opentrv.ETV.parse.NBulkKWHParseByID;
+import uk.org.opentrv.hdd.Util;
 import uk.org.opentrv.test.hdd.DDNExtractorTest;
 
 public class ETVParseTest
@@ -45,23 +46,13 @@ public class ETVParseTest
         assertEquals(0, new NBulkKWHParseByID(1002, new StringReader(sampleN1)).getKWhByLocalDay().size());
         }
 
-    /**Read ASCII7 text resource from given class as Reader. */
-    public static Reader getASCIIResourceReader(final Class<?> clazz, final String path) throws IOException
-        { return(new InputStreamReader(clazz.getResourceAsStream(path), "ASCII7")); }
-    /**Read ASCII7 text resource from given class as Reader, wrapping IOException as RuntimeException. */
-    public static Reader getASCIIResourceReaderRE(final Class<?> clazz, final String path)
-        { try { return(getASCIIResourceReader(clazz, path)); } catch(final IOException e) { throw new RuntimeException(e); } }
-    /**Get Supplier of Readers of given ASCII7 text resource from given class. */
-    public static Supplier<Reader> getASCIIResourceReaderSupplier(final Class<?> clazz, final String path)
-        { return(() -> getASCIIResourceReaderRE(clazz, path)); }
-
     /**Name of the ETV sample bulk HDD data for EGLL. */
     public static final String N_BULK_DATA_FORMAT_SAMPLE_CSV = "N-bulk-data-format-sample.csv";
     /**Return a Reader for the ETV sample bulk HDD data for EGLL; never null. */
     public static Reader getNBulk1CSVReader() throws IOException
-        { return(getASCIIResourceReader(ETVParseTest.class, N_BULK_DATA_FORMAT_SAMPLE_CSV)); }
+        { return(Util.getASCIIResourceReader(ETVParseTest.class, N_BULK_DATA_FORMAT_SAMPLE_CSV)); }
     /**Return a Supplier<Reader> for the ETV sample bulk HDD data for EGLL; never null. */
-    public static Supplier<Reader> NBulk1CSVReaderSupplier = getASCIIResourceReaderSupplier(ETVParseTest.class, N_BULK_DATA_FORMAT_SAMPLE_CSV);
+    public static Supplier<Reader> NBulk1CSVReaderSupplier = Util.getASCIIResourceReaderSupplier(ETVParseTest.class, N_BULK_DATA_FORMAT_SAMPLE_CSV);
 
     /**Test bulk gas meter parse on a more substantive sample. */
     @Test public void testNBulkParse() throws IOException
@@ -69,6 +60,28 @@ public class ETVParseTest
         // Check correct number of rows read with wrong/right ID chosen
         // and only using data for full local-time day intervals.
         assertEquals(0, new NBulkKWHParseByID(0, getNBulk1CSVReader()).getKWhByLocalDay().size());
+        final SortedMap<Integer, Float> kwhByLocalDay1002 = new NBulkKWHParseByID(1002, getNBulk1CSVReader()).getKWhByLocalDay();
+        assertEquals(1, kwhByLocalDay1002.size());
+        assertTrue(kwhByLocalDay1002.containsKey(20160301));
+        assertEquals(75.31f, kwhByLocalDay1002.get(20160301), 0.01f);
+        // Check correct ID extraction.
+        assertEquals(2, NBulkKWHParseByID.extractIDs(getNBulk1CSVReader()).size());
+        assertTrue(NBulkKWHParseByID.extractIDs(getNBulk1CSVReader()).contains(1001));
+        assertTrue(NBulkKWHParseByID.extractIDs(getNBulk1CSVReader()).contains(1002));
+        }
+
+    /**Name of the ETV sample bulk HDD data for EGLL. */
+    public static final String N_BULK_DATA_FORMAT_SAMPLE_CONCAT_CSV = "N-bulk-data-format-sample-concat.csv";
+    /**Return a Reader for the ETV sample bulk HDD data for EGLL; never null. */
+    public static Reader getNBulk1ConcatCSVReader() throws IOException
+        { return(Util.getASCIIResourceReader(ETVParseTest.class, N_BULK_DATA_FORMAT_SAMPLE_CONCAT_CSV)); }
+
+    /**Test bulk gas meter parse on a more substantive sample of concatenated files. */
+    @Test public void testNBulkParseConcat() throws IOException
+        {
+        // Check correct number of rows read with wrong/right ID chosen
+        // and only using data for full local-time day intervals.
+        assertEquals(0, new NBulkKWHParseByID(0, getNBulk1ConcatCSVReader()).getKWhByLocalDay().size());
         final SortedMap<Integer, Float> kwhByLocalDay1002 = new NBulkKWHParseByID(1002, getNBulk1CSVReader()).getKWhByLocalDay();
         assertEquals(1, kwhByLocalDay1002.size());
         assertTrue(kwhByLocalDay1002.containsKey(20160301));
@@ -209,9 +222,9 @@ public class ETVParseTest
     public static final String N_SAMPLE_GAS_2016_06_CSV = "N-sample-GAS-2016-06.csv";
     /**Return a Reader for the ETV sample bulk HDD data for EGLL; never null. */
     public static Reader getNBulkSH2016H1CSVReader() throws IOException
-        { return(getASCIIResourceReader(ETVParseTest.class, N_SAMPLE_GAS_2016_06_CSV)); }
+        { return(Util.getASCIIResourceReader(ETVParseTest.class, N_SAMPLE_GAS_2016_06_CSV)); }
     /**Return a Supplier<Reader> for the ETV sample bulk HDD data for EGLL; never null. */
-    public static Supplier<Reader> NBulkSH2016H1CSVReaderSupplier = getASCIIResourceReaderSupplier(ETVParseTest.class, N_SAMPLE_GAS_2016_06_CSV);
+    public static Supplier<Reader> NBulkSH2016H1CSVReaderSupplier = Util.getASCIIResourceReaderSupplier(ETVParseTest.class, N_SAMPLE_GAS_2016_06_CSV);
 
     /**Test for correct loading for a single household into input object from alternative bulk file (2016H1). */
     @Test public void testNBulkSH2016HCInputs() throws IOException

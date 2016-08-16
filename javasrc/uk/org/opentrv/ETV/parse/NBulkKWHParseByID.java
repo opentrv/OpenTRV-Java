@@ -148,6 +148,9 @@ public final class NBulkKWHParseByID implements ETVPerHouseholdComputationInputK
             latestDeviceTimestamp.setTime(new Date(0));
             while(null != (row = l.readLine()))
                 {
+                // Explicitly skip repeats of the header line (at least starting with the correct field).
+                if("house_id".equals(row)) { continue; }
+                // Now split into columns.
                 final String rf[] = row.split(",");
                 if(rf.length < 4) { throw new IOException("too few fields in row " + l.getLineNumber()); }
                 if(!sID.equals(rf[0])) { continue; }
