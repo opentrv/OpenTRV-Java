@@ -15,7 +15,7 @@ public class ETVDriverTest
     public static final String fixedDataSetDir = "ETV-prepared-data";
     public static final String fixedDataSetOutDir = "ETV-prepared-data-out";
 
-    /**Test for correct driver behaviour on fixed data set if any.
+    /**Test for robust driver behaviour on fixed data set if any.
      * Will not run if input data directory is missing.
      * Will fail for other errors.
      */
