@@ -14,12 +14,17 @@ import uk.org.opentrv.ETV.driver.ETVSimpleDriverNBulkInputs;
 
 public class ETVDriverTest
     {
+    /**Input directory in home dir for testWithExternalDataSet(). */
     public static final String fixedDataSetDir = "ETV-prepared-data";
+    /**Output directory in home dir for testWithExternalDataSet(). */
     public static final String fixedDataSetOutDir = "ETV-prepared-data-out";
 
     /**Test for robust driver behaviour on fixed data set if any.
      * Will not run if input data directory is missing.
+     * <p>
      * Will fail for other errors.
+     * <p>
+     * Simply check that the output file gets generated.
      */
     @Test public void testWithExternalDataSet() throws IOException
         {
@@ -34,19 +39,6 @@ public class ETVDriverTest
         basicResultFile.delete(); // Make sure no output file.
         assertFalse("output file should not yet exist", basicResultFile.isFile());
         ETVSimpleDriverNBulkInputs.doComputation(inDir, outDir);
-//        assertTrue("output file should exist", basicResultFile.isFile());
-
-//        final List<ETVPerHouseholdComputationResult> rl = Arrays.asList(r1, r2);
-//        final String rlCSV = (new ETVPerHouseholdComputationResultsToCSV()).apply(rl);
-//      System.out.println(rlCSV);
-//        assertEquals(
-//              "\"house ID\",\"slope energy/HDD\",\"baseload energy\",\"R^2\",\"n\",\"efficiency gain if computed\"\n" +
-//              "\"1234\",1.2,5.4,0.8,63,\n" +
-//              "\"56\",7.89,0.1,0.6,532,1.23\n",
-//              rlCSV);
-
-        // TODO
-
-
+        assertTrue("output file should exist", basicResultFile.isFile());
         }
     }
