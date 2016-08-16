@@ -26,9 +26,16 @@ public class ETVDriverTest
         final File inDir = new File(new File(homeDir), fixedDataSetDir);
         assumeTrue(inDir.isDirectory());
         final File outDir = new File(new File(homeDir), fixedDataSetOutDir);
-//        ETVSimpleDriverNBulkInputs.doComputation(inDir, outDir);
+        ETVSimpleDriverNBulkInputs.doComputation(inDir, outDir);
 
-
+//        final List<ETVPerHouseholdComputationResult> rl = Arrays.asList(r1, r2);
+//        final String rlCSV = (new ETVPerHouseholdComputationResultsToCSV()).apply(rl);
+//      System.out.println(rlCSV);
+//        assertEquals(
+//              "\"house ID\",\"slope energy/HDD\",\"baseload energy\",\"R^2\",\"n\",\"efficiency gain if computed\"\n" +
+//              "\"1234\",1.2,5.4,0.8,63,\n" +
+//              "\"56\",7.89,0.1,0.6,532,1.23\n",
+//              rlCSV);
 
         // TODO
 

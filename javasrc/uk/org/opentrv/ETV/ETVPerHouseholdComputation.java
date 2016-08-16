@@ -1,6 +1,7 @@
 package uk.org.opentrv.ETV;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.SortedMap;
 import java.util.TimeZone;
 import java.util.function.Function;
@@ -88,7 +89,16 @@ public interface ETVPerHouseholdComputation
         Float getRatiokWhPerHDDNotSmartOverSmart();
         }
 
+    /**Helper sort class for ETVPerHouseholdComputationResult (by house ID). */
+    public static final class ResultSortByHouseID implements Comparator<ETVPerHouseholdComputationResult>
+        {
+        @Override
+        public int compare(final ETVPerHouseholdComputationResult o1, final ETVPerHouseholdComputationResult o2)
+            { return(o1.getHouseID().compareTo(o2.getHouseID())); }
+        }
+
     /**Convert the input data to the output result; never null. */
+    @Override
     ETVPerHouseholdComputationResult apply(ETVPerHouseholdComputationInput in)
         throws IllegalArgumentException;
     }
