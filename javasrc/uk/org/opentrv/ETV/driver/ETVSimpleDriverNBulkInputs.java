@@ -51,7 +51,14 @@ public final class ETVSimpleDriverNBulkInputs
         catch(final IOException e) { throw new RuntimeException(e); }
         }
 
-    /**Process from specified input to output directories; sort result by house ID for consistency. */
+    /**Process from specified input to output directories; sort result by house ID for consistency.
+     * The input and output directories can be the same if required;
+     * the file names for input and output are all distinct.
+     *
+     * @param inDir  directory containing input files, must exist and be readable; never null
+     * @param outDir  directory for output files, must exist and be writeable; never null
+     * @throws IOException in case of difficulty
+     */
     public static void doComputation(final File inDir, final File outDir) throws IOException
         {
         if(null == inDir) { throw new IllegalArgumentException(); }
@@ -68,8 +75,8 @@ public final class ETVSimpleDriverNBulkInputs
         Collections.sort(rl, new ETVPerHouseholdComputation.ResultSortByHouseID());
         final String rlCSV = (new ETVPerHouseholdComputationResultsToCSV()).apply(rl);
         final File basicResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_FILE_BASIC_STATS);
-System.out.println(rlCSV);
-        try(final FileWriter w = new FileWriter(basicResultFile))
-            { w.write(rlCSV); }
+//System.out.println(rlCSV);
+        // Write output...
+        try(final FileWriter w = new FileWriter(basicResultFile)) { w.write(rlCSV); }
         }
     }
