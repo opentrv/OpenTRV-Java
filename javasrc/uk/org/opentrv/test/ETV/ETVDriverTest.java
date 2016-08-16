@@ -39,6 +39,6 @@ public class ETVDriverTest
         basicResultFile.delete(); // Make sure no output file.
         assertFalse("output file should not yet exist", basicResultFile.isFile());
         ETVSimpleDriverNBulkInputs.doComputation(inDir, outDir);
-        assertTrue("output file should exist", basicResultFile.isFile());
+        assertTrue("output file should now exist", basicResultFile.isFile());
         }
     }
