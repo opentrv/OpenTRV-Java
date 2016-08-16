@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Collections;
@@ -66,15 +67,9 @@ public final class ETVSimpleDriverNBulkInputs
         final List<ETVPerHouseholdComputationResult> rl = mhi.values().stream().map(ETVPerHouseholdComputationSimpleImpl.getInstance()).collect(Collectors.toList());
         Collections.sort(rl, new ETVPerHouseholdComputation.ResultSortByHouseID());
         final String rlCSV = (new ETVPerHouseholdComputationResultsToCSV()).apply(rl);
-//      System.out.println(rlCSV);
-//        assertEquals(
-//              "\"house ID\",\"slope energy/HDD\",\"baseload energy\",\"R^2\",\"n\",\"efficiency gain if computed\"\n" +
-//              "\"1234\",1.2,5.4,0.8,63,\n" +
-//              "\"56\",7.89,0.1,0.6,532,1.23\n",
-//              rlCSV);
-
-
-        // TODO
-
+        final File basicResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_FILE_BASIC_STATS);
+System.out.println(rlCSV);
+        try(final FileWriter w = new FileWriter(basicResultFile))
+            { w.write(rlCSV); }
         }
     }
