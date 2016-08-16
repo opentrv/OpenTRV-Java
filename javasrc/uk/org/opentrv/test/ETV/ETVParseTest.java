@@ -45,17 +45,21 @@ public class ETVParseTest
         assertEquals(0, new NBulkKWHParseByID(1002, new StringReader(sampleN1)).getKWhByLocalDay().size());
         }
 
-    /**Return a stream for the ETV (ASCII) sample bulk kWh consumption data; never null. */
-    public static InputStream getNBulk1CSVStream()
-        { return(ETVParseTest.class.getResourceAsStream("N-bulk-data-format-sample.csv")); }
+    /**Read ASCII7 text resource from given class as Reader. */
+    public static Reader getASCIIResourceReader(final Class<?> clazz, final String path) throws IOException
+        { return(new InputStreamReader(clazz.getResourceAsStream(path), "ASCII7")); }
+    /**Read ASCII7 text resource from given class as Reader, wrapping IOException as RuntimeException. */
+    public static Reader getASCIIResourceReaderRE(final Class<?> clazz, final String path)
+        { try { return(getASCIIResourceReader(clazz, path)); } catch(final IOException e) { throw new RuntimeException(e); } }
+    /**Get Supplier of Readers of given ASCII7 text resource from given class. */
+    public static Supplier<Reader> getASCIIResourceReaderSupplier(final Class<?> clazz, final String path)
+        { return(() -> getASCIIResourceReaderRE(clazz, path)); }
+
     /**Return a Reader for the ETV sample bulk HDD data for EGLL; never null. */
     public static Reader getNBulk1CSVReader() throws IOException
-        { return(new InputStreamReader(getNBulk1CSVStream(), "ASCII7")); }
-    /**Return a Reader for the ETV sample bulk HDD data for EGLL; never null. */
-    public static Reader getNBulk1CSVReaderRE()
-        { try { return(getNBulk1CSVReader()); } catch(final IOException e) { throw new RuntimeException(e); } }
+        { return(getASCIIResourceReader(ETVParseTest.class, "N-bulk-data-format-sample.csv")); }
     /**Return a Supplier<Reader> for the ETV sample bulk HDD data for EGLL; never null. */
-    public static Supplier<Reader> NBulk1CSVReaderSupplier = () -> getNBulk1CSVReaderRE();
+    public static Supplier<Reader> NBulk1CSVReaderSupplier = getASCIIResourceReaderSupplier(ETVParseTest.class, "N-bulk-data-format-sample.csv");
 
     /**Test bulk gas meter parse on a more substantive sample. */
     @Test public void testNBulkParse() throws IOException
