@@ -35,6 +35,9 @@ house_id,received_timestamp,device_timestamp,energy,temperature
  * <li>energy is assumed to be in kWh (cumulative)</li>
  * <li>device_timestamp is assumed to be in UTC seconds</li>
  * </ul>
+ * <p>
+ * Allows/skips header rows after the first,
+ * eg to allow data files to be concatenated by date.
  */
 public final class NBulkKWHParseByID implements ETVPerHouseholdComputationInputKWh
     {
@@ -70,6 +73,8 @@ public final class NBulkKWHParseByID implements ETVPerHouseholdComputationInputK
             String row;
             while(null != (row = l.readLine()))
                 {
+                // Allow extra header lines/rows to be skipped silently.
+                if(row.startsWith("house_id,")) { continue; }
                 final String rf[] = row.split(",");
                 if(rf.length < 4) { throw new IOException("too few fields in row " + l.getLineNumber()); }
                 result.add(Integer.parseInt(rf[0], 10));
@@ -148,8 +153,8 @@ public final class NBulkKWHParseByID implements ETVPerHouseholdComputationInputK
             latestDeviceTimestamp.setTime(new Date(0));
             while(null != (row = l.readLine()))
                 {
-                // Explicitly skip repeats of the header line (at least starting with the correct field).
-                if("house_id,".startsWith(row)) { continue; }
+                // Allow extra header lines/rows to be skipped silently.
+                if(row.startsWith("house_id,")) { continue; }
                 // Now split into columns.
                 final String rf[] = row.split(",");
                 if(rf.length < 4) { throw new IOException("too few fields in row " + l.getLineNumber()); }

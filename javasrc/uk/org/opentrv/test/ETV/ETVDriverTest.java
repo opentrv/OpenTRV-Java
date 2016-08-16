@@ -26,7 +26,7 @@ public class ETVDriverTest
         final File inDir = new File(new File(homeDir), fixedDataSetDir);
         assumeTrue(inDir.isDirectory());
         final File outDir = new File(new File(homeDir), fixedDataSetOutDir);
-        ETVSimpleDriverNBulkInputs.doComputation(inDir, outDir);
+//        ETVSimpleDriverNBulkInputs.doComputation(inDir, outDir);
 
 //        final List<ETVPerHouseholdComputationResult> rl = Arrays.asList(r1, r2);
 //        final String rlCSV = (new ETVPerHouseholdComputationResultsToCSV()).apply(rl);
