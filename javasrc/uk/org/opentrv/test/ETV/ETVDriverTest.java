@@ -105,17 +105,25 @@ public class ETVDriverTest
             try(final FileWriter w = new FileWriter(new File(inDir, ETVSimpleDriverNBulkInputs.INPUT_FILE_NKWH)))
                 { cpReaderToWriter(r, w); }
             }
-        // Do the computation...
+        // Ensure no old result files hanging around...
         final File basicResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_FILE_BASIC_STATS);
         basicResultFile.delete(); // Make sure no output file.
         assertFalse("output file should not yet exist", basicResultFile.isFile());
+        final File basicFilteredResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_FILE_FILTERED_BASIC_STATS);
+        basicFilteredResultFile.delete(); // Make sure no output file.
+        assertFalse("output filtered file should not yet exist", basicFilteredResultFile.isFile());
+        // Do the computation...
         ETVSimpleDriverNBulkInputs.doComputation(inDir, outDir);
+        // Check results.
         assertTrue("output file should now exist", basicResultFile.isFile());
+        assertTrue("output filtered file should now exist", basicFilteredResultFile.isFile());
         final String expected =
             "\"house ID\",\"slope energy/HDD\",\"baseload energy\",\"R^2\",\"n\",\"efficiency gain if computed\"\n" +
             "\"5013\",1.5532478,1.3065631,0.62608224,156,\n";
-        final String actual = new String(Files.readAllBytes(basicResultFile.toPath()), "ASCII7");
-        assertEquals(expected, actual);
+        final String actualBasic = new String(Files.readAllBytes(basicResultFile.toPath()), "ASCII7");
+        assertEquals(expected, actualBasic);
+        final String actualFilteredBasic = new String(Files.readAllBytes(basicFilteredResultFile.toPath()), "ASCII7");
+        assertEquals(expected, actualFilteredBasic);
         }
 
     /**Input directory in home dir for testWithExternalDataSet(). */
@@ -139,10 +147,18 @@ public class ETVDriverTest
         final File outDir = new File(new File(homeDir), fixedDataSetOutDir);
         assertTrue(outDir.isDirectory());
         assertTrue(outDir.canWrite());
+        // Ensure no old result files hanging around...
         final File basicResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_FILE_BASIC_STATS);
         basicResultFile.delete(); // Make sure no output file.
         assertFalse("output file should not yet exist", basicResultFile.isFile());
+        final File basicFilteredResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_FILE_FILTERED_BASIC_STATS);
+        basicFilteredResultFile.delete(); // Make sure no output file.
+        assertFalse("output filtered file should not yet exist", basicFilteredResultFile.isFile());
+        // Do the computation.
         ETVSimpleDriverNBulkInputs.doComputation(inDir, outDir);
+        // Check results.
         assertTrue("output file should now exist", basicResultFile.isFile());
+        assertTrue("output filtered file should now exist", basicFilteredResultFile.isFile());
+        System.out.println("Written to " + outDir);
         }
     }
