@@ -28,6 +28,24 @@ public final class CommonSimpleResultFilters
     private CommonSimpleResultFilters() { /* Prevent instance instantiation. */ }
 
     /**True if the HDDMetrics are non-null. */
-    public static final Predicate<ETVPerHouseholdComputationResult> hasHDDMetrics = 
+    public static final Predicate<ETVPerHouseholdComputationResult> hasHDDMetrics =
         r -> (null != r.getHDDMetrics());
+
+    /**Minimum typically-acceptable (non-NaN) value for R^2 for daily-sampled data.
+     * This is lower than for weekly-sampled data for typical households.
+     */
+    public static final float MIN_RSQAURED_DAILY_DATA = 0.15f;
+
+    /**True if the HDDMetrics R^2 value is non-NaN and reasonable for daily-sampled data. */
+    public static final Predicate<ETVPerHouseholdComputationResult> isOKDailyRSq =
+        r -> ((null != r.getHDDMetrics()) && (r.getHDDMetrics().rsqFit > MIN_RSQAURED_DAILY_DATA));
+
+    /**Common result filter combo for daily-sampled data.
+     * Combines common set of predicates.
+     * <p>
+     * Rejects items with no HDD metrics at all
+     * or with very poor or NaN r^2 by daily-data standards.
+     */
+    public static final Predicate<ETVPerHouseholdComputationResult> goodDailyDataResults =
+        hasHDDMetrics.and(isOKDailyRSq);
     }

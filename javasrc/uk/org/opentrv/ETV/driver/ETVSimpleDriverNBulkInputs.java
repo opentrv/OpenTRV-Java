@@ -31,6 +31,7 @@ import uk.org.opentrv.ETV.ETVPerHouseholdComputation;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationInput;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationResult;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputationSimpleImpl;
+import uk.org.opentrv.ETV.filter.CommonSimpleResultFilters;
 import uk.org.opentrv.ETV.output.ETVPerHouseholdComputationResultsToCSV;
 import uk.org.opentrv.ETV.parse.NBulkInputs;
 
@@ -50,6 +51,11 @@ public final class ETVSimpleDriverNBulkInputs
 
     /**Name within output directory of basic per-household stats as ASCII7 CSV (no efficacy computation). */
     public static final String OUTPUT_FILE_BASIC_STATS = "basicStatsOut.csv";
+    /**Name within output directory of filtered basic per-household stats as ASCII7 CSV (no efficacy computation).
+     * The filtering removes those entries that are outliers
+     * or have inadequate data points or no/poor correlation.
+     */
+    public static final String OUTPUT_FILE_FILTERED_BASIC_STATS = "basicStatsOut.csv";
 
     /**Gets a reader for the specified file; no checked exceptions. */
     private static Reader getReader(final File f)
@@ -86,12 +92,22 @@ public final class ETVSimpleDriverNBulkInputs
                         () -> getReader(new File(inDir, INPUT_FILE_NKWH)),
                         getReader(new File(inDir, INPUT_FILE_HDD)));
 
-        final List<ETVPerHouseholdComputationResult> rl = mhi.values().stream().map(ETVPerHouseholdComputationSimpleImpl.getInstance()).collect(Collectors.toList());
-        Collections.sort(rl, new ETVPerHouseholdComputation.ResultSortByHouseID());
-        final String rlCSV = (new ETVPerHouseholdComputationResultsToCSV()).apply(rl);
+        // Compute and output basic results.
+        final List<ETVPerHouseholdComputationResult> rlBasic = mhi.values().stream().map(ETVPerHouseholdComputationSimpleImpl.getInstance()).collect(Collectors.toList());
+        Collections.sort(rlBasic, new ETVPerHouseholdComputation.ResultSortByHouseID());
+        final String rlBasicCSV = (new ETVPerHouseholdComputationResultsToCSV()).apply(rlBasic);
         final File basicResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_FILE_BASIC_STATS);
 //System.out.println(rlCSV);
         // Write output...
-        try(final FileWriter w = new FileWriter(basicResultFile)) { w.write(rlCSV); }
+        try(final FileWriter w = new FileWriter(basicResultFile)) { w.write(rlBasicCSV); }
+        
+        // Compute and output basic *filtered* results.
+        final List<ETVPerHouseholdComputationResult> rlBasicFiltered = rlBasic.stream().filter(CommonSimpleResultFilters.goodDailyDataResults).collect(Collectors.toList());
+        Collections.sort(rlBasicFiltered, new ETVPerHouseholdComputation.ResultSortByHouseID());
+        final String rlBasicFilteredCSV = (new ETVPerHouseholdComputationResultsToCSV()).apply(rlBasic);
+        final File basicFilteredResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_FILE_FILTERED_BASIC_STATS);
+//System.out.println(rlCSV);
+        // Write output...
+        try(final FileWriter w = new FileWriter(basicFilteredResultFile)) { w.write(rlBasicFilteredCSV); }
         }
     }
