@@ -40,7 +40,7 @@ public final class CommonSimpleResultFilters
         r -> ((null != r.getHDDMetrics()) && (r.getHDDMetrics().rsqFit >= MIN_RSQAURED_DAILY_DATA));
 
     /**Minimum acceptable samples (n) for daily-sampled data for one data subset (control or normal).
-     * Use twice this for pre-segmented data.
+     * Use twice this for pre-segmented data, ie to cover minimal control and normal subsets.
      */
     public static final int MIN_N_DAILY_DATA = 7;
     /**True if the HDDMetrics n value is reasonable for daily-sampled data subset. */
