@@ -16,5 +16,5 @@ under the Licence.
 Author(s) / Copyright (s): Damon Hart-Davis 2016
 */
 
-/**Output of computations in machine- and human- readable formats. */
-package uk.org.opentrv.ETV.output;
+/**Filters for ETV processing, eg outliers, missing data, etc. */
+package uk.org.opentrv.ETV.filter;
