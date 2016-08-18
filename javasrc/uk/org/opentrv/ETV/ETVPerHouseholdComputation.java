@@ -76,18 +76,12 @@ public interface ETVPerHouseholdComputation
         float getBaseTemperatureAsFloat();
         }
 
-    /**Abstract input for running the computation for one household.
-     * This should have an implementation that is backed by
-     * plain-text CSV input data files,
-     * though these may need filtering, transforming, and cross-referencing.
+    /**Get map from calendar days to device status for segmentation (control/normal/other).
+     * This supports baseline/control vs normal operation comparisons,
+     * and also allows exclusion of dates where system status is abnormal.
      */
-    public interface ETVPerHouseholdComputationInput
-        extends ETVPerHouseholdComputationInputKWh, ETVPerHouseholdComputationInputHDD
+    public interface ETVPerHouseholdComputationSystemStatus
         {
-        /**Get unique house ID as alphanumeric String; never null. */
-        String getHouseID();
-        /**Timezone of household, to establish local midnight for HDD and kWh boundaries; never null. */
-        TimeZone getLocalTimeZoneForKWhAndHDD();
         /**Map from calendar days to device status for segmentation.
          * Days for which there are data,
          * but that do not count as either fully enabled or disabled,
@@ -95,9 +89,22 @@ public interface ETVPerHouseholdComputation
          * can be mapped to DontUse or can be omitted entirely.
          */
         SortedMap<Integer, SavingEnabledAndDataStatus> getOptionalEnabledAndUsableFlagsByLocalDay();
-        // TO BE DOCUMENTED
-//        SortedMap<Long, String> getOptionalJSONStatsByUTCTimestamp();
-//        SortedMap<String, Boolean> getJSONStatusValveElseBoilerControlByID();
+        }
+
+    /**Abstract input for running the computation for one household.
+     * This should have an implementation that is backed by
+     * plain-text CSV input data files,
+     * though these may need filtering, transforming, and cross-referencing.
+     */
+    public interface ETVPerHouseholdComputationInput
+        extends ETVPerHouseholdComputationInputKWh,
+                ETVPerHouseholdComputationInputHDD,
+                ETVPerHouseholdComputationSystemStatus
+        {
+        /**Get unique house ID as alphanumeric String; never null. */
+        String getHouseID();
+        /**Timezone of household, to establish local midnight for HDD and kWh boundaries; never null. */
+        TimeZone getLocalTimeZoneForKWhAndHDD();
         }
 
     /**Result of running the computation for one household.

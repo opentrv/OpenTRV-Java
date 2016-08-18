@@ -90,8 +90,6 @@ house_id,received_timestamp,device_timestamp,energy,temperature
             @Override public float getBaseTemperatureAsFloat() { return(STD_BASE_TEMP_C); }
             // Not implemented (null return values).
             @Override public SortedMap<Integer, SavingEnabledAndDataStatus> getOptionalEnabledAndUsableFlagsByLocalDay() { return(null); }
-//            @Override public SortedMap<Long, String> getOptionalJSONStatsByUTCTimestamp() { return(null); }
-//            @Override public SortedMap<String, Boolean> getJSONStatusValveElseBoilerControlByID() { return(null); }
             });
         }
 
