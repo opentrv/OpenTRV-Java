@@ -86,11 +86,18 @@ public interface ETVPerHouseholdComputation
         {
         /**Get unique house ID as alphanumeric String; never null. */
         String getHouseID();
-        // TO BE DOCUMENTED
-        SortedMap<Integer, SavingEnabledAndDataStatus> getOptionalEnabledAndUsableFlagsByLocalDay();
+        /**Timezone of household, to establish local midnight for HDD and kWh boundaries; never null. */
         TimeZone getLocalTimeZoneForKWhAndHDD();
-        SortedMap<Long, String> getOptionalJSONStatsByUTCTimestamp();
-        SortedMap<String, Boolean> getJSONStatusValveElseBoilerControlByID();
+        /**Map from calendar days to device status for segmentation.
+         * Days for which there are data,
+         * but that do not count as either fully enabled or disabled,
+         * or for which the data is excluded for some other reason (eg heating system repairs),
+         * can be mapped to DontUse or can be omitted entirely.
+         */
+        SortedMap<Integer, SavingEnabledAndDataStatus> getOptionalEnabledAndUsableFlagsByLocalDay();
+        // TO BE DOCUMENTED
+//        SortedMap<Long, String> getOptionalJSONStatsByUTCTimestamp();
+//        SortedMap<String, Boolean> getJSONStatusValveElseBoilerControlByID();
         }
 
     /**Result of running the computation for one household.
