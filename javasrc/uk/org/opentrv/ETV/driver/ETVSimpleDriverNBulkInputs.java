@@ -48,6 +48,8 @@ public final class ETVSimpleDriverNBulkInputs
     public static final String INPUT_FILE_HDD = "HDD.csv";
     /**Name within input directory of 'N' format kWh energy consumption CSV ASCII7 file. */
     public static final String INPUT_FILE_NKWH = "NkWh.csv";
+    /**Name within input directory of per-household system state CSV ASCII7 file. */
+    public static final String INPUT_FILE_STATUS = "status.csv";
 
     /**Name within output directory of basic per-household stats as ASCII7 CSV (no efficacy computation). */
     public static final String OUTPUT_FILE_BASIC_STATS = "basicStatsOut.csv";

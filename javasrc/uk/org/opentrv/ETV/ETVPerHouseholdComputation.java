@@ -76,28 +76,35 @@ public interface ETVPerHouseholdComputation
         float getBaseTemperatureAsFloat();
         }
 
+    /**Get map from calendar days to device status for segmentation (control/normal/other).
+     * This supports baseline/control vs normal operation comparisons,
+     * and also allows exclusion of dates where system status is abnormal.
+     */
+    public interface ETVPerHouseholdComputationSystemStatus
+        {
+        /**Map from calendar days (local midnight to local midnight) to device status for segmentation; null if not supported.
+         * Days for which there are data,
+         * but that do not count as either fully enabled or disabled,
+         * or for which the data is to be excluded for some other reason (eg heating system repairs),
+         * can be mapped to DontUse or can be omitted entirely.
+         */
+        SortedMap<Integer, SavingEnabledAndDataStatus> getOptionalEnabledAndUsableFlagsByLocalDay();
+        }
+
     /**Abstract input for running the computation for one household.
      * This should have an implementation that is backed by
      * plain-text CSV input data files,
      * though these may need filtering, transforming, and cross-referencing.
      */
     public interface ETVPerHouseholdComputationInput
-        extends ETVPerHouseholdComputationInputKWh, ETVPerHouseholdComputationInputHDD
+        extends ETVPerHouseholdComputationInputKWh,
+                ETVPerHouseholdComputationInputHDD,
+                ETVPerHouseholdComputationSystemStatus
         {
         /**Get unique house ID as alphanumeric String; never null. */
         String getHouseID();
-        /**Timezone of household, to establish local midnight for HDD and kWh boundaries; never null. */
-        TimeZone getLocalTimeZoneForKWhAndHDD();
-        /**Map from calendar days to device status for segmentation.
-         * Days for which there are data,
-         * but that do not count as either fully enabled or disabled,
-         * or for which the data is excluded for some other reason (eg heating system repairs),
-         * can be mapped to DontUse or can be omitted entirely.
-         */
-        SortedMap<Integer, SavingEnabledAndDataStatus> getOptionalEnabledAndUsableFlagsByLocalDay();
-        // TO BE DOCUMENTED
-//        SortedMap<Long, String> getOptionalJSONStatsByUTCTimestamp();
-//        SortedMap<String, Boolean> getJSONStatusValveElseBoilerControlByID();
+        /**Timezone of household, to establish local midnight for HDD and kWh and status boundaries; never null. */
+        TimeZone getLocalTimeZoneForDayBoundaries();
         }
 
     /**Result of running the computation for one household.
