@@ -32,13 +32,21 @@ import uk.org.opentrv.hdd.Util.HDDMetrics;
  * Typically used over one heating season,
  * or back-to-back heating seasons without significant changes in occupancy or heating season.
  * <p>
- * Reports on the change in slope of a linear regression of kWh/HDD for space-heating fuel.
+ * Reports on:
+ * <dl>
+ * <dt>simple</dt>
+ * <dd>the slope of a linear regression of kWh/HDD for space-heating fuel,
+ *     ie the basic heating efficiency independent of any interventions</dd>
+ * <dt>measure efficacy (optional)</dt>
+ * <dd>the change in slope of a linear regression of kWh/HDD for space-heating fuel,
+ *     ie the efficacy of the intervention vs controls</dd>
+ * <dl>
  * <p>
  * Note:
  * <ul>
  * <li>There must be no significant secondary heating.</li>
- * <li>The heating fuel can also be used for other purposed,
- *     eg gas for cooking and DHW (domestic hot water) as well as space heating.</li>
+ * <li>The heating fuel may also be used for other purposes,
+ *     eg gas for cooking and DHW (domestic hot water) as well as for space heating.</li>
  * </ul>
  */
 public interface ETVPerHouseholdComputation
