@@ -1,4 +1,4 @@
-HouseID,secondaryIDForConvenience,BoilerControllerOrRelayOrEmpty,Valve,Date,Status(0=off,1=normal,2=dontuse)
-5013,16WW,2d1a,414a,2016/07/01,1
-5013,16WW,2d1a,414a,2016/07/02,2
-5013,16WW,2d1a,414a,2016/07/01,1
+Date,Status(0=off,1=normal,2=dontuse),HouseID,secondaryIDForConvenience,BoilerControllerOrRelayOrEmpty,Valve,Valve,...
+2016/07/01,1,5013,16WW,2d1a,414a,0d49,0a45,3015,2d1a
+2016/07/02,2,5013,16WW,2d1a,414a,0d49,0a45,3015,2d1a
+2016/07/03,1,5013,16WW,2d1a,414a,0d49,0a45,3015,2d1a
