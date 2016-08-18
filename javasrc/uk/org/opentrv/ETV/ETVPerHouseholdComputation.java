@@ -103,7 +103,7 @@ public interface ETVPerHouseholdComputation
         {
         /**Get unique house ID as alphanumeric String; never null. */
         String getHouseID();
-        /**Timezone of household, to establish local midnight for HDD and kWh and status boundaries; never null. */
+        /**Timezone of household, to establish local midnight for HDD and kWh and system status boundaries; never null. */
         TimeZone getLocalTimeZoneForDayBoundaries();
         }
 
