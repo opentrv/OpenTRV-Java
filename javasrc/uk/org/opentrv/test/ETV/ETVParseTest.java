@@ -316,6 +316,8 @@ public class ETVParseTest
         // Parse single canonical-format log entry.
         final ValveLogParseResult sc = OTLogActivityParse.parseValveLog(new StringReader(cValveLogSample), DEFAULT_UK_TIMEZONE);
         assertNotNull(sc);
+        assertNotNull(sc.getDaysInWhichDataPresent());
+//        assertEquals(1, sc.getDaysInWhichDataPresent().size());
 
 
 
@@ -324,6 +326,8 @@ public class ETVParseTest
         // Parse single partially-decrypted-format log entry.
         final ValveLogParseResult spd = OTLogActivityParse.parseValveLog(new StringReader(pdValveLogSample), DEFAULT_UK_TIMEZONE);
         assertNotNull(spd);
+        assertNotNull(sc.getDaysInWhichDataPresent());
+//        assertEquals(1, sc.getDaysInWhichDataPresent().size());
 
 
 

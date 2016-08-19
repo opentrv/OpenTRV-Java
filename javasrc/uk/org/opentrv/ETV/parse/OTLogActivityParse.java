@@ -19,6 +19,7 @@ Author(s) / Copyright (s): Damon Hart-Davis 2016
 package uk.org.opentrv.ETV.parse;
 
 import java.io.IOException;
+import java.io.LineNumberReader;
 import java.io.Reader;
 import java.util.HashSet;
 import java.util.Set;
@@ -96,8 +97,27 @@ public final class OTLogActivityParse
         final Set<Integer> daysInWhichCallingForHeat = new HashSet<>();
         final Set<Integer> daysInWhichEnergySavingActive = new HashSet<>();
 
-        // TODO
+        final LineNumberReader lr = new LineNumberReader(r);
 
+        String line;
+        while(null != (line = lr.readLine()))
+            {
+            // Quietly ignore blank lines.
+            if(0 == line.length()) { continue; }
+
+            // Crudely deduce the line type from the first character.
+            final char firstChar = line.charAt(0);
+            final boolean isCanon = ('[' == firstChar);
+            if(!isCanon && ('\'' != firstChar))
+                {
+                System.err.println("Unrecognised valve log line type at line "+lr.getLineNumber()+ ": skipping");
+                continue;
+                }
+
+            // TODO
+
+
+            }
 
         return(new ValveLogParseResult(){
             @Override public Set<Integer> getDaysInWhichDataPresent() { return(daysInWhichDataPresent); }
