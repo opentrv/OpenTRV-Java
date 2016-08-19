@@ -289,6 +289,17 @@ public class ETVParseTest
         assertEquals("1002", mhi.get("1002").getHouseID());
         }
 
+    /**Single valve log entry in canonical format. */
+    public static final String cValveLogSample =
+        "[ \"2016-03-31T05:18:45Z\", \"\", {\"@\":\"3015\",\"+\":1,\"v|%\":0,\"tT|C\":14,\"tS|C\":4} ]";
+
+    /**Single valve log entry in partially-decrypted format. */
+    public static final String pdValveLogSample =
+        "'2016-05-12-11:21:45','111.11.11.1','cf 74 II II II II 20 0b 40 09 d8 59 0a e5 75 f3 13 57 a5 94 a2 3b e7 26 99 c4 5a 77 74 6a 6e 2c 5a c2 22 f6 b6 5e 0b 02 31 f2 09 45 57 d4 d9 92 3c 8e 45 95 63 65 5b a3 ff 2f 3d 68 14 80','b''\\x00\\x10{\"tT|C\":21,\"tS|C\":1''','\\x00\\x10{\"tT|C\":21,\"tS|C\":1'";
+
+    /**Default time zone assumed for data for UK based homes. */
+    public static final TimeZone DEFAULT_UK_TIMEZONE = TimeZone.getTimeZone("Europe/London");
+
     /**Test parse of OpenTRV valve log files for activity/status. */
     @Test public void testValveLogParse() throws IOException
         {
@@ -301,6 +312,21 @@ public class ETVParseTest
         assertTrue(e.getDaysInWhichDataPresent().isEmpty());
         assertTrue(e.getDaysInWhichCallingForHeat().isEmpty());
         assertTrue(e.getDaysInWhichEnergySavingActive().isEmpty());
+
+        // Parse single canonical-format log entry.
+        final ValveLogParseResult sc = OTLogActivityParse.parseValveLog(new StringReader(cValveLogSample), DEFAULT_UK_TIMEZONE);
+        assertNotNull(sc);
+
+
+
+
+
+        // Parse single partially-decrypted-format log entry.
+        final ValveLogParseResult spd = OTLogActivityParse.parseValveLog(new StringReader(pdValveLogSample), DEFAULT_UK_TIMEZONE);
+        assertNotNull(spd);
+
+
+
 
 
         }
