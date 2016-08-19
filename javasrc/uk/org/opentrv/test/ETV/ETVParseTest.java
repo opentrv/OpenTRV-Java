@@ -31,6 +31,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.TimeZone;
 import java.util.function.Supplier;
 
 import org.junit.Test;
@@ -38,6 +39,8 @@ import org.junit.Test;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationInput;
 import uk.org.opentrv.ETV.parse.NBulkInputs;
 import uk.org.opentrv.ETV.parse.NBulkKWHParseByID;
+import uk.org.opentrv.ETV.parse.OTLogActivityParse;
+import uk.org.opentrv.ETV.parse.OTLogActivityParse.ValveLogParseResult;
 import uk.org.opentrv.hdd.Util;
 import uk.org.opentrv.test.hdd.DDNExtractorTest;
 
@@ -284,5 +287,21 @@ public class ETVParseTest
         assertTrue(mhi.containsKey("1002"));
         assertEquals("1001", mhi.get("1001").getHouseID());
         assertEquals("1002", mhi.get("1002").getHouseID());
+        }
+
+    /**Test parse of OpenTRV valve log files for activity/status. */
+    @Test public void testValveLogParse() throws IOException
+        {
+        // Empty source should produce empty (not non-null) result.
+        final ValveLogParseResult e = OTLogActivityParse.parseValveLog(new StringReader(""), TimeZone.getDefault());
+        assertNotNull(e);
+        assertNotNull(e.getDaysInWhichDataPresent());
+        assertNotNull(e.getDaysInWhichCallingForHeat());
+        assertNotNull(e.getDaysInWhichEnergySavingActive());
+        assertTrue(e.getDaysInWhichDataPresent().isEmpty());
+        assertTrue(e.getDaysInWhichCallingForHeat().isEmpty());
+        assertTrue(e.getDaysInWhichEnergySavingActive().isEmpty());
+
+
         }
     }
