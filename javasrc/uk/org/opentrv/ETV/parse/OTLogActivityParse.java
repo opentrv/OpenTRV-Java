@@ -18,20 +18,25 @@ Author(s) / Copyright (s): Damon Hart-Davis 2016
 
 package uk.org.opentrv.ETV.parse;
 
-/**Process OpenTRV device log files for key activity..
- * This inspects valve (or valve controller, for split units) JSON log files for:
+/**Process OpenTRV device log files for key activity.
+ * This contains methods to inspect valve (or valve controller, for split units)
+ * JSON log files for:
  * <ul>
- * <li>Calling for heat</li>
- * <li>Energy savings operating (or not, eg for controls).
+ * <li>Calling for heat.</li>
+ * <li>Energy savings operating (or not, eg for controls).</li>
  * </ul>
  * <p>
- * These are summarised in calendar days, local midnight to local midnight.
+ * These are summarised to calendar days, local midnight to local midnight.
  * <p>
  * A couple of log format are supported:
  * <ul>
  * <li>The canonical [ timestamp, controller, map ] form (starts with [).</li>
  * <li>A partially-decrypted form used for data extraction during the ES1 trial (starts with ').</li>
  * </ul>
+ * <p>
+ * These are generally performed for one device at a time,
+ * then merged given the relationships between those devices
+ * (ie all those in one household).
  */
 public final class OTLogActivityParse
     {
