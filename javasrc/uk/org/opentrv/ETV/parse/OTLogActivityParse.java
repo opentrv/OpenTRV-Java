@@ -18,6 +18,8 @@ Author(s) / Copyright (s): Damon Hart-Davis 2016
 
 package uk.org.opentrv.ETV.parse;
 
+import java.util.Set;
+
 /**Process OpenTRV device log files for key activity.
  * This contains methods to inspect valve (or valve controller, for split units)
  * JSON log files for:
@@ -34,11 +36,26 @@ package uk.org.opentrv.ETV.parse;
  * <li>A partially-decrypted form used for data extraction during the ES1 trial (starts with ').</li>
  * </ul>
  * <p>
- * These are generally performed for one device at a time,
+ * These logs are generally performed for one device at a time,
  * then merged given the relationships between those devices
  * (ie all those in one household).
+ * <p>
+ * These routines are intended to be reasonably robust,
+ * eg in the face of possibly slightly mangled log data.
  */
 public final class OTLogActivityParse
     {
+    /**Result of parsing one valve (controller) log.
+     * There are several Sets of local calendar days
+     * (Integer YYYYMMDD values, from local midnight to local midnight in the household's timezone)
+     * indicating for example days in which there was log data
+     * and days in which energy savings were being applied (eg temperature setbacks).
+     */
+    public static interface ValveLogParseResult
+        {
+        Set<Integer> getDaysInWhichDataPresent();
+        Set<Integer> getDaysInWhichCallingForHeat();
+        Set<Integer> getDaysInWhichEnergySavingActive();
+        }
 
     }
