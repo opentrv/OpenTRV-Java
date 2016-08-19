@@ -323,8 +323,6 @@ System.out.println(sc.getDaysInWhichDataPresent());
 
 
 
-
-
 //        // Parse single partially-decrypted-format log entry.
 //        final ValveLogParseResult spd = OTLogActivityParse.parseValveLog(new StringReader(pdValveLogSample), DEFAULT_UK_TIMEZONE);
 //        assertNotNull(spd);
