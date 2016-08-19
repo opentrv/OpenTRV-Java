@@ -33,7 +33,7 @@ import org.junit.Test;
 
 import uk.org.opentrv.hdd.ContinuousDailyHDD;
 import uk.org.opentrv.hdd.DDNExtractor;
-import uk.org.opentrv.hdd.Util;
+import uk.org.opentrv.hdd.HDDUtil;
 
 /**Test handling of degreedays.net input data. */
 public class DDNExtractorTest
@@ -84,9 +84,9 @@ public class DDNExtractorTest
             assertEquals(18.5f, hdds.last().getBaseTemperatureAsFloat(), 0.01f);
             for(final ContinuousDailyHDD hdd : hdds)
                 { assertEquals(2, hdd.getMap().size()); }
-            assertEquals(15.5f, Util.findHDDWithClosestBaseTemp(hdds, 15.5f).getBaseTemperatureAsFloat(), 0.1f);
-            assertEquals(12.5f, Util.findHDDWithClosestBaseTemp(hdds, 12.5f).getBaseTemperatureAsFloat(), 0.1f);
-            assertEquals(16.5f, Util.findHDDWithClosestBaseTemp(hdds, 16.5f).getBaseTemperatureAsFloat(), 0.1f);
+            assertEquals(15.5f, HDDUtil.findHDDWithClosestBaseTemp(hdds, 15.5f).getBaseTemperatureAsFloat(), 0.1f);
+            assertEquals(12.5f, HDDUtil.findHDDWithClosestBaseTemp(hdds, 12.5f).getBaseTemperatureAsFloat(), 0.1f);
+            assertEquals(16.5f, HDDUtil.findHDDWithClosestBaseTemp(hdds, 16.5f).getBaseTemperatureAsFloat(), 0.1f);
             }
         }
 
@@ -125,8 +125,8 @@ public class DDNExtractorTest
         {
         final Calendar i1 = Calendar.getInstance();
         i1.set(2014, 4, 26);
-        assertEquals(Integer.valueOf(20140526), Util.keyFromDate(i1));
-        final Calendar i2 = Util.dateFromKey(20140525);
+        assertEquals(Integer.valueOf(20140526), HDDUtil.keyFromDate(i1));
+        final Calendar i2 = HDDUtil.dateFromKey(20140525);
         assertEquals(2014, i2.get(Calendar.YEAR));
         assertEquals(4, i2.get(Calendar.MONTH));
         assertEquals(25, i2.get(Calendar.DATE));

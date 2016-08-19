@@ -41,8 +41,8 @@ import uk.org.opentrv.hdd.ConsumptionHDDTuple;
 import uk.org.opentrv.hdd.ContinuousDailyHDD;
 import uk.org.opentrv.hdd.DDNExtractor;
 import uk.org.opentrv.hdd.MeterReadingsExtractor;
-import uk.org.opentrv.hdd.Util;
-import uk.org.opentrv.hdd.Util.HDDMetrics;
+import uk.org.opentrv.hdd.HDDUtil;
+import uk.org.opentrv.hdd.HDDUtil.HDDMetrics;
 import uk.org.opentrv.test.ETV.ETVParseTest;
 
 public class CalcTest
@@ -52,7 +52,7 @@ public class CalcTest
         {
         try
             {
-            Util.combineMeterReadingsWithHDD(null, null, rnd.nextBoolean());
+            HDDUtil.combineMeterReadingsWithHDD(null, null, rnd.nextBoolean());
             fail("should reject bad arguments");
             }
         catch(final IllegalArgumentException e) { /* expected */ }
@@ -84,7 +84,7 @@ public class CalcTest
     @Test
     public void testCombineMeterReadingsWithHDD() throws Exception
         {
-        final Collection<ConsumptionHDDTuple> ds1eve = Util.combineMeterReadingsWithHDD(
+        final Collection<ConsumptionHDDTuple> ds1eve = HDDUtil.combineMeterReadingsWithHDD(
                 MeterReadingsExtractor.extractMeterReadings(new StringReader(minReadingsSample)),
                 DDNExtractor.extractForBaseTemperature(new StringReader(sampleHDD), 12.5f),
                 true);
@@ -94,7 +94,7 @@ public class CalcTest
         assertEquals(1.1+1.9+1.2+2.4+3.8+2.6+2, ds1eve.iterator().next().hdd, 0.0001);
         assertEquals(2552-2549, ds1eve.iterator().next().consumption, 0.0001);
 
-        final Collection<ConsumptionHDDTuple> ds2eve = Util.combineMeterReadingsWithHDD(
+        final Collection<ConsumptionHDDTuple> ds2eve = HDDUtil.combineMeterReadingsWithHDD(
                 MeterReadingsExtractor.extractMeterReadings(new StringReader(minReadingsSample)),
                 DDNExtractor.extractForBaseTemperature(new StringReader(sampleHDD), 12.5f),
                 false);
@@ -110,14 +110,14 @@ public class CalcTest
         final SortedMap<Integer, Double> trimmedMeterReadings = allMeterReadings.tailMap(hdd.getMap().firstKey()).headMap(hdd.getMap().lastKey());
         assertEquals(160, trimmedMeterReadings.size());
         // Compute as if for evening readings.
-        final SortedSet<ConsumptionHDDTuple> readingsWithHDDpm = Util.combineMeterReadingsWithHDD(
+        final SortedSet<ConsumptionHDDTuple> readingsWithHDDpm = HDDUtil.combineMeterReadingsWithHDD(
                 trimmedMeterReadings,
                 hdd,
                 true);
         assertEquals(159, readingsWithHDDpm.size());
-        final SortedSet<ConsumptionHDDTuple> normalisedpm = Util.normalisedMeterReadingsWithHDD(readingsWithHDDpm, 11.1f);
+        final SortedSet<ConsumptionHDDTuple> normalisedpm = HDDUtil.normalisedMeterReadingsWithHDD(readingsWithHDDpm, 11.1f);
         // Compute metrics over entire (pm) data set.
-        final HDDMetrics metricspm = Util.computeHDDMetrics(normalisedpm);
+        final HDDMetrics metricspm = HDDUtil.computeHDDMetrics(normalisedpm);
         assertNotNull(metricspm);
 //        System.out.println("From " + trimmedMeterReadings.firstKey() + " to " + trimmedMeterReadings.lastKey());
 //        System.out.println("PM metrics: "+metricspm);
@@ -126,13 +126,13 @@ public class CalcTest
         assertEquals("R^2", 0.8f, metricspm.rsqFit, 0.1f);
 
         // Recompute as if for morning readings.
-        final SortedSet<ConsumptionHDDTuple> normalisedam = Util.normalisedMeterReadingsWithHDD(Util.combineMeterReadingsWithHDD(
+        final SortedSet<ConsumptionHDDTuple> normalisedam = HDDUtil.normalisedMeterReadingsWithHDD(HDDUtil.combineMeterReadingsWithHDD(
                 trimmedMeterReadings,
                 hdd,
                 false), 11.1f);
         assertEquals(159, normalisedam.size());
         // Compute metrics over entire (am) data set.
-        final HDDMetrics metricsam = Util.computeHDDMetrics(normalisedam);
+        final HDDMetrics metricsam = HDDUtil.computeHDDMetrics(normalisedam);
 //        System.out.println("AM metrics: "+metricsam);
 //        System.out.println("R^2 pm = " + metrics.rsqFit + " vs am " + metricsam.rsqFit);
         assertTrue("evening readings should be a better fit (higher R^2)", metricsam.rsqFit < metricspm.rsqFit);
@@ -147,7 +147,7 @@ public class CalcTest
                 {
                 final SortedSet<ConsumptionHDDTuple> data = pm ? normalisedpm : normalisedam;
                 final SortedSet<ConsumptionHDDTuple> dataFiltered = data.tailSet(startKey).headSet(endKey);
-                final HDDMetrics metrics = Util.computeHDDMetrics(dataFiltered);
+                final HDDMetrics metrics = HDDUtil.computeHDDMetrics(dataFiltered);
 //                System.out.print(pm ? "PM readings: " : "AM readings: ");
 //                System.out.println(metrics);
                 assertEquals("slope ~ 2.3kWh/HDD12.5", 2.3f, metrics.slopeEnergyPerHDD, 0.1f);
@@ -168,9 +168,9 @@ public class CalcTest
                 final int end = datum.endReadingDateYYYYMMDD;
                 final int endMonth = (end / 100) % 100;
                 final boolean isHeatingSeasonEndMonth = ChangeFinder.isTypicallyUKHeatingSeasonMonth(endMonth);
-                final Calendar tmpC = Util.dateFromKey(end);
+                final Calendar tmpC = HDDUtil.dateFromKey(end);
                 tmpC.add(Calendar.WEEK_OF_YEAR, -weeksWindow);
-                final int start = Util.keyFromDate(tmpC);
+                final int start = HDDUtil.keyFromDate(tmpC);
 
                 final ConsumptionHDDTuple startKey = new ConsumptionHDDTuple(start);
                 final ConsumptionHDDTuple endKey =  new ConsumptionHDDTuple(end);
@@ -183,7 +183,7 @@ public class CalcTest
                     if(isHeatingSeasonEndMonth && (0 == w)) { ++availableSmallWindows; }
 //                    System.out.print("data points from " + dataFiltered.first().endReadingDateYYYYMMDD + " to " + dataFiltered.last().endReadingDateYYYYMMDD + ": ");
                     final HDDMetrics metrics;
-                    try { metrics = Util.computeHDDMetrics(dataFiltered); }
+                    try { metrics = HDDUtil.computeHDDMetrics(dataFiltered); }
                     catch(final IllegalArgumentException e)
                         {
                         System.out.println("CANNOT COMPUTE");
@@ -224,11 +224,11 @@ public class CalcTest
     @Test
     public void testCombineMeterReadingsWithHDDForETV201602() throws Exception
         {
-        final Collection<ConsumptionHDDTuple> ds = Util.combineMeterReadingsWithHDD(
+        final Collection<ConsumptionHDDTuple> ds = HDDUtil.combineMeterReadingsWithHDD(
             MeterReadingsExtractor.extractMeterReadings(getETVKWh201602CSVReader(), true),
             DDNExtractor.extractSimpleHDD(DDNExtractorTest.getETVEGLLHDD201602CSVReader(), 15.5f),
             true);
-        final HDDMetrics metrics = Util.computeHDDMetrics(ds);
+        final HDDMetrics metrics = HDDUtil.computeHDDMetrics(ds);
         System.out.println(metrics);
         assertEquals("slope ~ 1.5kWh/HDD12.5", 1.5f, metrics.slopeEnergyPerHDD, 0.1f);
         assertEquals("baseline usage ~ 5.2kWh/d", 5.2f, metrics.interceptBaseline, 0.1f);
@@ -239,11 +239,11 @@ public class CalcTest
     @Test
     public void testCombineMeterReadingsWithHDDForETV201603() throws Exception
         {
-        final Collection<ConsumptionHDDTuple> ds = Util.combineMeterReadingsWithHDD(
+        final Collection<ConsumptionHDDTuple> ds = HDDUtil.combineMeterReadingsWithHDD(
             MeterReadingsExtractor.extractMeterReadings(getETVKWh201603CSVReader(), true),
             DDNExtractor.extractSimpleHDD(DDNExtractorTest.getETVEGLLHDD201603CSVReader(), 15.5f),
             true);
-        final HDDMetrics metrics = Util.computeHDDMetrics(ds);
+        final HDDMetrics metrics = HDDUtil.computeHDDMetrics(ds);
         System.out.println(metrics);
         assertEquals("slope ~ 1.7kWh/HDD12.5", 1.7f, metrics.slopeEnergyPerHDD, 0.1f);
         assertEquals("baseline usage ~ 0.7kWh/d", 0.7f, metrics.interceptBaseline, 0.1f);
@@ -254,23 +254,23 @@ public class CalcTest
     @Test
     public void testGetPreviousKeyDate()
         {
-        assertEquals(20111231, Util.getPreviousKeyDate(20120101).intValue()); // Around year end.
-        assertEquals(20150228, Util.getPreviousKeyDate(20150301).intValue()); // End of Feb.
-        assertEquals(20160229, Util.getPreviousKeyDate(20160301).intValue()); // End of Feb.
-        assertEquals(20160326, Util.getPreviousKeyDate(20160327).intValue()); // Around DST change.
-        assertEquals(20160327, Util.getPreviousKeyDate(20160328).intValue()); // Around DST change.
-        assertEquals(20160328, Util.getPreviousKeyDate(20160329).intValue()); // Around DST change.
+        assertEquals(20111231, HDDUtil.getPreviousKeyDate(20120101).intValue()); // Around year end.
+        assertEquals(20150228, HDDUtil.getPreviousKeyDate(20150301).intValue()); // End of Feb.
+        assertEquals(20160229, HDDUtil.getPreviousKeyDate(20160301).intValue()); // End of Feb.
+        assertEquals(20160326, HDDUtil.getPreviousKeyDate(20160327).intValue()); // Around DST change.
+        assertEquals(20160327, HDDUtil.getPreviousKeyDate(20160328).intValue()); // Around DST change.
+        assertEquals(20160328, HDDUtil.getPreviousKeyDate(20160329).intValue()); // Around DST change.
         }
 
     /**Test some date arithmetic. */
     @Test
     public void testDateDiff()
         {
-        assertEquals(0, Util.daysBetweenDateKeys(20120101, 20120101));
-        assertEquals(1, Util.daysBetweenDateKeys(20120101, 20120102));
-        assertEquals(2, Util.daysBetweenDateKeys(20120101, 20120103));
-        assertEquals(31, Util.daysBetweenDateKeys(20120101, 20120201));
-        assertEquals("must work across DST boundary", 1, Util.daysBetweenDateKeys(20070324, 20070325));
+        assertEquals(0, HDDUtil.daysBetweenDateKeys(20120101, 20120101));
+        assertEquals(1, HDDUtil.daysBetweenDateKeys(20120101, 20120102));
+        assertEquals(2, HDDUtil.daysBetweenDateKeys(20120101, 20120103));
+        assertEquals(31, HDDUtil.daysBetweenDateKeys(20120101, 20120201));
+        assertEquals("must work across DST boundary", 1, HDDUtil.daysBetweenDateKeys(20070324, 20070325));
         }
 
     /**Test basic change finding. */

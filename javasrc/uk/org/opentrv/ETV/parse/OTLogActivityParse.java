@@ -19,10 +19,20 @@ Author(s) / Copyright (s): Damon Hart-Davis 2016
 package uk.org.opentrv.ETV.parse;
 
 import java.io.IOException;
+import java.io.LineNumberReader;
 import java.io.Reader;
+import java.time.Instant;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TimeZone;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+
+import uk.org.opentrv.hdd.HDDUtil;
 
 /**Process OpenTRV device log files for key activity.
  * This contains methods to inspect valve (or valve controller, for split units)
@@ -79,6 +89,9 @@ public final class OTLogActivityParse
         Set<Integer> getDaysInWhichEnergySavingActive();
         }
 
+    /**UTC (GMT) timezone. */
+    private static final TimeZone TZ_UTC = TimeZone.getTimeZone("UTC");
+
     /**Parses 'c' and 'pd' format valve log files; never null.
      * Quite crude and so is able to parse either format.
      * <p>
@@ -96,8 +109,57 @@ public final class OTLogActivityParse
         final Set<Integer> daysInWhichCallingForHeat = new HashSet<>();
         final Set<Integer> daysInWhichEnergySavingActive = new HashSet<>();
 
-        // TODO
+        final LineNumberReader lr = new LineNumberReader(r);
 
+        String line;
+        while(null != (line = lr.readLine()))
+            {
+            // Quietly ignore blank lines.
+            if(0 == line.length()) { continue; }
+
+            // Crudely deduce the line type from the first character.
+            final char firstChar = line.charAt(0);
+            final boolean isCanon = ('[' == firstChar);
+            if(!isCanon && ('\'' != firstChar))
+                {
+                System.err.println("Unrecognised valve log line type at line "+lr.getLineNumber()+ ": skipping");
+                continue;
+                }
+
+            // Parse the (UTC) timestamp to get the underlying time.
+            // Also extract the JSON stats map/object.
+            final long time;
+            final JSONObject leafObject;
+            if(isCanon)
+                {
+                // Parse the input and prepare the new string output.
+                final Object o = JSONValue.parse(line); // FIXME: use retained parser for efficiency.
+                if(!(o instanceof JSONArray)) { System.err.println("input line is not a JSON array: " + line); continue; }
+                final JSONArray array = (JSONArray)o;
+                if(3 != array.size()) { System.err.println("input line JSON array has wrong number of elements: " + line); continue; }
+                if(!(array.get(0) instanceof String)) { System.err.println("input line timestamp ([0]) is not a string: " + line); continue; }
+                final String timeStamp = (String) array.get(0);
+                if(!(array.get(2) instanceof JSONObject)) { System.err.println("input line leaf JSON ([2]) is not an object/map: " + line); continue; }
+                leafObject = (JSONObject)array.get(2);
+                // Parse the timestamp...
+                final Instant instant = Instant.parse(timeStamp);
+                time = instant.getEpochSecond() * 1000L;
+                }
+            else
+                {
+                throw new Error("NOT IMPLEMENTED");
+                }
+
+            // Extract date for household's local timezone.
+            final Calendar cal = Calendar.getInstance(localTimeZoneForDayBoundaries);
+            cal.setTime(new Date(time));
+            final Integer key = HDDUtil.keyFromDate(cal);
+            daysInWhichDataPresent.add(key);
+
+            // TODO
+
+
+            }
 
         return(new ValveLogParseResult(){
             @Override public Set<Integer> getDaysInWhichDataPresent() { return(daysInWhichDataPresent); }

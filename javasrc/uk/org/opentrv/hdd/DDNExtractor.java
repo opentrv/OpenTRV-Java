@@ -86,7 +86,7 @@ public final class DDNExtractor
         while(null != (line = br.readLine()))
             {
             if(!line.startsWith("Date,")) { continue; }
-            final String fields[] = Util.splitCSVLine(line);
+            final String fields[] = HDDUtil.splitCSVLine(line);
             if((fields.length > 0) && "Date".equals(fields[0]))
                 {
                 final SortedSet<Float> result = new TreeSet<>();
@@ -115,7 +115,7 @@ public final class DDNExtractor
         throws IOException
         {
         final SortedSet<ContinuousDailyHDD> hdds = extractForAllBaseTemperatures(r);
-        final ContinuousDailyHDD hdd = Util.findHDDWithClosestBaseTemp(hdds, baseTemperature);
+        final ContinuousDailyHDD hdd = HDDUtil.findHDDWithClosestBaseTemp(hdds, baseTemperature);
         if(Math.abs(baseTemperature - hdd.getBaseTemperatureAsFloat()) > BASE_TEMP_EPSILON) { throw new IOException("close enough base temperature not found in data"); }
         return(hdd);
         }
@@ -142,7 +142,7 @@ public final class DDNExtractor
         while(null != (line = br.readLine()))
             {
             if(!line.startsWith("Date,")) { continue; }
-            final String fields[] = Util.splitCSVLine(line);
+            final String fields[] = HDDUtil.splitCSVLine(line);
             if((fields.length > 0) && "Date".equals(fields[0]))
                 {
                 baseTempByColumn.add(null);
@@ -170,7 +170,7 @@ public final class DDNExtractor
         final Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         while(null != (line = br.readLine()))
             {
-            final String fields[] = Util.splitCSVLine(line);
+            final String fields[] = HDDUtil.splitCSVLine(line);
             if(fields.length <= nTemps) { throw new IOException("malformed row (insufficient columms): " + line); }
             final int year;
             final int month;
@@ -203,7 +203,7 @@ public final class DDNExtractor
                 final Calendar prevDay = ((Calendar) cal.clone());
                 prevDay.set(year, month-1, day);
                 prevDay.add(Calendar.DAY_OF_MONTH, -1);
-                if(!Util.keyFromDate(prevDay).equals(pdkey))  { throw new IOException("date gap before row: " + line); }
+                if(!HDDUtil.keyFromDate(prevDay).equals(pdkey))  { throw new IOException("date gap before row: " + line); }
                 }
             for(int i = nTemps; --i >= 0; )
                 { m.get(i).put(key, values[i]); }
@@ -254,7 +254,7 @@ Date,HDD,% Estimated
             { if(line.startsWith("Date,")) { break; } }
         while(null != (line = br.readLine()))
             {
-            final String fields[] = Util.splitCSVLine(line);
+            final String fields[] = HDDUtil.splitCSVLine(line);
             if(fields.length < 2) { continue; }
             final float hdd;
             final int year;

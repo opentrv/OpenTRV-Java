@@ -33,8 +33,8 @@ import uk.org.opentrv.hdd.ChangeFinder.EfficiencyChangeEvent;
 import uk.org.opentrv.hdd.ContinuousDailyHDD;
 import uk.org.opentrv.hdd.DDNExtractor;
 import uk.org.opentrv.hdd.MeterReadingsExtractor;
-import uk.org.opentrv.hdd.Util;
-import uk.org.opentrv.hdd.Util.HDDMetrics;
+import uk.org.opentrv.hdd.HDDUtil;
+import uk.org.opentrv.hdd.HDDUtil.HDDMetrics;
 
 public class ChangeFinderTest
     {
@@ -43,11 +43,11 @@ public class ChangeFinderTest
         {
         final SortedSet<ContinuousDailyHDD> hdds = DDNExtractor.extractForAllBaseTemperatures(DDNExtractorTest.getLargeEGLLHDDCSVReader());
         final SortedMap<Integer, Double> meterReadings = MeterReadingsExtractor.extractMeterReadings(MeterReadingsExtractorTest.getLargeEGLLMeterCSVReader());
-        final ChangeFinder cf1 = new ChangeFinder(hdds, meterReadings, Util.DEFAULT_GAS_M3_TO_KWH);
+        final ChangeFinder cf1 = new ChangeFinder(hdds, meterReadings, HDDUtil.DEFAULT_GAS_M3_TO_KWH);
         final HDDMetrics basicMetrics = cf1.getBasicFullDataMetrics();
         assertNotNull(basicMetrics);
         assertEquals(2f, basicMetrics.slopeEnergyPerHDD, 0.5f);
-        final Util.OptimumFit bestFit = cf1.getBestFullDataFit();
+        final HDDUtil.OptimumFit bestFit = cf1.getBestFullDataFit();
         assertNotNull(bestFit);
 //        System.out.println(bestFit);
         assertEquals(2.3f, bestFit.bestFit.slopeEnergyPerHDD, 0.1f);
@@ -62,13 +62,13 @@ public class ChangeFinderTest
         {
         final SortedSet<ContinuousDailyHDD> hdds = DDNExtractor.extractForAllBaseTemperatures(DDNExtractorTest.getLargeEGLLHDDCSVReader());
         final SortedMap<Integer, Double> meterReadings = MeterReadingsExtractor.extractMeterReadings(MeterReadingsExtractorTest.getLargeEGLLMeterCSVReader());
-        final ChangeFinder cf1 = new ChangeFinder(hdds, meterReadings, Util.DEFAULT_GAS_M3_TO_KWH);
-        final SortedMap<Integer,Util.OptimumFit> byYear = cf1.getBestByCalendarYearFit();
+        final ChangeFinder cf1 = new ChangeFinder(hdds, meterReadings, HDDUtil.DEFAULT_GAS_M3_TO_KWH);
+        final SortedMap<Integer,HDDUtil.OptimumFit> byYear = cf1.getBestByCalendarYearFit();
         assertNotNull(byYear);
         assertEquals(4, byYear.size());
         assertEquals(2011, byYear.firstKey().intValue());
         assertEquals(2014, byYear.lastKey().intValue());
-        for(final Util.OptimumFit of : byYear.values())
+        for(final HDDUtil.OptimumFit of : byYear.values())
             {
             assertEquals(2.3f, of.bestFit.slopeEnergyPerHDD, 0.6f);
             assertEquals(0.83f, of.bestFit.rsqFit, 0.1f);
@@ -81,15 +81,15 @@ public class ChangeFinderTest
         {
         final SortedSet<ContinuousDailyHDD> hdds = DDNExtractor.extractForAllBaseTemperatures(DDNExtractorTest.getHugeEGLLHDDCSVReader());
         final SortedMap<Integer, Double> meterReadings = MeterReadingsExtractor.extractMeterReadings(MeterReadingsExtractorTest.getLargeEGLLMeterCSVReader());
-        final ChangeFinder cf1 = new ChangeFinder(hdds, meterReadings, Util.DEFAULT_GAS_M3_TO_KWH);
-        final SortedMap<Integer,Util.OptimumFit> byYear = cf1.getBestByCalendarYearFit();
+        final ChangeFinder cf1 = new ChangeFinder(hdds, meterReadings, HDDUtil.DEFAULT_GAS_M3_TO_KWH);
+        final SortedMap<Integer,HDDUtil.OptimumFit> byYear = cf1.getBestByCalendarYearFit();
         assertNotNull(byYear);
         assertEquals(6, byYear.size());
         assertEquals(2009, byYear.firstKey().intValue());
         assertEquals(2014, byYear.lastKey().intValue());
-        for(final Map.Entry<Integer, Util.OptimumFit> e : byYear.entrySet())
+        for(final Map.Entry<Integer, HDDUtil.OptimumFit> e : byYear.entrySet())
             {
-            final Util.OptimumFit of = e.getValue();
+            final HDDUtil.OptimumFit of = e.getValue();
             System.out.println("sample points in "+e.getKey() + " is " + of.bestFit.n);
             System.out.println("slope in "+e.getKey() + " is " + of.bestFit.slopeEnergyPerHDD);
             System.out.println("base load in "+e.getKey() + " is " + of.bestFit.interceptBaseline);
@@ -105,7 +105,7 @@ public class ChangeFinderTest
         {
         final SortedSet<ContinuousDailyHDD> hdds = DDNExtractor.extractForAllBaseTemperatures(DDNExtractorTest.getLargeEGLLHDDCSVReader());
         final SortedMap<Integer, Double> meterReadings = MeterReadingsExtractor.extractMeterReadings(MeterReadingsExtractorTest.getLargeEGLLMeterCSVReader());
-        final ChangeFinder cf1 = new ChangeFinder(hdds, meterReadings, Util.DEFAULT_GAS_M3_TO_KWH);
+        final ChangeFinder cf1 = new ChangeFinder(hdds, meterReadings, HDDUtil.DEFAULT_GAS_M3_TO_KWH);
         final List<EfficiencyChangeEvent> efficiencyChangeEvents = cf1.getEfficiencyChangeEvents(true);
         assertNotNull(efficiencyChangeEvents);
 //ECE merged/filtered: EfficiencyChangeEvent around 20130303 max 5 weeks, slope before 1.6029699 and after 2.6002436: [bad fit HDDMetrics [slope=1.2545134,baseload=12.843402,R^2=0.18699251,n=8], bad fit HDDMetrics [slope=1.2424847,baseload=12.2927065,R^2=0.18791814,n=8]]
@@ -128,7 +128,7 @@ public class ChangeFinderTest
         {
         final SortedSet<ContinuousDailyHDD> hdds = DDNExtractor.extractForAllBaseTemperatures(DDNExtractorTest.getHugeEGLLHDDCSVReader());
         final SortedMap<Integer, Double> meterReadings = MeterReadingsExtractor.extractMeterReadings(MeterReadingsExtractorTest.getLargeEGLLMeterCSVReader());
-        final ChangeFinder cf1 = new ChangeFinder(hdds, meterReadings, Util.DEFAULT_GAS_M3_TO_KWH);
+        final ChangeFinder cf1 = new ChangeFinder(hdds, meterReadings, HDDUtil.DEFAULT_GAS_M3_TO_KWH);
         assertEquals("should match expected (low) base temp", 11.0f, cf1.getBestFullDataFit().hddBaseTempC, 0.1f);
         final List<EfficiencyChangeEvent> efficiencyChangeEvents = cf1.getEfficiencyChangeEvents(true);
         assertNotNull(efficiencyChangeEvents);

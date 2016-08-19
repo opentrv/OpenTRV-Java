@@ -131,7 +131,7 @@ public final class MeterReadingsExtractor
         String line;
         while(null != (line = br.readLine()))
             {
-            final String fields[] = Util.splitCSVLine(line);
+            final String fields[] = HDDUtil.splitCSVLine(line);
             if(fields.length < 2) { continue; }
             final int year;
             final int month;

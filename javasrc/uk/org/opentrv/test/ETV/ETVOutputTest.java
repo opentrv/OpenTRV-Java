@@ -29,7 +29,7 @@ import org.junit.Test;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationResult;
 import uk.org.opentrv.ETV.output.ETVPerHouseholdComputationResultToCSV;
 import uk.org.opentrv.ETV.output.ETVPerHouseholdComputationResultsToCSV;
-import uk.org.opentrv.hdd.Util.HDDMetrics;
+import uk.org.opentrv.hdd.HDDUtil.HDDMetrics;
 
 public class ETVOutputTest
     {

@@ -32,9 +32,9 @@ import java.util.function.Supplier;
 
 
 /**Utility HDD methods. */
-public final class Util
+public final class HDDUtil
     {
-    private Util() { /* prevent instance creation */ }
+    private HDDUtil() { /* prevent instance creation */ }
 
     /**Default (UK) HDD base temperature in C. */
     public static final float DEFAULT_HDD_BASE_TEMP_C = 15.5f;
@@ -42,8 +42,8 @@ public final class Util
     /**Default conversion factor (for UK) gas m^3 readings to kWh. */
     public static final float DEFAULT_GAS_M3_TO_KWH = 11.1f;
 
-    /**Create Date from (non-null) YYYYMMDD Integer key; never null. */
-    public static Calendar dateFromKey(final Integer k)
+    /**Create Date from (non-null) YYYYMMDD Integer key in given timezone; never null. */
+    public static Calendar dateFromKey(final Integer k, final TimeZone tz)
         {
         if(null == k) { throw new IllegalArgumentException(); }
         final int ki = k.intValue();
@@ -54,12 +54,16 @@ public final class Util
         if((month < 0) || (month >= 12)) { throw new IllegalArgumentException(); }
         final int day = ki % 100;
         if((day < 1) || (day > 31)) { throw new IllegalArgumentException(); }
-        final Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        final Calendar cal = Calendar.getInstance(tz);
         cal.set(year, month, day);
         return(cal);
         }
 
-    /**Create Integer YYYYMMDD key from Calendar date; never null. */
+    /**Create Date from (non-null) YYYYMMDD Integer key in UTC timezone; never null. */
+    public static Calendar dateFromKey(final Integer k)
+        { return(dateFromKey(k, TimeZone.getTimeZone("UTC"))); }
+
+    /**Create Integer YYYYMMDD key from Calendar date (in its timezone); never null. */
     public static Integer keyFromDate(final Calendar cal)
         {
         if(null == cal) { throw new IllegalArgumentException(); }
@@ -384,8 +388,8 @@ public final class Util
             for(final boolean evening : new boolean[]{false, true})
                 {
                 try {
-                    final SortedSet<ConsumptionHDDTuple> readingsWithHDD = Util.combineMeterReadingsWithHDD(trimmedMeterReadings, hdd, evening);
-                    final SortedSet<ConsumptionHDDTuple> normalisedMeterReadingsWithHDD = Util.normalisedMeterReadingsWithHDD(readingsWithHDD, energyUnitMultiplier);
+                    final SortedSet<ConsumptionHDDTuple> readingsWithHDD = HDDUtil.combineMeterReadingsWithHDD(trimmedMeterReadings, hdd, evening);
+                    final SortedSet<ConsumptionHDDTuple> normalisedMeterReadingsWithHDD = HDDUtil.normalisedMeterReadingsWithHDD(readingsWithHDD, energyUnitMultiplier);
                     final HDDMetrics metrics = computeHDDMetrics(normalisedMeterReadingsWithHDD);
                     final OptimumFit putativeResult = new OptimumFit(metrics, evening, hdd.getBaseTemperatureAsFloat());
 //                    System.out.println(putativeResult);

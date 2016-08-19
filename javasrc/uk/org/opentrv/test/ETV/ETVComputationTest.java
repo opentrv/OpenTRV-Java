@@ -35,7 +35,7 @@ import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationI
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationResult;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputationSimpleImpl;
 import uk.org.opentrv.ETV.parse.NBulkInputs;
-import uk.org.opentrv.hdd.Util.HDDMetrics;
+import uk.org.opentrv.hdd.HDDUtil.HDDMetrics;
 import uk.org.opentrv.test.hdd.DDNExtractorTest;
 
 public class ETVComputationTest

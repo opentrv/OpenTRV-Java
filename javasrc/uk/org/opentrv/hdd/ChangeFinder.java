@@ -28,8 +28,8 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import uk.org.opentrv.hdd.Util.HDDMetrics;
-import uk.org.opentrv.hdd.Util.OptimumFit;
+import uk.org.opentrv.hdd.HDDUtil.HDDMetrics;
+import uk.org.opentrv.hdd.HDDUtil.OptimumFit;
 
 /**Analyse a data set of HDD values and meter readings looking for efficiency/baseload/other inflections.
  * Can also spit out data for analysis by other tools such as GNU plot.
@@ -60,7 +60,7 @@ public final class ChangeFinder
     private final float energyUnitMultiplier;
 
     /**Default base temperature (C). */
-    public static final float DEFAULT_BASE_TEMP = Util.DEFAULT_HDD_BASE_TEMP_C;
+    public static final float DEFAULT_BASE_TEMP = HDDUtil.DEFAULT_HDD_BASE_TEMP_C;
 
     /**Default minimum data points acceptable in a regression sample; strictly positive. */
     public static final int DEFAULT_MIN_REGRESSION_DATA_POINTS = 4;
@@ -90,31 +90,31 @@ public final class ChangeFinder
     public HDDMetrics getBasicFullDataMetrics()
         {
         // Choose closest HDD available to default.
-        final ContinuousDailyHDD hdd = Util.findHDDWithClosestBaseTemp(hdds, DEFAULT_BASE_TEMP);
+        final ContinuousDailyHDD hdd = HDDUtil.findHDDWithClosestBaseTemp(hdds, DEFAULT_BASE_TEMP);
         final SortedMap<Integer, Double> trimmedMeterReadings = rawMeterReadings.tailMap(hdd.getMap().firstKey()).headMap(hdd.getMap().lastKey());
-        final SortedSet<ConsumptionHDDTuple> readingsWithHDD = Util.combineMeterReadingsWithHDD(trimmedMeterReadings, hdd, true);
-        final SortedSet<ConsumptionHDDTuple> normalisedMeterReadingsWithHDD = Util.normalisedMeterReadingsWithHDD(readingsWithHDD, energyUnitMultiplier);
-        return(Util.computeHDDMetrics(normalisedMeterReadingsWithHDD));
+        final SortedSet<ConsumptionHDDTuple> readingsWithHDD = HDDUtil.combineMeterReadingsWithHDD(trimmedMeterReadings, hdd, true);
+        final SortedSet<ConsumptionHDDTuple> normalisedMeterReadingsWithHDD = HDDUtil.normalisedMeterReadingsWithHDD(readingsWithHDD, energyUnitMultiplier);
+        return(HDDUtil.computeHDDMetrics(normalisedMeterReadingsWithHDD));
         }
 
     /**Get best-fit metrics over entire data set given available HDD range, etc. */
-    public Util.OptimumFit getBestFullDataFit()
+    public HDDUtil.OptimumFit getBestFullDataFit()
         {
-        return(Util.findOptimumR2(hdds, rawMeterReadings, energyUnitMultiplier));
+        return(HDDUtil.findOptimumR2(hdds, rawMeterReadings, energyUnitMultiplier));
         }
 
     /**Get best-fit metrics by calendar year over entire data set given available HDD range, etc. */
-    public SortedMap<Integer,Util.OptimumFit> getBestByCalendarYearFit()
+    public SortedMap<Integer,HDDUtil.OptimumFit> getBestByCalendarYearFit()
         {
         // Estimate first and last years to sample.
         final int estFirstYear = Math.max(rawMeterReadings.firstKey(), hdds.first().getMap().firstKey()) / 1_00_00;
         final int estLastYear = Math.min(rawMeterReadings.lastKey(), hdds.first().getMap().lastKey()) / 1_00_00;
 //        System.out.println("est " + estFirstYear + "--"  + estLastYear);
-        final SortedMap<Integer,Util.OptimumFit> result = new TreeMap<>();
+        final SortedMap<Integer,HDDUtil.OptimumFit> result = new TreeMap<>();
         for(int year = estFirstYear; year <= estLastYear; ++year)
             {
             final SortedMap<Integer, Double> filteredMeterReadings = rawMeterReadings.tailMap((year*1_00_00) + 101).headMap(((year+1)*1_00_00) + 101);
-            final OptimumFit optimumR2 = Util.findOptimumR2(hdds, filteredMeterReadings, energyUnitMultiplier);
+            final OptimumFit optimumR2 = HDDUtil.findOptimumR2(hdds, filteredMeterReadings, energyUnitMultiplier);
 //            System.out.println("Year " + year + " optimum " + optimumR2);
             result.put(year, optimumR2);
             }
@@ -131,13 +131,13 @@ public final class ChangeFinder
         public final HDDMetrics preEff, postEff;
 
         /**Get mid-point of interval near where event probably happened; never null. */
-        public Calendar midPoint() { return(Util.getMidDate(start, end)); }
+        public Calendar midPoint() { return(HDDUtil.getMidDate(start, end)); }
 
         /**Get approximate duration of 'event' in weeks. */
         public int durationWeeks()
             {
-            final Calendar cS = Util.dateFromKey(start);
-            final Calendar cE = Util.dateFromKey(end);
+            final Calendar cS = HDDUtil.dateFromKey(start);
+            final Calendar cE = HDDUtil.dateFromKey(end);
             return((int) ((cE.getTimeInMillis() - cS.getTimeInMillis()) / (7 * 24 * 3600 * 1000L)));
             }
 
@@ -159,7 +159,7 @@ public final class ChangeFinder
             {
             final String before = (null == preEff) ? "unknown" : String.valueOf(preEff.slopeEnergyPerHDD);
             final String after = (null == postEff) ? "unknown" : String.valueOf(postEff.slopeEnergyPerHDD);
-            return("EfficiencyChangeEvent around "+ Util.keyFromDate(midPoint()) + " max "+durationWeeks()+" weeks, slope before "+before+" and after "+after + ": " + reasons);
+            return("EfficiencyChangeEvent around "+ HDDUtil.keyFromDate(midPoint()) + " max "+durationWeeks()+" weeks, slope before "+before+" and after "+after + ": " + reasons);
             }
         }
 
@@ -174,11 +174,11 @@ public final class ChangeFinder
         final ArrayList<EfficiencyChangeEvent> result = new ArrayList<>();
 
         // Compute initial pass over all the available data.
-        final Util.OptimumFit fullMetrics = getBestFullDataFit();
-        final ContinuousDailyHDD hdd = Util.findHDDWithClosestBaseTemp(hdds, fullMetrics.hddBaseTempC);
+        final HDDUtil.OptimumFit fullMetrics = getBestFullDataFit();
+        final ContinuousDailyHDD hdd = HDDUtil.findHDDWithClosestBaseTemp(hdds, fullMetrics.hddBaseTempC);
         final SortedMap<Integer, Double> trimmedMeterReadings = rawMeterReadings.tailMap(hdd.getMap().firstKey()).headMap(hdd.getMap().lastKey());
-        final SortedSet<ConsumptionHDDTuple> readingsWithHDD = Util.combineMeterReadingsWithHDD(trimmedMeterReadings, hdd, fullMetrics.eveningReads);
-        final SortedSet<ConsumptionHDDTuple> normalisedMeterReadingsWithHDD = Util.normalisedMeterReadingsWithHDD(readingsWithHDD, energyUnitMultiplier);
+        final SortedSet<ConsumptionHDDTuple> readingsWithHDD = HDDUtil.combineMeterReadingsWithHDD(trimmedMeterReadings, hdd, fullMetrics.eveningReads);
+        final SortedSet<ConsumptionHDDTuple> normalisedMeterReadingsWithHDD = HDDUtil.normalisedMeterReadingsWithHDD(readingsWithHDD, energyUnitMultiplier);
 
         // Use shortest window while hunting for efficiency inflections.
         final int weeksWindow = DEFAULT_WINDOW_SIZES_W.get(0);
@@ -189,9 +189,9 @@ public final class ChangeFinder
             {
             // Line results up by end date.
             final int endTarget = datum.endReadingDateYYYYMMDD;
-            final Calendar tmpC = Util.dateFromKey(endTarget);
+            final Calendar tmpC = HDDUtil.dateFromKey(endTarget);
             tmpC.add(Calendar.WEEK_OF_YEAR, -weeksWindow);
-            final int startTarget = Util.keyFromDate(tmpC);
+            final int startTarget = HDDUtil.keyFromDate(tmpC);
 
             final ConsumptionHDDTuple startTargetKey = new ConsumptionHDDTuple(startTarget);
             final ConsumptionHDDTuple endTargetKey =  new ConsumptionHDDTuple(endTarget);
@@ -205,7 +205,7 @@ public final class ChangeFinder
 //            if(isHeatingSeasonEndMonth && (0 == w)) { ++availableSmallWindows; }
 //            System.out.print("data points from " + dataFiltered.first().endReadingDateYYYYMMDD + " to " + dataFiltered.last().endReadingDateYYYYMMDD + ": ");
             final HDDMetrics metrics;
-            try { metrics = Util.computeHDDMetrics(dataFiltered); }
+            try { metrics = HDDUtil.computeHDDMetrics(dataFiltered); }
             catch(final IllegalArgumentException e)
                 {
 //                System.out.println("CANNOT COMPUTE");
@@ -226,7 +226,7 @@ public final class ChangeFinder
                 }
             // Note good metrics available.
             lastGood = metrics;
-            lastGoodMidPoint = Util.keyFromDate(Util.getMidDate(end, start));
+            lastGoodMidPoint = HDDUtil.keyFromDate(HDDUtil.getMidDate(end, start));
             // Inject into last event 'post' value and trim its end date.
             for(int i = result.size(); --i >= 0; )
                 {

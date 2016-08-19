@@ -24,8 +24,8 @@ import java.util.SortedSet;
 
 import uk.org.opentrv.hdd.ConsumptionHDDTuple;
 import uk.org.opentrv.hdd.ContinuousDailyHDD;
-import uk.org.opentrv.hdd.Util;
-import uk.org.opentrv.hdd.Util.HDDMetrics;
+import uk.org.opentrv.hdd.HDDUtil;
+import uk.org.opentrv.hdd.HDDUtil.HDDMetrics;
 
 /**Simple computation implementation for one household, no efficacy.
  * This can do a simple computation to find overall kWh/HDD
@@ -68,11 +68,11 @@ public final class ETVPerHouseholdComputationSimpleImpl implements ETVPerHouseho
                     @Override public Float getRatiokWhPerHDDNotSmartOverSmart() { return(null); }
                     });
                 }
-            combined = Util.combineDailyIntervalReadingsWithHDD(kWhByLocalDay, cdh);
+            combined = HDDUtil.combineDailyIntervalReadingsWithHDD(kWhByLocalDay, cdh);
             }
         catch(final IOException e) { throw new IllegalArgumentException(e); }
 
-        final HDDMetrics metrics = Util.computeHDDMetrics(combined);
+        final HDDMetrics metrics = HDDUtil.computeHDDMetrics(combined);
 
         return(new ETVPerHouseholdComputationResult() {
             @Override public String getHouseID() { return(in.getHouseID()); }

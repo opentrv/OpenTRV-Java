@@ -41,7 +41,7 @@ import uk.org.opentrv.ETV.parse.NBulkInputs;
 import uk.org.opentrv.ETV.parse.NBulkKWHParseByID;
 import uk.org.opentrv.ETV.parse.OTLogActivityParse;
 import uk.org.opentrv.ETV.parse.OTLogActivityParse.ValveLogParseResult;
-import uk.org.opentrv.hdd.Util;
+import uk.org.opentrv.hdd.HDDUtil;
 import uk.org.opentrv.test.hdd.DDNExtractorTest;
 
 public class ETVParseTest
@@ -71,9 +71,9 @@ public class ETVParseTest
     public static final String N_BULK_DATA_FORMAT_SAMPLE_CSV = "N-bulk-data-format-sample.csv";
     /**Return a Reader for the ETV sample bulk HDD data for EGLL; never null. */
     public static Reader getNBulk1CSVReader() throws IOException
-        { return(Util.getASCIIResourceReader(ETVParseTest.class, N_BULK_DATA_FORMAT_SAMPLE_CSV)); }
+        { return(HDDUtil.getASCIIResourceReader(ETVParseTest.class, N_BULK_DATA_FORMAT_SAMPLE_CSV)); }
     /**Return a Supplier<Reader> for the ETV sample bulk HDD data for EGLL; never null. */
-    public static Supplier<Reader> NBulk1CSVReaderSupplier = Util.getASCIIResourceReaderSupplier(ETVParseTest.class, N_BULK_DATA_FORMAT_SAMPLE_CSV);
+    public static Supplier<Reader> NBulk1CSVReaderSupplier = HDDUtil.getASCIIResourceReaderSupplier(ETVParseTest.class, N_BULK_DATA_FORMAT_SAMPLE_CSV);
 
     /**Test bulk gas meter parse on a more substantive sample. */
     @Test public void testNBulkParse() throws IOException
@@ -95,7 +95,7 @@ public class ETVParseTest
     public static final String N_BULK_DATA_FORMAT_SAMPLE_CONCAT_CSV = "N-bulk-data-format-sample-concat.csv";
     /**Return a Reader for the ETV sample bulk HDD data for EGLL; never null. */
     public static Reader getNBulk1ConcatCSVReader() throws IOException
-        { return(Util.getASCIIResourceReader(ETVParseTest.class, N_BULK_DATA_FORMAT_SAMPLE_CONCAT_CSV)); }
+        { return(HDDUtil.getASCIIResourceReader(ETVParseTest.class, N_BULK_DATA_FORMAT_SAMPLE_CONCAT_CSV)); }
 
     /**Test bulk gas meter parse on a more substantive sample of concatenated files. */
     @Test public void testNBulkParseConcat() throws IOException
@@ -243,9 +243,9 @@ public class ETVParseTest
     public static final String N_SAMPLE_GAS_2016_06_CSV = "N-sample-GAS-2016-06.csv";
     /**Return a Reader for the ETV sample bulk HDD data for EGLL; never null. */
     public static Reader getNBulkSH2016H1CSVReader() throws IOException
-        { return(Util.getASCIIResourceReader(ETVParseTest.class, N_SAMPLE_GAS_2016_06_CSV)); }
+        { return(HDDUtil.getASCIIResourceReader(ETVParseTest.class, N_SAMPLE_GAS_2016_06_CSV)); }
     /**Return a Supplier<Reader> for the ETV sample bulk HDD data for EGLL; never null. */
-    public static Supplier<Reader> NBulkSH2016H1CSVReaderSupplier = Util.getASCIIResourceReaderSupplier(ETVParseTest.class, N_SAMPLE_GAS_2016_06_CSV);
+    public static Supplier<Reader> NBulkSH2016H1CSVReaderSupplier = HDDUtil.getASCIIResourceReaderSupplier(ETVParseTest.class, N_SAMPLE_GAS_2016_06_CSV);
 
     /**Test for correct loading for a single household into input object from alternative bulk file (2016H1). */
     @Test public void testNBulkSH2016HCInputs() throws IOException
@@ -316,14 +316,20 @@ public class ETVParseTest
         // Parse single canonical-format log entry.
         final ValveLogParseResult sc = OTLogActivityParse.parseValveLog(new StringReader(cValveLogSample), DEFAULT_UK_TIMEZONE);
         assertNotNull(sc);
+        assertNotNull(sc.getDaysInWhichDataPresent());
+        assertEquals(1, sc.getDaysInWhichDataPresent().size());
+System.out.println(sc.getDaysInWhichDataPresent());
+        assertTrue(sc.getDaysInWhichDataPresent().contains(20160331));
 
 
 
 
 
-        // Parse single partially-decrypted-format log entry.
-        final ValveLogParseResult spd = OTLogActivityParse.parseValveLog(new StringReader(pdValveLogSample), DEFAULT_UK_TIMEZONE);
-        assertNotNull(spd);
+//        // Parse single partially-decrypted-format log entry.
+//        final ValveLogParseResult spd = OTLogActivityParse.parseValveLog(new StringReader(pdValveLogSample), DEFAULT_UK_TIMEZONE);
+//        assertNotNull(spd);
+//        assertNotNull(sc.getDaysInWhichDataPresent());
+//        assertEquals(1, sc.getDaysInWhichDataPresent().size());
 
 
 

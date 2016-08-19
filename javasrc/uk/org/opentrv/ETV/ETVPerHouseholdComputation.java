@@ -26,7 +26,7 @@ import java.util.function.Function;
 
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationInput;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationResult;
-import uk.org.opentrv.hdd.Util.HDDMetrics;
+import uk.org.opentrv.hdd.HDDUtil.HDDMetrics;
 
 /**Compute space-heat energy efficiency change per ETV protocol for one household; supports lambdas.
  * Typically used over one heating season,

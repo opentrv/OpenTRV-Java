@@ -21,7 +21,7 @@ package uk.org.opentrv.ETV.output;
 import java.util.function.Function;
 
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationResult;
-import uk.org.opentrv.hdd.Util.HDDMetrics;
+import uk.org.opentrv.hdd.HDDUtil.HDDMetrics;
 
 /**Generate machine-readable (partial-CVS-line) form for a single result.
  * Stateless.
