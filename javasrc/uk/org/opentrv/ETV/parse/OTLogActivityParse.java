@@ -92,10 +92,22 @@ public final class OTLogActivityParse
     /**UTC (GMT) timezone. */
     private static final TimeZone TZ_UTC = TimeZone.getTimeZone("UTC");
 
+    /**Valve open percentage field name in log files. */
+    public static final String FIELD_VALVE_PC_OPEN = "v|%";
+
+    /**Temperature setback Celsius field name in log files. */
+    public static final String FIELD_TEMP_SETBACK_C = "tS|C";
+
     /**Parses 'c' and 'pd' format valve log files; never null.
      * Quite crude and so is able to parse either format.
      * <p>
      * Intended to be reasonably robust.
+     * <p>
+     * Uses timestamp to work out daysInWhichDataPresent.
+     * <p>
+     * Uses tS|C > 0 to detect automated setback and thus daysInWhichEnergySavingActive.
+     * <p>
+     * Uses v|% > 0 to detect call for heat and thus daysInWhichCallingForHeat.
      *
      * @param r  line-oriented log file as reader, not closed by routine; never null
      * @param localTimeZoneForDayBoundaries  timezone for household; never null
@@ -130,6 +142,8 @@ public final class OTLogActivityParse
             // Also extract the JSON stats map/object.
             final long time;
             final JSONObject leafObject;
+            boolean valveOpen = false;
+            boolean tempSetback = false;
             if(isCanon)
                 {
                 // Parse the input and prepare the new string output.
@@ -144,6 +158,11 @@ public final class OTLogActivityParse
                 // Parse the timestamp...
                 final Instant instant = Instant.parse(timeStamp);
                 time = instant.getEpochSecond() * 1000L;
+                // Check the important fields.
+                final Object pFv = leafObject.get(FIELD_VALVE_PC_OPEN);
+                if((pFv instanceof Number) && (((Number)pFv).intValue() > 0)) { valveOpen = true; }
+                final Object pFs = leafObject.get(FIELD_TEMP_SETBACK_C);
+                if((pFs instanceof Number) && (((Number)pFs).intValue() > 0)) { tempSetback = true; }
                 }
             else
                 {
@@ -156,9 +175,8 @@ public final class OTLogActivityParse
             final Integer key = HDDUtil.keyFromDate(cal);
             daysInWhichDataPresent.add(key);
 
-            // TODO
-
-
+            if(valveOpen) { daysInWhichCallingForHeat.add(key); }
+            if(tempSetback) { daysInWhichEnergySavingActive.add(key); }
             }
 
         return(new ValveLogParseResult(){
