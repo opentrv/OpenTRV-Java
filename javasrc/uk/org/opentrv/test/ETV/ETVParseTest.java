@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -31,8 +32,11 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.TimeZone;
+import java.util.TreeSet;
 import java.util.function.Supplier;
+import java.util.zip.GZIPInputStream;
 
 import org.junit.Test;
 
@@ -333,5 +337,28 @@ System.out.println(sc.getDaysInWhichDataPresent());
 
 
 
+        }
+
+    /**Return a stream for one huge (ASCII) zipped OpenTRV valve log file; never null. */
+    public static InputStream getHugeZippedValveLogStream()
+        { return(ETVParseTest.class.getResourceAsStream("valveLogSamples/0a45.json.gz")); }
+    /**Return a Reader for the huge sample HDD data for EGLL; never null. */
+    public static Reader getHugeZippedValveLogReader() throws IOException
+        { return(new InputStreamReader(new BufferedInputStream(new GZIPInputStream(getHugeZippedValveLogStream())), "ASCII7")); }
+
+    /**Test parse of huge OpenTRV valve log file (canonical format) for activity/status. */
+    @Test public void testValveHugeLogParse() throws IOException
+        {
+        try(final Reader r = getHugeZippedValveLogReader())
+            {
+            final ValveLogParseResult sc = OTLogActivityParse.parseValveLog(r, DEFAULT_UK_TIMEZONE);
+            assertNotNull(sc);
+            assertNotNull(sc.getDaysInWhichDataPresent());
+            assertEquals(183, sc.getDaysInWhichDataPresent().size());
+            final SortedSet<Integer> sdp = new TreeSet<Integer>(sc.getDaysInWhichDataPresent());
+//System.out.println(sdp);
+            assertEquals(20160101, sdp.first().intValue());
+            assertEquals(20160701, sdp.last().intValue());
+            }
         }
     }
