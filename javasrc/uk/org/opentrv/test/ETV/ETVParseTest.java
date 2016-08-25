@@ -364,6 +364,10 @@ public class ETVParseTest
             assertEquals(20160101, sdp.first().intValue());
             assertEquals(20160701, sdp.last().intValue());
 
+            // TODO: validate these numbers
+            assertEquals(97, sc.getDaysInWhichCallingForHeat().size());
+            assertEquals(34, sc.getDaysInWhichEnergySavingActive().size());
+
             // TODO
 
 
