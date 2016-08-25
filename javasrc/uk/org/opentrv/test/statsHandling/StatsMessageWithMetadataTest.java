@@ -33,10 +33,10 @@ public class StatsMessageWithMetadataTest
     @Test
     public void testAsJSON() throws ParseException
         {
-        final long t = 1430933201034L; // ~2015/05/06 18:26
+        final long t = 1430933201034L; // ~2015/05/06 18:26 BST aka 2015/05/06 17:26 UTC
         final StatsMessageWithMetadata sm1 = new StatsMessageWithMetadata("{}", t, true);
         final String sm1s = sm1.asJSONArrayString();
-        assertEquals("[\"2015-05-06T18:26:41Z\",\"{}\",true]", sm1s);
+        assertEquals("[\"2015-05-06T17:26:41Z\",\"{}\",true]", sm1s);
         final JSONParser parser = new JSONParser();
         final List<?> jsonArray = (List<?>) parser.parse(sm1s);
         assertEquals("2015-05-06T18:26:41Z", jsonArray.get(0));
