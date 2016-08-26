@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -89,14 +90,20 @@ public final class OTLogActivityParse
         Set<Integer> getDaysInWhichEnergySavingActive();
         }
 
-    /**UTC (GMT) timezone. */
-    private static final TimeZone TZ_UTC = TimeZone.getTimeZone("UTC");
+//    /**UTC (GMT) timezone. */
+//    private static final TimeZone TZ_UTC = TimeZone.getTimeZone("UTC");
 
     /**Valve open percentage field name in log files. */
     public static final String FIELD_VALVE_PC_OPEN = "v|%";
 
     /**Temperature setback Celsius field name in log files. */
     public static final String FIELD_TEMP_SETBACK_C = "tS|C";
+
+    /**Valve open (non-zero percentage) regex. */
+    public static final Pattern REGEX_VALVE_PC_OPEN = Pattern.compile(".*\"v\\|%\":[1-9].*");
+
+    /**Temperature setback (non-zero degrees) regex. */
+    public static final Pattern REGEX_TEMP_SETBACK_C = Pattern.compile(".*\"tS\\|C\":[1-9].*");
 
     /**Parses 'c' and 'pd' format valve log files; never null.
      * Quite crude and so is able to parse either format.
@@ -166,7 +173,21 @@ public final class OTLogActivityParse
                 }
             else
                 {
-                throw new Error("NOT IMPLEMENTED");
+                // Parse the timestamp at start of line:
+                //    '2016-05-12-11:21:45'
+                if('\'' != line.charAt(20))
+                    {
+                    System.err.println("Bad timestamp at line "+lr.getLineNumber()+ ": skipping");
+                    continue;
+                    }
+                // Convert to UTC format for parsing (ASSUMES TIMESTAMP IS UTC).
+                final String timeStamp = line.substring(1, 11) + 'T' + line.substring(12, 20) + 'Z';
+                final Instant instant = Instant.parse(timeStamp);
+                time = instant.getEpochSecond() * 1000L;
+                // Look for the appropriate (non-zero) fields with regexes.
+                // This relies on the matches being sufficiently specific to not match anything unwanted.
+                if(REGEX_VALVE_PC_OPEN.matcher(line).matches()) { valveOpen = true; }
+                if(REGEX_TEMP_SETBACK_C.matcher(line).matches()) { tempSetback = true; }
                 }
 
             // Extract date for household's local timezone.

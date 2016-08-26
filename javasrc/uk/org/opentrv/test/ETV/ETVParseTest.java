@@ -322,25 +322,18 @@ public class ETVParseTest
         assertNotNull(sc);
         assertNotNull(sc.getDaysInWhichDataPresent());
         assertEquals(1, sc.getDaysInWhichDataPresent().size());
-//System.out.println(sc.getDaysInWhichDataPresent());
         assertTrue(sc.getDaysInWhichDataPresent().contains(20160331));
         assertEquals(0, sc.getDaysInWhichCallingForHeat().size());
         assertEquals(1, sc.getDaysInWhichEnergySavingActive().size());
 
-
-        // TODO
-
-
-//        // Parse single partially-decrypted-format log entry.
-//        final ValveLogParseResult spd = OTLogActivityParse.parseValveLog(new StringReader(pdValveLogSample), DEFAULT_UK_TIMEZONE);
-//        assertNotNull(spd);
-//        assertNotNull(sc.getDaysInWhichDataPresent());
-//        assertEquals(1, sc.getDaysInWhichDataPresent().size());
-
-
-
-
-
+        // Parse single partially-decrypted-format log entry.
+        final ValveLogParseResult spd = OTLogActivityParse.parseValveLog(new StringReader(pdValveLogSample), DEFAULT_UK_TIMEZONE);
+        assertNotNull(spd);
+        assertNotNull(spd.getDaysInWhichDataPresent());
+        assertEquals(1, spd.getDaysInWhichDataPresent().size());
+        assertTrue(spd.getDaysInWhichDataPresent().contains(20160512));
+        assertEquals(0, spd.getDaysInWhichCallingForHeat().size());
+        assertEquals(1, spd.getDaysInWhichEnergySavingActive().size());
         }
 
     /**Return a stream for one huge (ASCII) zipped OpenTRV valve log file; never null. */
