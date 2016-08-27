@@ -418,7 +418,6 @@ public class ETVParseTest
             // TODO: validate these numbers
             assertEquals(18, sc.getDaysInWhichEnergySavingStatsReported().size());
             assertEquals(12, sc.getDaysInWhichCallingForHeat().size());
-//System.out.println(new TreeSet<Integer>(sc.getDaysInWhichCallingForHeat()));
             assertEquals(10, sc.getDaysInWhichEnergySavingActive().size());
             // Verify that all days with savings and days with savings reported (must be subset).
             assertTrue(sc.getDaysInWhichEnergySavingStatsReported().containsAll(sc.getDaysInWhichEnergySavingActive()));
