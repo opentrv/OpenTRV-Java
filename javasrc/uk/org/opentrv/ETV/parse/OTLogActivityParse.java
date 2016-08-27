@@ -21,18 +21,25 @@ package uk.org.opentrv.ETV.parse;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.Reader;
+import java.nio.file.Path;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
+import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationSystemStatus;
 import uk.org.opentrv.hdd.HDDUtil;
 
 /**Process OpenTRV device log files for key activity.
@@ -226,5 +233,49 @@ public final class OTLogActivityParse
             @Override public Set<Integer> getDaysInWhichEnergySavingStatsReported() { return(daysInWhichEnergySavingStatsReported); }
             @Override public Set<Integer> getDaysInWhichEnergySavingActive() { return(daysInWhichEnergySavingActive); }
             });
+        }
+
+    /**Relative path within log data directory to grouping CSV file. */
+    public static final String LOGDIR_PATH_TO_GROUPING_CSV = "grouping.csv";
+
+    /**Read/parse (as a list of records) the grouping CSV file that names devices and groups them into households; never null but may be empty.
+     * Closes the Reader when finished.
+     *
+     * @throws  IOException if file cannot be read
+     */
+    public static List<String> loadGroupingCSVAsString(final Function<String, Reader> dataReader)
+        throws IOException
+        {
+        try(LineNumberReader lr = new LineNumberReader(dataReader.apply(LOGDIR_PATH_TO_GROUPING_CSV)))
+            {
+            final ArrayList<String> result = new ArrayList<>();
+            String line;
+            while(null != (line = lr.readLine()))
+                {
+                result.add(line);
+                }
+            result.trimToSize();
+            return(Collections.unmodifiableList(result));
+            }
+        }
+
+    /**Read/parse an entire set of log records and produce per-household sets of dates for segmentation and analysis; never null but may be empty.
+     * Given a Functor that takes relative path name and returns a Reader of line-oriented records:
+     * <ol>
+     * <li>Read the grouping CSV file that names devices and groups them into households.</li>
+     * <li>Read and parse each device log file, trying various locations for the data.</li>
+     * <li>Collate the data into households and work out which days are usable,
+     *     and which have energy-saving features enabled or not (the latter being controls).</li>
+     * </ol>
+     * <p>
+     * A day may not be usable if only a minority are reporting savings stats,
+     * valves are reporting an intermediate mixture of enabled and disabled status.
+     *
+     * @return  map from house ID to ETVPerHouseholdComputationSystemStatus;
+     *     never null but may be empty
+     */
+    public static Map<String, ETVPerHouseholdComputationSystemStatus> loadAndParseAllOTLogs(final Function<Path, Reader> dataReader)
+        {
+        throw new RuntimeException("NOT IMPLEMENTED");
         }
     }

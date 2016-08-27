@@ -10,18 +10,35 @@ Note that 2d1a is here a boiler controller and controlled its own valve.
 Note that all these 'valves' were non-REV7 split units with a REV1/REV2/REV4 controller
 driving a FS20 FTH8V third-party valve head.
 
-The filesystem layout is:
-    <contoller1ID>/<valve1ID>.{json,dlog}[.gz]
-    <contoller1ID>/<valve2ID>.{json,dlog}[.gz]
+A possible flat filesystem layout is:
+    <valve1ID>.{json,dlog}[.gz]
+    <valve2ID>.{json,dlog}[.gz]
 ...
-    <contoller1ID>/<valveNID>.{json,dlog}[.gz]
+    <valveNID>.{json,dlog}[.gz]
 
-The controllerID may be a house ID instead if there is no explicitly-recorded
-boiler controller or relay, eg if relaying data at campus level over LoRaWAN.
+So with a grouping.csv containing the following:
+    HouseID,deviceID,secondaryDeviceID
+    5013,,16WW
+    5013,2d1a
+    5013,414a
+    5013,0d49
+    5013,0a45
+    5013,3015
+    S001,,synthetic1
+    S001,synthd,IIIIIIII
+
+for houses with primary ID "5013" and "S001" (for their energy consumption)
+AKA "16WW" and "synthetic1" respectively
+the valve data can be satisfied with files of the form valveID.{json,dlog}[.gz]
+eg 2d1a.json.gz ... 3015.json.gz and synthd.dlog.gz
 
 The plain .log format is JSON one line per record:
     [ "2016-03-31T05:18:45Z", "", {"@":"3015","+":1,"v|%":0,"tT|C":14,"tS|C":4} ]
 or a partially-decrypted format:
     '2016-05-12-11:21:45','111.11.11.1','cf 74 II II II II 20 0b 40 09 d8 59 0a e5 75 f3 13 57 a5 94 a2 3b e7 26 99 c4 5a 77 74 6a 6e 2c 5a c2 22 f6 b6 5e 0b 02 31 f2 09 45 57 d4 d9 92 3c 8e 45 95 63 65 5b a3 ff 2f 3d 68 14 80','b''\x00\x10{"tT|C":21,"tS|C":1''','\x00\x10{"tT|C":21,"tS|C":1'
 
-The .log.gz format is GZIPped to save space.
+The .gz format is GZIPped to save space.
+
+Additionally data can be extracted from a common alldata.gz data dump
+with entries extracted using either the primary ID (eg the "@" JSON field)
+or the secondary ID (the "II II II II" prefix in the dlog file).
