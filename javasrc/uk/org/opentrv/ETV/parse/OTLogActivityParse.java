@@ -180,6 +180,7 @@ public final class OTLogActivityParse
                 final Object pFv = leafObject.get(FIELD_VALVE_PC_OPEN);
                 if((pFv instanceof Number) && (((Number)pFv).intValue() > 0)) { valveOpen = true; }
                 final Object pFs = leafObject.get(FIELD_TEMP_SETBACK_C);
+                // Slight optimisation handling tSC values...
                 final boolean pFsIsNumber = pFs instanceof Number;
                 if(pFsIsNumber) { tSCPresent = true; }
                 if(pFsIsNumber && (((Number)pFs).intValue() > 0)) { tempSetback = true; }
@@ -200,8 +201,10 @@ public final class OTLogActivityParse
                 // Look for the appropriate (non-zero) fields with regexes.
                 // This relies on the matches being sufficiently specific to not match anything unwanted.
                 if(REGEX_VALVE_PC_OPEN.matcher(line).matches()) { valveOpen = true; }
-                if(REGEX_TEMP_SETBACK_REPORTED.matcher(line).matches()) { tSCPresent = true; }
-                if(REGEX_TEMP_SETBACK_C.matcher(line).matches()) { tempSetback = true; }
+                // Slight optimisation handling tSC values...
+                final boolean tSCp = REGEX_TEMP_SETBACK_REPORTED.matcher(line).matches();
+                if(tSCp) { tSCPresent = true; }
+                if(tSCp && REGEX_TEMP_SETBACK_C.matcher(line).matches()) { tempSetback = true; }
                 }
 
             // Extract date for household's local timezone.

@@ -368,17 +368,16 @@ public class ETVParseTest
             assertEquals(97, sc.getDaysInWhichCallingForHeat().size());
 //System.out.println(new TreeSet<Integer>(sc.getDaysInWhichCallingForHeat()));
             assertEquals(34, sc.getDaysInWhichEnergySavingActive().size());
-//System.out.println(new TreeSet<Integer>(sc.getDaysInWhichEnergySavingActive()));
-            // Compute days with call-for-heat but no setbacks (possible control periods).
+            // Verify that all days with savings and days with savings reported (must be subset).
+            assertTrue(sc.getDaysInWhichEnergySavingStatsReported().containsAll(sc.getDaysInWhichEnergySavingActive()));
+            // Compute days with call-for-heat (and setback reporting) but no setbacks applied/active.
+            // Usually the sign of a possible control period.
+            // Should not be many in this data set, as no control period set for this valve...
             final Set<Integer> hns = new HashSet<Integer>(sc.getDaysInWhichCallingForHeat());
+            hns.retainAll(sc.getDaysInWhichEnergySavingStatsReported());
             hns.removeAll(sc.getDaysInWhichEnergySavingActive());
-System.out.println(new TreeSet<Integer>(hns));
-            assertEquals(63, hns.size());
-
-            // TODO
-
-
-
+//System.out.println(new TreeSet<Integer>(hns));
+            assertEquals(2, hns.size());
             }
         }
     }
