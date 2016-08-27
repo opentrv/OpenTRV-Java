@@ -407,9 +407,9 @@ public class ETVParseTest
             assertNotNull(sc);
             assertNotNull(sc.getDaysInWhichDataPresent());
 
-            assertEquals(19, sc.getDaysInWhichDataPresent().size());
+            assertEquals(18, sc.getDaysInWhichDataPresent().size());
             final SortedSet<Integer> sdp = new TreeSet<Integer>(sc.getDaysInWhichDataPresent());
-            assertEquals(20160412, sdp.first().intValue());
+            assertEquals(20160427, sdp.first().intValue());
             assertEquals(20160613, sdp.last().intValue());
             final SortedSet<Integer> sdessr = new TreeSet<Integer>(sc.getDaysInWhichEnergySavingStatsReported());
             assertEquals(20160427, sdessr.first().intValue());
@@ -417,7 +417,7 @@ public class ETVParseTest
 
             // TODO: validate these numbers
             assertEquals(18, sc.getDaysInWhichEnergySavingStatsReported().size());
-            assertEquals(13, sc.getDaysInWhichCallingForHeat().size());
+            assertEquals(12, sc.getDaysInWhichCallingForHeat().size());
 //System.out.println(new TreeSet<Integer>(sc.getDaysInWhichCallingForHeat()));
             assertEquals(10, sc.getDaysInWhichEnergySavingActive().size());
             // Verify that all days with savings and days with savings reported (must be subset).
