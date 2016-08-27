@@ -376,6 +376,7 @@ public class ETVParseTest
             assertEquals(34, sc.getDaysInWhichEnergySavingActive().size());
             // Verify that all days with savings and days with savings reported (must be subset).
             assertTrue(sc.getDaysInWhichEnergySavingStatsReported().containsAll(sc.getDaysInWhichEnergySavingActive()));
+
             // Compute days with call-for-heat (and setback reporting) but no setbacks applied/active.
             // Usually the sign of a possible control period.
             // Should not be many in this data set, as no control period set for this valve...
@@ -386,4 +387,50 @@ public class ETVParseTest
             assertEquals(2, hns.size());
             }
         }
+
+    /**Return a stream for one sample huge (ASCII) zipped synthetic partially-decrypted-format valve log file; never null.
+     * Should be representative of a small real-world data sample from a newly-installed valve
+     * with an initial control period with the majority of the energy-saving features disabled.
+     */
+    public static InputStream getHugeZippedValveDLogStream()
+        { return(ETVParseTest.class.getResourceAsStream("valveLogSamples/synthd.dlog.gz")); }
+    /**Return a Reader for the huge sample HDD data for EGLL; never null. */
+    public static Reader getHugeZippedValveDLogReader() throws IOException
+        { return(new InputStreamReader(new BufferedInputStream(new GZIPInputStream(getHugeZippedValveDLogStream())), "ASCII7")); }
+
+    /**Test parse of huge OpenTRV synthetic valve log file (partially-decrypted-format) for activity/status. */
+    @Test public void testValveHugeDLogParse() throws IOException
+        {
+        try(final Reader r = getHugeZippedValveDLogReader())
+            {
+            final ValveLogParseResult sc = OTLogActivityParse.parseValveLog(r, DEFAULT_UK_TIMEZONE);
+            assertNotNull(sc);
+            assertNotNull(sc.getDaysInWhichDataPresent());
+
+            assertEquals(19, sc.getDaysInWhichDataPresent().size());
+            final SortedSet<Integer> sdp = new TreeSet<Integer>(sc.getDaysInWhichDataPresent());
+            assertEquals(20160412, sdp.first().intValue());
+            assertEquals(20160613, sdp.last().intValue());
+            final SortedSet<Integer> sdessr = new TreeSet<Integer>(sc.getDaysInWhichEnergySavingStatsReported());
+            assertEquals(20160427, sdessr.first().intValue());
+            assertEquals(20160613, sdessr.last().intValue());
+
+            // TODO: validate these numbers
+            assertEquals(18, sc.getDaysInWhichEnergySavingStatsReported().size());
+            assertEquals(13, sc.getDaysInWhichCallingForHeat().size());
+//System.out.println(new TreeSet<Integer>(sc.getDaysInWhichCallingForHeat()));
+            assertEquals(10, sc.getDaysInWhichEnergySavingActive().size());
+            // Verify that all days with savings and days with savings reported (must be subset).
+            assertTrue(sc.getDaysInWhichEnergySavingStatsReported().containsAll(sc.getDaysInWhichEnergySavingActive()));
+
+            // Compute days with call-for-heat (and setback reporting) but no setbacks applied/active.
+            // Should be approximate control period.
+            final Set<Integer> hns = new HashSet<Integer>(sc.getDaysInWhichCallingForHeat());
+            hns.retainAll(sc.getDaysInWhichEnergySavingStatsReported());
+            hns.removeAll(sc.getDaysInWhichEnergySavingActive());
+//System.out.println(new TreeSet<Integer>(hns));
+            assertEquals(6, hns.size());
+            }
+        }
     }
+

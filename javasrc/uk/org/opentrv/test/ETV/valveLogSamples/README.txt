@@ -1,4 +1,7 @@
-Contains logs for OpenTRV valves associated with boiler controller 2d1a in 2016H1.
+Contains logs for OpenTRV valves associated with boiler controller 2d1a in 2016H1:
+    0a45 0d49 2d1a 3015 414a
+and one synthetic partially-decrypted-format log:
+    synthd
 
 These are for the house at 16WW, identified in the N-format bulk data as "5013".
 
@@ -8,10 +11,10 @@ Note that all these 'valves' were non-REV7 split units with a REV1/REV2/REV4 con
 driving a FS20 FTH8V third-party valve head.
 
 The filesystem layout is:
-    <contoller1ID>/<valve1ID>.log[.gz]
-    <contoller1ID>/<valve2ID>.log[.gz]
+    <contoller1ID>/<valve1ID>.{json,dlog}[.gz]
+    <contoller1ID>/<valve2ID>.{json,dlog}[.gz]
 ...
-    <contoller1ID>/<valveNID>.log[.gz]
+    <contoller1ID>/<valveNID>.{json,dlog}[.gz]
 
 The controllerID may be a house ID instead if there is no explicitly-recorded
 boiler controller or relay, eg if relaying data at campus level over LoRaWAN.
