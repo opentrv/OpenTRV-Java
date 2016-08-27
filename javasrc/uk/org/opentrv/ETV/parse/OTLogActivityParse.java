@@ -107,7 +107,7 @@ public final class OTLogActivityParse
     /**Temperature setback (present, any non-negative value) regex. */
     public static final Pattern REGEX_TEMP_SETBACK_REPORTED = Pattern.compile(".*\"tS\\|C\":[0-9].*");
 
-    /**Temperature setback (non-zero degrees) regex. */
+    /**Temperature setback (+ve non-zero degrees) regex. */
     public static final Pattern REGEX_TEMP_SETBACK_C = Pattern.compile(".*\"tS\\|C\":[1-9].*");
 
     /**Parses 'c' and 'pd' format valve log files; never null.
