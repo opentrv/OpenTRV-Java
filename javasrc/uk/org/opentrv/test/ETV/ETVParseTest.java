@@ -30,7 +30,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TimeZone;
@@ -325,6 +327,7 @@ public class ETVParseTest
         assertTrue(sc.getDaysInWhichDataPresent().contains(20160331));
         assertEquals(0, sc.getDaysInWhichCallingForHeat().size());
         assertEquals(1, sc.getDaysInWhichEnergySavingActive().size());
+        assertEquals(1, sc.getDaysInWhichEnergySavingStatsReported().size());
 
         // Parse single partially-decrypted-format log entry.
         final ValveLogParseResult spd = OTLogActivityParse.parseValveLog(new StringReader(pdValveLogSample), DEFAULT_UK_TIMEZONE);
@@ -334,6 +337,7 @@ public class ETVParseTest
         assertTrue(spd.getDaysInWhichDataPresent().contains(20160512));
         assertEquals(0, spd.getDaysInWhichCallingForHeat().size());
         assertEquals(1, spd.getDaysInWhichEnergySavingActive().size());
+        assertEquals(1, spd.getDaysInWhichEnergySavingStatsReported().size());
         }
 
     /**Return a stream for one sample huge (ASCII) zipped OpenTRV valve log file; never null. */
@@ -353,13 +357,23 @@ public class ETVParseTest
             assertNotNull(sc.getDaysInWhichDataPresent());
             assertEquals(183, sc.getDaysInWhichDataPresent().size());
             final SortedSet<Integer> sdp = new TreeSet<Integer>(sc.getDaysInWhichDataPresent());
-//System.out.println(sdp);
             assertEquals(20160101, sdp.first().intValue());
             assertEquals(20160701, sdp.last().intValue());
+            final SortedSet<Integer> sdessr = new TreeSet<Integer>(sc.getDaysInWhichEnergySavingStatsReported());
+            assertEquals(20160302, sdessr.first().intValue());
+            assertEquals(20160701, sdessr.last().intValue());
 
             // TODO: validate these numbers
+            assertEquals(122, sc.getDaysInWhichEnergySavingStatsReported().size());
             assertEquals(97, sc.getDaysInWhichCallingForHeat().size());
+//System.out.println(new TreeSet<Integer>(sc.getDaysInWhichCallingForHeat()));
             assertEquals(34, sc.getDaysInWhichEnergySavingActive().size());
+//System.out.println(new TreeSet<Integer>(sc.getDaysInWhichEnergySavingActive()));
+            // Compute days with call-for-heat but no setbacks (possible control periods).
+            final Set<Integer> hns = new HashSet<Integer>(sc.getDaysInWhichCallingForHeat());
+            hns.removeAll(sc.getDaysInWhichEnergySavingActive());
+System.out.println(new TreeSet<Integer>(hns));
+            assertEquals(63, hns.size());
 
             // TODO
 

@@ -86,7 +86,9 @@ public final class OTLogActivityParse
         Set<Integer> getDaysInWhichDataPresent();
         /**Contains an entry for any day for which evidence of calling for heat was found; never null but may be empty. */
         Set<Integer> getDaysInWhichCallingForHeat();
-        /**Contains an entry for any day for which evidence of the energy saving features being enables and/or operating was found; never null but may be empty. */
+        /**Contains an entry for any day for which evidence of the energy saving features being reported, on or off, was found; never null but may be empty. */
+        Set<Integer> getDaysInWhichEnergySavingStatsReported();
+        /**Contains an entry for any day for which evidence of the energy saving features being enabled and/or operating was found; never null but may be empty. */
         Set<Integer> getDaysInWhichEnergySavingActive();
         }
 
@@ -102,6 +104,9 @@ public final class OTLogActivityParse
     /**Valve open (non-zero percentage) regex. */
     public static final Pattern REGEX_VALVE_PC_OPEN = Pattern.compile(".*\"v\\|%\":[1-9].*");
 
+    /**Temperature setback (present, any non-negative value) regex. */
+    public static final Pattern REGEX_TEMP_SETBACK_REPORTED = Pattern.compile(".*\"tS\\|C\":[0-9].*");
+
     /**Temperature setback (non-zero degrees) regex. */
     public static final Pattern REGEX_TEMP_SETBACK_C = Pattern.compile(".*\"tS\\|C\":[1-9].*");
 
@@ -113,6 +118,10 @@ public final class OTLogActivityParse
      * Uses timestamp to work out daysInWhichDataPresent.
      * <p>
      * Uses tS|C > 0 to detect automated setback and thus daysInWhichEnergySavingActive.
+     * <p>
+     * Uses presence of tS|C (of any value) to detect setback reporting and thus daysInWhichEnergySavingStatsReported.
+     * Can be used as an alternative to daysInWhichDataPresent
+     * to validate days where tS|C is available as a metric.
      * <p>
      * Uses v|% > 0 to detect call for heat and thus daysInWhichCallingForHeat.
      *
@@ -126,6 +135,7 @@ public final class OTLogActivityParse
 
         final Set<Integer> daysInWhichDataPresent = new HashSet<>();
         final Set<Integer> daysInWhichCallingForHeat = new HashSet<>();
+        final Set<Integer> daysInWhichEnergySavingStatsReported = new HashSet<>();
         final Set<Integer> daysInWhichEnergySavingActive = new HashSet<>();
 
         final LineNumberReader lr = new LineNumberReader(r);
@@ -150,6 +160,7 @@ public final class OTLogActivityParse
             final long time;
             final JSONObject leafObject;
             boolean valveOpen = false;
+            boolean tSCPresent = false;
             boolean tempSetback = false;
             if(isCanon)
                 {
@@ -169,7 +180,9 @@ public final class OTLogActivityParse
                 final Object pFv = leafObject.get(FIELD_VALVE_PC_OPEN);
                 if((pFv instanceof Number) && (((Number)pFv).intValue() > 0)) { valveOpen = true; }
                 final Object pFs = leafObject.get(FIELD_TEMP_SETBACK_C);
-                if((pFs instanceof Number) && (((Number)pFs).intValue() > 0)) { tempSetback = true; }
+                final boolean pFsIsNumber = pFs instanceof Number;
+                if(pFsIsNumber) { tSCPresent = true; }
+                if(pFsIsNumber && (((Number)pFs).intValue() > 0)) { tempSetback = true; }
                 }
             else
                 {
@@ -187,6 +200,7 @@ public final class OTLogActivityParse
                 // Look for the appropriate (non-zero) fields with regexes.
                 // This relies on the matches being sufficiently specific to not match anything unwanted.
                 if(REGEX_VALVE_PC_OPEN.matcher(line).matches()) { valveOpen = true; }
+                if(REGEX_TEMP_SETBACK_REPORTED.matcher(line).matches()) { tSCPresent = true; }
                 if(REGEX_TEMP_SETBACK_C.matcher(line).matches()) { tempSetback = true; }
                 }
 
@@ -197,12 +211,14 @@ public final class OTLogActivityParse
             daysInWhichDataPresent.add(key);
 
             if(valveOpen) { daysInWhichCallingForHeat.add(key); }
+            if(tSCPresent) { daysInWhichEnergySavingStatsReported.add(key); }
             if(tempSetback) { daysInWhichEnergySavingActive.add(key); }
             }
 
         return(new ValveLogParseResult(){
             @Override public Set<Integer> getDaysInWhichDataPresent() { return(daysInWhichDataPresent); }
-            @Override  public Set<Integer> getDaysInWhichCallingForHeat() { return(daysInWhichCallingForHeat); }
+            @Override public Set<Integer> getDaysInWhichCallingForHeat() { return(daysInWhichCallingForHeat); }
+            @Override public Set<Integer> getDaysInWhichEnergySavingStatsReported() { return(daysInWhichEnergySavingStatsReported); }
             @Override public Set<Integer> getDaysInWhichEnergySavingActive() { return(daysInWhichEnergySavingActive); }
             });
         }
