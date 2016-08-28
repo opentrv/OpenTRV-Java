@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationSystemStatus;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.SavingEnabledAndDataStatus;
@@ -50,14 +51,16 @@ public final class StatusSegmentation
         {
         if(null == devices) { throw new IllegalArgumentException(); }
 
-        // Deal with empty input quickly (result has no usable days).
-        if(devices.isEmpty())
-            { return(new ETVPerHouseholdComputationSystemStatus()
-                {
-                @Override public SortedMap<Integer, SavingEnabledAndDataStatus> getOptionalEnabledAndUsableFlagsByLocalDay()
-                    { return(Collections.<Integer, SavingEnabledAndDataStatus>emptySortedMap());  }
-                });
-            }
+//        // Deal with empty input quickly (result has no usable days).
+//        if(devices.isEmpty())
+//            {
+//            return(new ETVPerHouseholdComputationSystemStatus(){
+//                @Override public SortedMap<Integer, SavingEnabledAndDataStatus> getOptionalEnabledAndUsableFlagsByLocalDay()
+//                    { return(Collections.<Integer, SavingEnabledAndDataStatus>emptySortedMap());  }
+//                });
+//            }
+
+        final SortedMap<Integer, SavingEnabledAndDataStatus> result = new TreeMap<>();
 
         // Potentially usable days: where any device in the household
         // is calling for heat AND reporting its energy saving status (enabled or disabled)
@@ -72,6 +75,9 @@ public final class StatusSegmentation
         // TODO
 
 
-        throw new RuntimeException("NOT IMPLEMENTED");
+        return(new ETVPerHouseholdComputationSystemStatus(){
+            @Override public SortedMap<Integer, SavingEnabledAndDataStatus> getOptionalEnabledAndUsableFlagsByLocalDay()
+                { return(Collections.unmodifiableSortedMap(result));  }
+            });
         }
     }

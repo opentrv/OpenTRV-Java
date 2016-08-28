@@ -460,11 +460,11 @@ public class ETVParseTest
     /**Test mass load and analysis of log files. */
     @Test public void testMassLogLoadAndAnalysis() throws IOException
         {
-//        final Map<String, ETVPerHouseholdComputationSystemStatus> va = OTLogActivityParse.loadAndParseAllOTLogs(vlr, DEFAULT_UK_TIMEZONE);
-//        assertNotNull(va);
-//        assertEquals(2, va.size());
-//        assertTrue(va.containsKey("5013"));
-//        assertTrue(va.containsKey("S001"));
+        final Map<String, ETVPerHouseholdComputationSystemStatus> va = OTLogActivityParse.loadAndParseAllOTLogs(vlr, DEFAULT_UK_TIMEZONE);
+        assertNotNull(va);
+        assertEquals(2, va.size());
+        assertTrue(va.containsKey("5013"));
+        assertTrue(va.containsKey("S001"));
 
 
 

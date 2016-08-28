@@ -30,10 +30,10 @@ import uk.org.opentrv.ETV.filter.StatusSegmentation;
 
 public class ETVSegmentationTest
     {
-    /**Test for correct basic segmentation. */
-    @Test public void testBasicSegmentation() throws IOException
+    /**Test for correct 'empty' segmentation. */
+    @Test public void testEmptySegmentation() throws IOException
         {
-        // Check that with no devices that a non-null empty result is produced.
+        // Check that with no devices a non-null empty result is produced.
         assertNotNull(StatusSegmentation.segmentActivity(Collections.emptyList()));
         assertNotNull(StatusSegmentation.segmentActivity(Collections.emptyList()).getOptionalEnabledAndUsableFlagsByLocalDay());
         assertTrue(StatusSegmentation.segmentActivity(Collections.emptyList()).getOptionalEnabledAndUsableFlagsByLocalDay().isEmpty());
