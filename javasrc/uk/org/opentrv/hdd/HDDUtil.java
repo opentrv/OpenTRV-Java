@@ -17,6 +17,8 @@ Author(s) / Copyright (s): Damon Hart-Davis 2014--2016
 */
 package uk.org.opentrv.hdd;
 
+import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -28,7 +30,9 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TimeZone;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.zip.GZIPInputStream;
 
 
 /**Utility HDD methods. */
@@ -406,11 +410,23 @@ public final class HDDUtil
 
     /**Read ASCII7 text resource from given class as Reader. */
     public static Reader getASCIIResourceReader(final Class<?> clazz, final String path) throws IOException
-        { return(new InputStreamReader(clazz.getResourceAsStream(path), "ASCII7")); }
+        { return(new InputStreamReader(new BufferedInputStream(clazz.getResourceAsStream(path)), "ASCII7")); }
     /**Read ASCII7 text resource from given class as Reader, wrapping IOException as RuntimeException. */
     public static Reader getASCIIResourceReaderRE(final Class<?> clazz, final String path)
         { try { return(getASCIIResourceReader(clazz, path)); } catch(final IOException e) { throw new RuntimeException(e); } }
     /**Get Supplier of Readers of given ASCII7 text resource from given class. */
     public static Supplier<Reader> getASCIIResourceReaderSupplier(final Class<?> clazz, final String path)
         { return(() -> getASCIIResourceReaderRE(clazz, path)); }
+    /**Return Function to create Reader for ASCII7 text resource within given directory and given class, wrapping IOException as RuntimeException. */
+    public static Function<String, Reader> getDirResourceReader(final Class<?> clazz, final String dir)
+        { return(f -> getASCIIResourceReaderRE(clazz, (new File(dir, f)).toString())); }
+    /**Read ASCII7 text resource from given class as Reader. */
+    public static Reader getGZIPpedASCIIResourceReader(final Class<?> clazz, final String path) throws IOException
+        { return(new InputStreamReader(new GZIPInputStream(new BufferedInputStream(clazz.getResourceAsStream(path))), "ASCII7")); }
+    /**Read ASCII7 text resource from given class as Reader, wrapping IOException as RuntimeException. */
+    public static Reader getGZIPpedASCIIResourceReaderRE(final Class<?> clazz, final String path)
+        { try { return(getGZIPpedASCIIResourceReader(clazz, path)); } catch(final IOException e) { throw new RuntimeException(e); } }
+    /**Return Function to create Reader for GZIPped ASCII7 text resource within given directory and given class, wrapping IOException as RuntimeException. */
+    public static Function<String, Reader> getDirGZIPpedResourceReader(final Class<?> clazz, final String dir)
+        { return(f -> getGZIPpedASCIIResourceReaderRE(clazz, (new File(dir, f)).toString())); }
     }

@@ -37,6 +37,7 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TimeZone;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.zip.GZIPInputStream;
 
@@ -244,7 +245,6 @@ public class ETVParseTest
         assertEquals(10.55f, data.getKWhByLocalDay().get(20160331), 0.01f);
         }
 
-
     /**Name of the ETV (ASCII) sample single-home bulk kWh consumption data all in 2016H1. */
     public static final String N_SAMPLE_GAS_2016_06_CSV = "N-sample-GAS-2016-06.csv";
     /**Return a Reader for the ETV sample bulk HDD data for EGLL; never null. */
@@ -340,23 +340,23 @@ public class ETVParseTest
         assertEquals(1, spd.getDaysInWhichEnergySavingStatsReported().size());
         }
 
-    /**Return a stream for one sample huge (ASCII) zipped OpenTRV valve log file; never null.
+    /**Valve log sample (etc) resource directory. */
+    public static final String VALVE_LOG_SAMPLE_DIR = "valveLogSamples";
+    /**Resource reader for valve log samples and associated files. */
+    Function<String, Reader> vlr = HDDUtil.getDirResourceReader(ETVParseTest.class, VALVE_LOG_SAMPLE_DIR);
+    /**Resource reader for ZIPped valve log samples and associated files. */
+    Function<String, Reader> vlrz = HDDUtil.getDirGZIPpedResourceReader(ETVParseTest.class, VALVE_LOG_SAMPLE_DIR);
+
+    /**Test parse of huge OpenTRV valve log file (canonical format) for activity/status.
      * Note 1: tS|C measure not available until ~2016/03.
      * <p>
      * Note 2: no control period enforced on this valve.
      * <p>
      * Note 3: multiple code development versions applied to this valve during data set.
      */
-    public static InputStream getHugeZippedValveLogStream()
-        { return(ETVParseTest.class.getResourceAsStream("valveLogSamples/0a45.json.gz")); }
-    /**Return a Reader for the huge sample HDD data for EGLL; never null. */
-    public static Reader getHugeZippedValveLogReader() throws IOException
-        { return(new InputStreamReader(new BufferedInputStream(new GZIPInputStream(getHugeZippedValveLogStream())), "ASCII7")); }
-
-    /**Test parse of huge OpenTRV valve log file (canonical format) for activity/status. */
     @Test public void testValveHugeLogParse() throws IOException
         {
-        try(final Reader r = getHugeZippedValveLogReader())
+        try(final Reader r = vlrz.apply("0a45.json.gz"))
             {
             final ValveLogParseResult sc = OTLogActivityParse.parseValveLog(r, DEFAULT_UK_TIMEZONE);
             assertNotNull(sc);
@@ -401,7 +401,7 @@ public class ETVParseTest
     /**Test parse of huge OpenTRV synthetic valve log file (partially-decrypted-format) for activity/status. */
     @Test public void testValveHugeDLogParse() throws IOException
         {
-        try(final Reader r = getHugeZippedValveDLogReader())
+        try(final Reader r = vlrz.apply("synthd.dlog.gz"))
             {
             final ValveLogParseResult sc = OTLogActivityParse.parseValveLog(r, DEFAULT_UK_TIMEZONE);
             assertNotNull(sc);
@@ -431,5 +431,7 @@ public class ETVParseTest
             assertEquals(6, hns.size());
             }
         }
+
+
     }
 
