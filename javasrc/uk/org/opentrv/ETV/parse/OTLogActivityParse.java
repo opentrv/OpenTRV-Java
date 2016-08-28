@@ -24,6 +24,7 @@ import java.io.Reader;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -40,6 +41,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationSystemStatus;
+import uk.org.opentrv.ETV.filter.StatusSegmentation;
 import uk.org.opentrv.hdd.HDDUtil;
 
 /**Process OpenTRV device log files for key activity.
@@ -319,13 +321,12 @@ S001,synthd
         }
 
     /**Find and analyse the log if any for the given valve (identified by primary or secondary ID); null if not found.
-     * This
      * @param dataReader  smart reader Function; never null
      * @param valvePrimaryID  primary valve ID; never null
      * @param valveSecondaryID  secondary valve ID; may be null
      * @return  result of analysis, or null if no data could be found
      */
-    public static ValveLogParseResult findAndAnalyseLog(final Function<String, Reader> dataReader, final String valvePrimaryID, final String valveSecondaryID, final TimeZone localTimeZoneForDayBoundaries)
+    public static ValveLogParseResult findAndAnalyseLog(final Function<String, Reader> dataReader, final TimeZone localTimeZoneForDayBoundaries, final String valvePrimaryID, final String valveSecondaryID)
         {
         if(null == dataReader) { throw new IllegalArgumentException(); }
         if(null == valvePrimaryID) { throw new IllegalArgumentException(); }
@@ -350,8 +351,24 @@ S001,synthd
         return(null); // Not found.
         }
 
-    /**Load an analyse a household's devices together. */
-    // TODO
+    /**Load an analyse a household's devices together.
+     * Loads the data, does the initial parse per device;
+     * @return  the combined result
+     */
+    public static ETVPerHouseholdComputationSystemStatus analyseHouseLogs(final Function<String, Reader> dataReader, final TimeZone localTimeZoneForDayBoundaries, final Collection<String> devices)
+        {
+        // Per-device log parse results.
+        final List<ValveLogParseResult> perDevice = new ArrayList<>(devices.size());
+
+        for(final String valveID : devices)
+            {
+            final ValveLogParseResult vlpr = findAndAnalyseLog(dataReader, localTimeZoneForDayBoundaries, valveID, null);
+            // OMIT any device for which there is no data at all.
+            if(null != vlpr) { perDevice.add(vlpr); }
+            }
+
+        return(StatusSegmentation.segmentActivity(perDevice));
+        }
 
     /**Read/parse an entire set of log records and produce per-household sets of dates for segmentation and analysis; never null but may be empty.
      * Given a Functor that takes relative path name and returns a Reader of line-oriented records:
@@ -380,10 +397,8 @@ S001,synthd
         // Create a segmented view for the household as a whole.
         for(final String houseID : gm.keySet())
             {
-
-            // TODO
-
-
+            final ETVPerHouseholdComputationSystemStatus houseStatus = analyseHouseLogs(dataReader, localTimeZoneForDayBoundaries, gm.get(houseID));
+            result.put(houseID, houseStatus);
             }
 
         return(result);
