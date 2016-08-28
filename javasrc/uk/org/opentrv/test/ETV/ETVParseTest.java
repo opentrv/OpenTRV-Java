@@ -31,6 +31,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -432,6 +433,12 @@ public class ETVParseTest
             }
         }
 
-
+    /**Test basic load of grouping file. */
+    @Test public void testGroupingParse() throws IOException
+        {
+        final List<String> gl = OTLogActivityParse.loadGroupingCSVAsList(vlr);
+        assertNotNull(gl);
+        assertEquals(9, gl.size());
+        }
     }
 

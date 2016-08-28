@@ -1,4 +1,4 @@
-HouseID,deviceID,secondaryDeviceID
+HouseID,deviceID,secondaryDeviceID(2ndaryIDOfHouseIfDeviceIDBlank)
 5013,,16WW
 5013,2d1a
 5013,414a

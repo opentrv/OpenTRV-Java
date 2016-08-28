@@ -243,7 +243,7 @@ public final class OTLogActivityParse
      *
      * @throws  IOException if file cannot be read
      */
-    public static List<String> loadGroupingCSVAsString(final Function<String, Reader> dataReader)
+    public static List<String> loadGroupingCSVAsList(final Function<String, Reader> dataReader)
         throws IOException
         {
         try(LineNumberReader lr = new LineNumberReader(dataReader.apply(LOGDIR_PATH_TO_GROUPING_CSV)))
