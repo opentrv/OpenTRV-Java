@@ -72,8 +72,31 @@ public final class StatusSegmentation
             potentiallyUsableDays.addAll(s);
             }
 
-        // TODO
-
+        // From potentially usable days note those with majority of devices with
+        // reporting energy-saving status and with energy-saving features enabled/disabled.
+        // Other days without a clear majority can be marked as explicitly unusable.
+        final int quorum = (devices.size() / 2) + 1;
+        for(final Integer day : potentiallyUsableDays)
+            {
+            int reportingSavingsEnabled = 0;
+            int reportingSavingsDisabled = 0;
+            for(final ValveLogParseResult vlpr : devices)
+                {
+                if(!vlpr.getDaysInWhichEnergySavingStatsReported().contains(day)) { continue; }
+                if(vlpr.getDaysInWhichEnergySavingActive().contains(day))
+                    { ++reportingSavingsEnabled; }
+                else
+                    { ++reportingSavingsDisabled; }
+                }
+            if((reportingSavingsEnabled >= quorum) &&
+               (reportingSavingsEnabled > reportingSavingsDisabled))
+                { result.put(day, SavingEnabledAndDataStatus.Enabled); }
+            else if((reportingSavingsDisabled >= quorum) &&
+                (reportingSavingsDisabled > reportingSavingsEnabled))
+                { result.put(day, SavingEnabledAndDataStatus.Disabled); }
+            else
+                { result.put(day, SavingEnabledAndDataStatus.DontUse); }
+            }
 
         return(new ETVPerHouseholdComputationSystemStatus(){
             @Override public SortedMap<Integer, SavingEnabledAndDataStatus> getOptionalEnabledAndUsableFlagsByLocalDay()

@@ -465,7 +465,8 @@ public class ETVParseTest
         assertEquals(2, va.size());
         assertTrue(va.containsKey("5013"));
         assertTrue(va.containsKey("S001"));
-
+        assertEquals(55, va.get("5013").getOptionalEnabledAndUsableFlagsByLocalDay().size());
+        assertEquals(12, va.get("S001").getOptionalEnabledAndUsableFlagsByLocalDay().size());
 
 
         // TODO
