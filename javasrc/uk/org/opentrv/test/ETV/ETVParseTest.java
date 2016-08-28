@@ -436,12 +436,6 @@ public class ETVParseTest
     /**Test basic load of grouping file. */
     @Test public void testGroupingParse() throws IOException
         {
-        // Parse as raw list.
-        final List<String> gl = OTLogActivityParse.loadGroupingCSVAsList(vlr);
-        assertNotNull(gl);
-        assertEquals(9, gl.size());
-        assertTrue(gl.get(0).startsWith("HouseID,"));
-        assertTrue(gl.get(2).equals("5013,2d1a"));
         // Parse as map for all devices/valves in a household.
         final Map<String, Set<String>> gm = OTLogActivityParse.loadGroupingCSVAsMap(vlr);
         assertNotNull(gm);

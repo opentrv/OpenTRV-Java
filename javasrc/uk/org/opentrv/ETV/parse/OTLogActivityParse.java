@@ -21,7 +21,6 @@ package uk.org.opentrv.ETV.parse;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.Reader;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -244,7 +243,7 @@ public final class OTLogActivityParse
      *
      * @throws  IOException if file cannot be read
      */
-    public static List<String> loadGroupingCSVAsList(final Function<String, Reader> dataReader)
+    private static List<String> loadGroupingCSVAsList(final Function<String, Reader> dataReader)
         throws IOException
         {
         try(LineNumberReader lr = new LineNumberReader(dataReader.apply(LOGDIR_PATH_TO_GROUPING_CSV)))
@@ -261,6 +260,21 @@ public final class OTLogActivityParse
         }
 
     /**Read/parse (as a map from household to a Set of its valves/devices) the grouping CSV file; never null but may be empty.
+     * Format:
+     * <pre>
+HouseID,deviceID,secondaryDeviceID(2ndaryIDOfHouseIfDeviceIDBlank)
+5013,,16WW
+5013,2d1a
+5013,414a
+5013,0d49
+5013,0a45
+5013,3015
+S001,,synthetic1
+S001,synthd
+     * </pre>
+     * <p>
+     * No valve can belong to more than one household, though this is not yet verified.
+     * <p>
      * Closes the Reader when finished.
      *
      * @throws  IOException if file cannot be read or parsed
@@ -288,6 +302,18 @@ public final class OTLogActivityParse
             if(!result.containsKey(houseID)) { result.put(houseID, new HashSet<String>()); }
             result.get(houseID).add(valveID);
             }
+
+        // Check that no valve was associated with more than one household.
+        // Union size should be sum of all constituent sets, ie no overlap.
+        int nPerHousehold = 0;
+        final Set<String> unionValveIDs = new HashSet<>();
+        for(final Set<String> h : result.values())
+            {
+            nPerHousehold += h.size();
+            unionValveIDs.addAll(h);
+            }
+        if(unionValveIDs.size() != nPerHousehold)
+            { throw new IOException("bad groupings, at least one valve in more than one household"); }
 
         return(result);
         }
