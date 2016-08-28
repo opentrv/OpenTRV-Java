@@ -307,8 +307,12 @@ public final class OTLogActivityParse
      * @return  map from house ID to ETVPerHouseholdComputationSystemStatus;
      *     never null but may be empty
      */
-    public static Map<String, ETVPerHouseholdComputationSystemStatus> loadAndParseAllOTLogs(final Function<Path, Reader> dataReader)
+    public static Map<String, ETVPerHouseholdComputationSystemStatus> loadAndParseAllOTLogs(final Function<String, Reader> dataReader)
+        throws IOException
         {
+        // Load groupings: abort with exception if not possible.
+        final Map<String, Set<String>> gm = loadGroupingCSVAsMap(dataReader);
+
         throw new RuntimeException("NOT IMPLEMENTED");
         }
     }
