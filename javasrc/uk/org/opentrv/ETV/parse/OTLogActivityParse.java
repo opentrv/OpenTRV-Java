@@ -352,7 +352,13 @@ S001,synthd
         }
 
     /**Load an analyse a household's devices together.
-     * Loads the data, does the initial parse per device;
+     * Loads the per-device data,
+     * does the initial parse per device,
+     * combines and returns the result.
+     * <p>
+     * Note: this silently omits any device for which no data at all is found,
+     * which may have a bearing on (say) quora/majority calculations when combining.
+     *
      * @return  the combined result
      */
     public static ETVPerHouseholdComputationSystemStatus analyseHouseLogs(final Function<String, Reader> dataReader, final TimeZone localTimeZoneForDayBoundaries, final Collection<String> devices)
@@ -363,7 +369,7 @@ S001,synthd
         for(final String valveID : devices)
             {
             final ValveLogParseResult vlpr = findAndAnalyseLog(dataReader, localTimeZoneForDayBoundaries, valveID, null);
-            // OMIT any device for which there is no data at all.
+            // Silently OMIT any device for which there is no data at all.
             if(null != vlpr) { perDevice.add(vlpr); }
             }
 
@@ -379,8 +385,9 @@ S001,synthd
      *     and which have energy-saving features enabled or not (the latter being controls).</li>
      * </ol>
      * <p>
-     * A day may not be usable if only a minority are reporting savings stats,
-     * valves are reporting an intermediate mixture of enabled and disabled status.
+     * A day may not be usable if, for example,
+     * only a minority of devices are reporting energy-saving status,
+     * or valves are reporting an intermediate mixture of enabled and disabled status.
      *
      * @return  map from house ID to ETVPerHouseholdComputationSystemStatus;
      *     never null but may be empty
