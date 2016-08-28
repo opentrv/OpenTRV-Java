@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -45,6 +46,7 @@ import org.junit.Test;
 
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationInput;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationSystemStatus;
+import uk.org.opentrv.ETV.ETVPerHouseholdComputation.SavingEnabledAndDataStatus;
 import uk.org.opentrv.ETV.parse.NBulkInputs;
 import uk.org.opentrv.ETV.parse.NBulkKWHParseByID;
 import uk.org.opentrv.ETV.parse.OTLogActivityParse;
@@ -466,7 +468,15 @@ public class ETVParseTest
         assertTrue(va.containsKey("5013"));
         assertTrue(va.containsKey("S001"));
         assertEquals(55, va.get("5013").getOptionalEnabledAndUsableFlagsByLocalDay().size());
+//System.out.println(va.get("5013").getOptionalEnabledAndUsableFlagsByLocalDay());
+        assertEquals(15, Collections.frequency(va.get("5013").getOptionalEnabledAndUsableFlagsByLocalDay().values(), SavingEnabledAndDataStatus.Enabled));
+        assertEquals(11, Collections.frequency(va.get("5013").getOptionalEnabledAndUsableFlagsByLocalDay().values(), SavingEnabledAndDataStatus.Disabled));
+        // The synthetic logs should have 6 days enabled and 6 disabled.
         assertEquals(12, va.get("S001").getOptionalEnabledAndUsableFlagsByLocalDay().size());
+//System.out.println(va.get("S001").getOptionalEnabledAndUsableFlagsByLocalDay());
+        assertEquals(6, Collections.frequency(va.get("S001").getOptionalEnabledAndUsableFlagsByLocalDay().values(), SavingEnabledAndDataStatus.Enabled));
+        assertEquals(6, Collections.frequency(va.get("S001").getOptionalEnabledAndUsableFlagsByLocalDay().values(), SavingEnabledAndDataStatus.Disabled));
+
 
 
         // TODO
