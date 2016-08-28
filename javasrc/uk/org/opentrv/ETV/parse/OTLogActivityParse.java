@@ -318,6 +318,38 @@ S001,synthd
         return(result);
         }
 
+    /**Find and analyse the log if any for the given valve (identified by primary or secondary ID); null if not found.
+     * This
+     * @param dataReader  smart reader Function; never null
+     * @param valvePrimaryID  primary valve ID; never null
+     * @param valveSecondaryID  secondary valve ID; may be null
+     * @return  result of analysis, or null if no data could be found
+     */
+    public static ValveLogParseResult findAndAnalyseLog(final Function<String, Reader> dataReader, final String valvePrimaryID, final String valveSecondaryID, final TimeZone localTimeZoneForDayBoundaries)
+        {
+        if(null == dataReader) { throw new IllegalArgumentException(); }
+        if(null == valvePrimaryID) { throw new IllegalArgumentException(); }
+        if(null == localTimeZoneForDayBoundaries) { throw new IllegalArgumentException(); }
+
+        // Try all combinations of name with and without compression
+        // for single-file format.
+        final String[] endings = { "blah", "json.gz", "dlog.gz", "json", "dlog" };
+        for(final String e : endings)
+            {
+            final String filename = valvePrimaryID + "." + e;
+            try {
+                // Stop as soon as one succeeds.
+                try(final Reader r = dataReader.apply(filename))
+                    { return(parseValveLog(r, localTimeZoneForDayBoundaries)); }
+                }
+            catch(Exception e1) { /* ignore */ }
+            }
+
+        // TODO: read from multi-device dump...
+
+        return(null); // Not found.
+        }
+
     /**Read/parse an entire set of log records and produce per-household sets of dates for segmentation and analysis; never null but may be empty.
      * Given a Functor that takes relative path name and returns a Reader of line-oriented records:
      * <ol>
@@ -333,7 +365,7 @@ S001,synthd
      * @return  map from house ID to ETVPerHouseholdComputationSystemStatus;
      *     never null but may be empty
      */
-    public static Map<String, ETVPerHouseholdComputationSystemStatus> loadAndParseAllOTLogs(final Function<String, Reader> dataReader)
+    public static Map<String, ETVPerHouseholdComputationSystemStatus> loadAndParseAllOTLogs(final Function<String, Reader> dataReader, final TimeZone localTimeZoneForDayBoundaries)
         throws IOException
         {
         // Load groupings: abort with exception if not possible.
@@ -341,13 +373,15 @@ S001,synthd
 
         final Map<String, ETVPerHouseholdComputationSystemStatus> result = new HashMap<>(gm.size() * 2);
 
+        // House by house, load parse, and analyse logs as a group.
+        // Create a segmented view for the household as a whole.
+        for(final String houseID : gm.keySet())
+            {
+
+            // TODO
 
 
-
-        // TODO
-
-
-
+            }
 
         return(result);
         }

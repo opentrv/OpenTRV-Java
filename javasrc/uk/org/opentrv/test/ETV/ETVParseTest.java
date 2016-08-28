@@ -385,6 +385,15 @@ public class ETVParseTest
 //System.out.println(new TreeSet<Integer>(hns));
             assertEquals(2, hns.size());
             }
+
+        // Re-test via higher-level interface.
+        final ValveLogParseResult sc = OTLogActivityParse.findAndAnalyseLog(vlr, "0a45", null, DEFAULT_UK_TIMEZONE);
+        assertNotNull(sc);
+        assertNotNull(sc.getDaysInWhichDataPresent());
+        assertEquals(183, sc.getDaysInWhichDataPresent().size());
+        assertEquals(122, sc.getDaysInWhichEnergySavingStatsReported().size());
+        assertEquals(97, sc.getDaysInWhichCallingForHeat().size());
+        assertEquals(34, sc.getDaysInWhichEnergySavingActive().size());
         }
 
     /**Return a stream for one sample huge (ASCII) zipped synthetic partially-decrypted-format valve log file; never null.
@@ -451,9 +460,12 @@ public class ETVParseTest
     /**Test mass load and analysis of log files. */
     @Test public void testMassLogLoadAndAnalysis() throws IOException
         {
-        final Map<String, ETVPerHouseholdComputationSystemStatus> va = OTLogActivityParse.loadAndParseAllOTLogs(vlr);
+        final Map<String, ETVPerHouseholdComputationSystemStatus> va = OTLogActivityParse.loadAndParseAllOTLogs(vlr, DEFAULT_UK_TIMEZONE);
         assertNotNull(va);
 //        assertEquals(2, va.size());
+//        assertTrue(va.values().contains("5013"));
+//        assertTrue(va.values().contains("S001"));
+
 
 
         // TODO
