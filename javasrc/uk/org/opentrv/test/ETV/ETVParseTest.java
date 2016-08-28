@@ -463,8 +463,8 @@ public class ETVParseTest
         final Map<String, ETVPerHouseholdComputationSystemStatus> va = OTLogActivityParse.loadAndParseAllOTLogs(vlr, DEFAULT_UK_TIMEZONE);
         assertNotNull(va);
 //        assertEquals(2, va.size());
-//        assertTrue(va.values().contains("5013"));
-//        assertTrue(va.values().contains("S001"));
+//        assertTrue(va.containsKey("5013"));
+//        assertTrue(va.containsKey("S001"));
 
 
 

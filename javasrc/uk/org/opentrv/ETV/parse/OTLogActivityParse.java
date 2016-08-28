@@ -342,13 +342,16 @@ S001,synthd
                 try(final Reader r = dataReader.apply(filename))
                     { return(parseValveLog(r, localTimeZoneForDayBoundaries)); }
                 }
-            catch(Exception e1) { /* ignore */ }
+            catch(final Exception e1) { /* ignore */ }
             }
 
-        // TODO: read from multi-device dump...
+        // TODO: read from multi-device dump if no stand-alone file found...
 
         return(null); // Not found.
         }
+
+    /**Load an analyse a household's devices together. */
+    // TODO
 
     /**Read/parse an entire set of log records and produce per-household sets of dates for segmentation and analysis; never null but may be empty.
      * Given a Functor that takes relative path name and returns a Reader of line-oriented records:
