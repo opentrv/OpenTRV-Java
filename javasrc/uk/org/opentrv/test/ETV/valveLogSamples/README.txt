@@ -25,7 +25,7 @@ So with a grouping.csv containing the following:
     5013,0a45
     5013,3015
     S001,,synthetic1
-    S001,synthd,IIIIIIII
+    S001,synthd,II II II II
 
 for houses with primary ID "5013" and "S001" (for their energy consumption)
 AKA "16WW" and "synthetic1" respectively
