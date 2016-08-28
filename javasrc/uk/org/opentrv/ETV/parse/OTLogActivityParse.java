@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -257,6 +258,38 @@ public final class OTLogActivityParse
             result.trimToSize();
             return(Collections.unmodifiableList(result));
             }
+        }
+
+    /**Read/parse (as a map from household to a Set of its valves/devices) the grouping CSV file; never null but may be empty.
+     * Closes the Reader when finished.
+     *
+     * @throws  IOException if file cannot be read or parsed
+     */
+    public static Map<String, Set<String>> loadGroupingCSVAsMap(final Function<String, Reader> dataReader)
+        throws IOException
+        {
+        final List<String> rl = loadGroupingCSVAsList(dataReader);
+        final Map<String, Set<String>> result = new HashMap<>();
+
+        // Skip header row if present.
+        final List<String> l = (rl.get(0).startsWith("HouseID,") ? rl.subList(1, rl.size()) : rl);
+
+        // Collect valves by household.
+        for(final String record : l)
+            {
+            final String cols[] = record.split(",");
+            if((cols.length < 2) || (cols.length > 3)) { throw new IOException("bad cols, expecting 2 or 3: " + record); }
+            final String houseID = cols[0];
+            if("".equals(houseID)) { throw new IOException("bad (empty) houseID: " + record); }
+            final String valveID = cols[1];
+            // Ignore row with no valve ID.
+            if("".equals(valveID)) { continue; }
+            // Create appropriate entry.
+            if(!result.containsKey(houseID)) { result.put(houseID, new HashSet<String>()); }
+            result.get(houseID).add(valveID);
+            }
+
+        return(result);
         }
 
     /**Read/parse an entire set of log records and produce per-household sets of dates for segmentation and analysis; never null but may be empty.
