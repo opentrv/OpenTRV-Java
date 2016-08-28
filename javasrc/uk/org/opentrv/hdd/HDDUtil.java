@@ -429,4 +429,9 @@ public final class HDDUtil
     /**Return Function to create Reader for GZIPped ASCII7 text resource within given directory and given class, wrapping IOException as RuntimeException. */
     public static Function<String, Reader> getDirGZIPpedResourceReader(final Class<?> clazz, final String dir)
         { return(f -> getGZIPpedASCIIResourceReaderRE(clazz, (new File(dir, f)).toString())); }
+    /**Return Function to create Reader for plaint or GZIPped ASCII7 text resource within given directory and given class, wrapping IOException as RuntimeException.
+     * If resource name ends in .gz then GZIP decompression will automatically be applied.
+     */
+    public static Function<String, Reader> getDirSmartResourceReader(final Class<?> clazz, final String dir)
+        { return(f -> f.endsWith(".gz") ? getGZIPpedASCIIResourceReaderRE(clazz, (new File(dir, f)).toString()) : getASCIIResourceReaderRE(clazz, (new File(dir, f)).toString())); }
     }

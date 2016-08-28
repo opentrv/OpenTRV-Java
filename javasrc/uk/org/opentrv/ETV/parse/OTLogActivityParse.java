@@ -339,6 +339,16 @@ S001,synthd
         // Load groupings: abort with exception if not possible.
         final Map<String, Set<String>> gm = loadGroupingCSVAsMap(dataReader);
 
-        throw new RuntimeException("NOT IMPLEMENTED");
+        final Map<String, ETVPerHouseholdComputationSystemStatus> result = new HashMap<>(gm.size() * 2);
+
+
+
+
+        // TODO
+
+
+
+
+        return(result);
         }
     }

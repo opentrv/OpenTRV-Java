@@ -31,7 +31,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -45,6 +44,7 @@ import java.util.zip.GZIPInputStream;
 import org.junit.Test;
 
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationInput;
+import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationSystemStatus;
 import uk.org.opentrv.ETV.parse.NBulkInputs;
 import uk.org.opentrv.ETV.parse.NBulkKWHParseByID;
 import uk.org.opentrv.ETV.parse.OTLogActivityParse;
@@ -344,9 +344,7 @@ public class ETVParseTest
     /**Valve log sample (etc) resource directory. */
     public static final String VALVE_LOG_SAMPLE_DIR = "valveLogSamples";
     /**Resource reader for valve log samples and associated files. */
-    Function<String, Reader> vlr = HDDUtil.getDirResourceReader(ETVParseTest.class, VALVE_LOG_SAMPLE_DIR);
-    /**Resource reader for ZIPped valve log samples and associated files. */
-    Function<String, Reader> vlrz = HDDUtil.getDirGZIPpedResourceReader(ETVParseTest.class, VALVE_LOG_SAMPLE_DIR);
+    Function<String, Reader> vlr = HDDUtil.getDirSmartResourceReader(ETVParseTest.class, VALVE_LOG_SAMPLE_DIR);
 
     /**Test parse of huge OpenTRV valve log file (canonical format) for activity/status.
      * Note 1: tS|C measure not available until ~2016/03.
@@ -357,7 +355,7 @@ public class ETVParseTest
      */
     @Test public void testValveHugeLogParse() throws IOException
         {
-        try(final Reader r = vlrz.apply("0a45.json.gz"))
+        try(final Reader r = vlr.apply("0a45.json.gz"))
             {
             final ValveLogParseResult sc = OTLogActivityParse.parseValveLog(r, DEFAULT_UK_TIMEZONE);
             assertNotNull(sc);
@@ -402,7 +400,7 @@ public class ETVParseTest
     /**Test parse of huge OpenTRV synthetic valve log file (partially-decrypted-format) for activity/status. */
     @Test public void testValveHugeDLogParse() throws IOException
         {
-        try(final Reader r = vlrz.apply("synthd.dlog.gz"))
+        try(final Reader r = vlr.apply("synthd.dlog.gz"))
             {
             final ValveLogParseResult sc = OTLogActivityParse.parseValveLog(r, DEFAULT_UK_TIMEZONE);
             assertNotNull(sc);
@@ -448,6 +446,17 @@ public class ETVParseTest
         assertNotNull(h2);
         assertEquals(1, h2.size());
         assertTrue(h2.contains("synthd"));
+        }
+
+    /**Test mass load and analysis of log files. */
+    @Test public void testMassLogLoadAndAnalysis() throws IOException
+        {
+        final Map<String, ETVPerHouseholdComputationSystemStatus> va = OTLogActivityParse.loadAndParseAllOTLogs(vlr);
+        assertNotNull(va);
+//        assertEquals(2, va.size());
+
+
+        // TODO
         }
     }
 
