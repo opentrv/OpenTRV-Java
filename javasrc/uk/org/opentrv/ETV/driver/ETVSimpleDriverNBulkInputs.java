@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationInput;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationResult;
+import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationSystemStatus;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputationSimpleImpl;
 import uk.org.opentrv.ETV.filter.CommonSimpleResultFilters;
 import uk.org.opentrv.ETV.output.ETVPerHouseholdComputationResultsToCSV;
@@ -129,7 +130,8 @@ public final class ETVSimpleDriverNBulkInputs
 
         // Segment and look for changes in energy efficiency.
         final Set<String> stage1FilteredHouseIDs = rlBasicFiltered.stream().map(e -> e.getHouseID()).collect(Collectors.toSet());
-//        OTLogActivityParse.loadAndParseAllOTLogs(HDDUtil.getDirSmartFileReader(inDir), NBulkKWHParseByID.DEFAULT_NB_TIMEZONE, stage1FilteredHouseIDs);
+        final Map<String, ETVPerHouseholdComputationSystemStatus> byHouseholdSegmentation = OTLogActivityParse.loadAndParseAllOTLogs(HDDUtil.getDirSmartFileReader(inDir), NBulkKWHParseByID.DEFAULT_NB_TIMEZONE, stage1FilteredHouseIDs);
+System.out.println(byHouseholdSegmentation);
 
 
         // TODO

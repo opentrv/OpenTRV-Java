@@ -19,6 +19,7 @@ package uk.org.opentrv.hdd;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -436,15 +437,16 @@ public final class HDDUtil
     public static Function<String, Reader> getDirSmartResourceReader(final Class<?> clazz, final String dir)
         { return(f -> f.endsWith(".gz") ? getGZIPpedASCIIResourceReaderRE(clazz, (new File(dir, f)).toString()) : getASCIIResourceReaderRE(clazz, (new File(dir, f)).toString())); }
 
-
     // File Readers of various flavours.
-    private static Reader getGZIPpedASCIIFileReaderRE(File file)
+    private static Reader getGZIPpedASCIIFileReaderRE(final File file)
         {
-        throw new RuntimeException("NOT IMPLEMENTED");
+        try { return(new InputStreamReader(new GZIPInputStream(new BufferedInputStream(new FileInputStream(file))), "ASCII7")); }
+        catch(final IOException e) { throw new RuntimeException(e); }
         }
-    private static Reader getASCIIFileReaderRE(File file)
+    private static Reader getASCIIFileReaderRE(final File file)
         {
-        throw new RuntimeException("NOT IMPLEMENTED");
+        try { return(new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), "ASCII7")); }
+        catch(final IOException e) { throw new RuntimeException(e); }
         }
     /**Return Function to create Reader for plaintext or GZIPped ASCII7 text file within given directory and given class, wrapping IOException as RuntimeException.
      * If resource name ends in .gz then GZIP decompression will automatically be applied.

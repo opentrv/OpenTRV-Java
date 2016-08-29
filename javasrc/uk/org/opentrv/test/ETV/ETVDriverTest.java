@@ -147,13 +147,13 @@ public class ETVDriverTest
                 { cpReaderToWriter(r, w); }
             }
         // Copy valve logs (from compressed to uncompressed form in, in this case).
-        try(final Reader r = HDDUtil.getGZIPpedASCIIResourceReader(ETVParseTest.class, ETVParseTest.VALVE_LOG_SAMPLE_DIR + "/synthd.dlog.gz"))
+        try(final Reader r = HDDUtil.getGZIPpedASCIIResourceReader(ETVParseTest.class, ETVParseTest.VALVE_LOG_SAMPLE_DIR + "/3015.json.gz"))
             {
-            try(final FileWriter w = new FileWriter(new File(inDir, "synthd.dlog")))
+            try(final FileWriter w = new FileWriter(new File(inDir, "3015.json")))
                 { cpReaderToWriter(r, w); }
             }
         // Create (trivial) grouping...
-        try(final Reader r = new StringReader("S001,synthd"))
+        try(final Reader r = new StringReader("5013,3015"))
             {
             try(final FileWriter w = new FileWriter(new File(inDir, OTLogActivityParse.LOGDIR_PATH_TO_GROUPING_CSV)))
                 { cpReaderToWriter(r, w); }
