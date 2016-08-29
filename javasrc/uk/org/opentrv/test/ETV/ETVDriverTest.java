@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.Writer;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -40,6 +41,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.org.opentrv.ETV.driver.ETVSimpleDriverNBulkInputs;
+import uk.org.opentrv.ETV.parse.OTLogActivityParse;
+import uk.org.opentrv.hdd.HDDUtil;
 import uk.org.opentrv.test.hdd.DDNExtractorTest;
 
 public class ETVDriverTest
@@ -124,6 +127,65 @@ public class ETVDriverTest
         assertEquals(expected, actualBasic);
         final String actualFilteredBasic = new String(Files.readAllBytes(basicFilteredResultFile.toPath()), "ASCII7");
         assertEquals(expected, actualFilteredBasic);
+        }
+
+    /**Test for correct processing with segmentation (of single device/house). */
+    @Test public void testWithSegmentation() throws IOException
+        {
+        final File inDir = tempDir.toFile();
+        final File outDir = tempDir.toFile();
+        // Copy HDD file.
+        try(final Reader r = DDNExtractorTest.getETVEGLLHDD2016H1CSVReader())
+            {
+            try(final FileWriter w = new FileWriter(new File(inDir, ETVSimpleDriverNBulkInputs.INPUT_FILE_HDD)))
+                { cpReaderToWriter(r, w); }
+            }
+        // Copy sample household data file.
+        try(final Reader r = ETVParseTest.getNBulkSH2016H1CSVReader())
+            {
+            try(final FileWriter w = new FileWriter(new File(inDir, ETVSimpleDriverNBulkInputs.INPUT_FILE_NKWH)))
+                { cpReaderToWriter(r, w); }
+            }
+        // Copy valve logs (from compressed to uncompressed form in, in this case).
+        try(final Reader r = HDDUtil.getGZIPpedASCIIResourceReader(ETVParseTest.class, ETVParseTest.VALVE_LOG_SAMPLE_DIR + "/synthd.dlog.gz"))
+            {
+            try(final FileWriter w = new FileWriter(new File(inDir, "synthd.dlog")))
+                { cpReaderToWriter(r, w); }
+            }
+        // Create (trivial) grouping...
+        try(final Reader r = new StringReader("S001,synthd"))
+            {
+            try(final FileWriter w = new FileWriter(new File(inDir, OTLogActivityParse.LOGDIR_PATH_TO_GROUPING_CSV)))
+                { cpReaderToWriter(r, w); }
+            }
+
+        // Ensure no old result files hanging around...
+        final File basicResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_FILE_BASIC_STATS);
+        basicResultFile.delete(); // Make sure no output file.
+        assertFalse("output file should not yet exist", basicResultFile.isFile());
+        final File basicFilteredResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_FILE_FILTERED_BASIC_STATS);
+        basicFilteredResultFile.delete(); // Make sure no output file.
+        assertFalse("output filtered file should not yet exist", basicFilteredResultFile.isFile());
+        // Do the computation...
+        ETVSimpleDriverNBulkInputs.doComputation(inDir, outDir);
+        // Check results.
+        assertTrue("output file should now exist", basicResultFile.isFile());
+        assertTrue("output filtered file should now exist", basicFilteredResultFile.isFile());
+        final String expected =
+            "\"house ID\",\"slope energy/HDD\",\"baseload energy\",\"R^2\",\"n\",\"efficiency gain if computed\"\n" +
+            "\"5013\",1.5532478,1.3065631,0.62608224,156,\n";
+        final String actualBasic = new String(Files.readAllBytes(basicResultFile.toPath()), "ASCII7");
+        assertEquals(expected, actualBasic);
+        final String actualFilteredBasic = new String(Files.readAllBytes(basicFilteredResultFile.toPath()), "ASCII7");
+        assertEquals(expected, actualFilteredBasic);
+
+
+
+        // TODO
+
+
+
+
         }
 
     /**Input directory in home dir for testWithExternalDataSet(). */

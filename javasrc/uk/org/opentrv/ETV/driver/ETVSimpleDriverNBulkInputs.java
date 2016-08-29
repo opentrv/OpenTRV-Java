@@ -34,6 +34,7 @@ import uk.org.opentrv.ETV.ETVPerHouseholdComputationSimpleImpl;
 import uk.org.opentrv.ETV.filter.CommonSimpleResultFilters;
 import uk.org.opentrv.ETV.output.ETVPerHouseholdComputationResultsToCSV;
 import uk.org.opentrv.ETV.parse.NBulkInputs;
+import uk.org.opentrv.ETV.parse.OTLogActivityParse;
 
 /**Simple driver from N bulk and HDD data to output files.
  * An input directory is supplied,
@@ -77,6 +78,8 @@ public final class ETVSimpleDriverNBulkInputs
     /**Process from specified input to output directories; sort result by house ID for consistency.
      * The input and output directories can be the same if required;
      * the file names for input and output are all distinct.
+     * <p>
+     * Efficacy computation will be attempted if log files are present.
      *
      * @param inDir  directory containing input files, must exist and be readable; never null
      * @param outDir  directory for output files, must exist and be writeable; never null
@@ -111,5 +114,18 @@ public final class ETVSimpleDriverNBulkInputs
 //System.out.println(rlCSV);
         // Write output...
         try(final FileWriter w = new FileWriter(basicFilteredResultFile)) { w.write(rlBasicFilteredCSV); }
+
+        // Test if log data is available for segmentation.
+        if(!(new File(inDir, OTLogActivityParse.LOGDIR_PATH_TO_GROUPING_CSV)).exists())
+            {
+            System.out.println("No grouping file in input dir, so no segmentation attempted: " + OTLogActivityParse.LOGDIR_PATH_TO_GROUPING_CSV);
+            return;
+            }
+
+        // Segment and look for changes in energy efficiency.
+
+        // TODO
+
+
         }
     }
