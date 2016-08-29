@@ -460,7 +460,7 @@ public class ETVParseTest
         }
 
     /**Test mass load and analysis of log files. */
-    @Test public void testMassLogLoadAndAnalysis() throws IOException
+    @Test public void testBasicMassLogLoadAndAnalysis() throws IOException
         {
         final Map<String, ETVPerHouseholdComputationSystemStatus> va = OTLogActivityParse.loadAndParseAllOTLogs(vlr, DEFAULT_UK_TIMEZONE);
         assertNotNull(va);
@@ -468,7 +468,7 @@ public class ETVParseTest
         assertTrue(va.containsKey("5013"));
         assertTrue(va.containsKey("S001"));
         assertEquals(55, va.get("5013").getOptionalEnabledAndUsableFlagsByLocalDay().size());
-System.out.println(va.get("5013").getOptionalEnabledAndUsableFlagsByLocalDay());
+//System.out.println(va.get("5013").getOptionalEnabledAndUsableFlagsByLocalDay());
         assertEquals(15, Collections.frequency(va.get("5013").getOptionalEnabledAndUsableFlagsByLocalDay().values(), SavingEnabledAndDataStatus.Enabled));
         assertEquals(11, Collections.frequency(va.get("5013").getOptionalEnabledAndUsableFlagsByLocalDay().values(), SavingEnabledAndDataStatus.Disabled));
         // The synthetic logs should have 6 days enabled and 6 disabled.
@@ -476,10 +476,11 @@ System.out.println(va.get("5013").getOptionalEnabledAndUsableFlagsByLocalDay());
 //System.out.println(va.get("S001").getOptionalEnabledAndUsableFlagsByLocalDay());
         assertEquals(6, Collections.frequency(va.get("S001").getOptionalEnabledAndUsableFlagsByLocalDay().values(), SavingEnabledAndDataStatus.Enabled));
         assertEquals(6, Collections.frequency(va.get("S001").getOptionalEnabledAndUsableFlagsByLocalDay().values(), SavingEnabledAndDataStatus.Disabled));
-
-
-
-        // TODO
+        // Repeat but testing restricting the households loaded.
+        final Map<String, ETVPerHouseholdComputationSystemStatus> var = OTLogActivityParse.loadAndParseAllOTLogs(vlr, DEFAULT_UK_TIMEZONE, Collections.singleton("S001"));
+        assertEquals(1, var.size());
+        assertTrue(var.containsKey("S001"));
+        assertEquals(12, var.get("S001").getOptionalEnabledAndUsableFlagsByLocalDay().size());
         }
     }
 

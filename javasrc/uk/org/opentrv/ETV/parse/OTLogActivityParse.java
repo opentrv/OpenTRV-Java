@@ -379,6 +379,13 @@ S001,synthd
         }
 
     /**Read/parse an entire set of log records and produce per-household sets of dates for segmentation and analysis; never null but may be empty.
+     * Passes a null restrictToHouseholds value, thus loading data for all households.
+     */
+    public static Map<String, ETVPerHouseholdComputationSystemStatus> loadAndParseAllOTLogs(final Function<String, Reader> dataReader, final TimeZone localTimeZoneForDayBoundaries)
+        throws IOException
+        { return(loadAndParseAllOTLogs(dataReader, localTimeZoneForDayBoundaries, null)); }
+
+    /**Read/parse an entire set of log records and produce per-household sets of dates for segmentation and analysis; never null but may be empty.
      * Given a Functor that takes relative path name and returns a Reader of line-oriented records:
      * <ol>
      * <li>Read the grouping CSV file that names devices and groups them into households.</li>
@@ -391,10 +398,12 @@ S001,synthd
      * only a minority of devices are reporting energy-saving status,
      * or valves are reporting an intermediate mixture of enabled and disabled status.
      *
+     * @param localTimeZoneForDayBoundaries  timezone for all households in dataset; never null
+     * @param restrictToHouseholds  if not null, ignore households not included in this set
      * @return  map from house ID to ETVPerHouseholdComputationSystemStatus;
      *     never null but may be empty
      */
-    public static Map<String, ETVPerHouseholdComputationSystemStatus> loadAndParseAllOTLogs(final Function<String, Reader> dataReader, final TimeZone localTimeZoneForDayBoundaries)
+    public static Map<String, ETVPerHouseholdComputationSystemStatus> loadAndParseAllOTLogs(final Function<String, Reader> dataReader, final TimeZone localTimeZoneForDayBoundaries, final Set<String> restrictToHouseholds)
         throws IOException
         {
         // Load groupings: abort with exception if not possible.
@@ -406,6 +415,7 @@ S001,synthd
         // Create a segmented view for the household as a whole.
         for(final String houseID : gm.keySet())
             {
+            if((null != restrictToHouseholds) && !restrictToHouseholds.contains(houseID)) { continue; }
             final ETVPerHouseholdComputationSystemStatus houseStatus = analyseHouseLogs(dataReader, localTimeZoneForDayBoundaries, gm.get(houseID));
             result.put(houseID, houseStatus);
             }
