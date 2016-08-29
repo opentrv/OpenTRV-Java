@@ -51,15 +51,6 @@ public final class StatusSegmentation
         {
         if(null == devices) { throw new IllegalArgumentException(); }
 
-//        // Deal with empty input quickly (result has no usable days).
-//        if(devices.isEmpty())
-//            {
-//            return(new ETVPerHouseholdComputationSystemStatus(){
-//                @Override public SortedMap<Integer, SavingEnabledAndDataStatus> getOptionalEnabledAndUsableFlagsByLocalDay()
-//                    { return(Collections.<Integer, SavingEnabledAndDataStatus>emptySortedMap());  }
-//                });
-//            }
-
         final SortedMap<Integer, SavingEnabledAndDataStatus> result = new TreeMap<>();
 
         // Potentially usable days: where any device in the household

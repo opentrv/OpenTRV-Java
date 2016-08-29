@@ -459,7 +459,7 @@ public class ETVParseTest
         assertTrue(h2.contains("synthd"));
         }
 
-    /**Test mass load and analysis of log files. */
+    /**Test basic mass load and analysis of log files. */
     @Test public void testBasicMassLogLoadAndAnalysis() throws IOException
         {
         final Map<String, ETVPerHouseholdComputationSystemStatus> va = OTLogActivityParse.loadAndParseAllOTLogs(vlr, DEFAULT_UK_TIMEZONE);
@@ -476,7 +476,7 @@ public class ETVParseTest
 //System.out.println(va.get("S001").getOptionalEnabledAndUsableFlagsByLocalDay());
         assertEquals(6, Collections.frequency(va.get("S001").getOptionalEnabledAndUsableFlagsByLocalDay().values(), SavingEnabledAndDataStatus.Enabled));
         assertEquals(6, Collections.frequency(va.get("S001").getOptionalEnabledAndUsableFlagsByLocalDay().values(), SavingEnabledAndDataStatus.Disabled));
-        // Repeat but testing restricting the households loaded.
+        // Repeat load but testing restricting the households loaded.
         final Map<String, ETVPerHouseholdComputationSystemStatus> var = OTLogActivityParse.loadAndParseAllOTLogs(vlr, DEFAULT_UK_TIMEZONE, Collections.singleton("S001"));
         assertEquals(1, var.size());
         assertTrue(var.containsKey("S001"));

@@ -399,7 +399,8 @@ S001,synthd
      * or valves are reporting an intermediate mixture of enabled and disabled status.
      *
      * @param localTimeZoneForDayBoundaries  timezone for all households in dataset; never null
-     * @param restrictToHouseholds  if not null, ignore households not included in this set
+     * @param restrictToHouseholds  if not null, ignore households not included in this set;
+     *     can cut down processing time on households already filtered from consideration
      * @return  map from house ID to ETVPerHouseholdComputationSystemStatus;
      *     never null but may be empty
      */
