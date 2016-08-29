@@ -25,6 +25,7 @@ import java.io.Reader;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation;
@@ -34,7 +35,9 @@ import uk.org.opentrv.ETV.ETVPerHouseholdComputationSimpleImpl;
 import uk.org.opentrv.ETV.filter.CommonSimpleResultFilters;
 import uk.org.opentrv.ETV.output.ETVPerHouseholdComputationResultsToCSV;
 import uk.org.opentrv.ETV.parse.NBulkInputs;
+import uk.org.opentrv.ETV.parse.NBulkKWHParseByID;
 import uk.org.opentrv.ETV.parse.OTLogActivityParse;
+import uk.org.opentrv.hdd.HDDUtil;
 
 /**Simple driver from N bulk and HDD data to output files.
  * An input directory is supplied,
@@ -80,6 +83,8 @@ public final class ETVSimpleDriverNBulkInputs
      * the file names for input and output are all distinct.
      * <p>
      * Efficacy computation will be attempted if log files are present.
+     * <p>
+     * Note: currently assumes N-format bulk energy data and timezone.
      *
      * @param inDir  directory containing input files, must exist and be readable; never null
      * @param outDir  directory for output files, must exist and be writeable; never null
@@ -123,6 +128,9 @@ public final class ETVSimpleDriverNBulkInputs
             }
 
         // Segment and look for changes in energy efficiency.
+        final Set<String> stage1FilteredHouseIDs = rlBasicFiltered.stream().map(e -> e.getHouseID()).collect(Collectors.toSet());
+//        OTLogActivityParse.loadAndParseAllOTLogs(HDDUtil.getDirSmartFileReader(inDir), NBulkKWHParseByID.DEFAULT_NB_TIMEZONE, stage1FilteredHouseIDs);
+
 
         // TODO
 

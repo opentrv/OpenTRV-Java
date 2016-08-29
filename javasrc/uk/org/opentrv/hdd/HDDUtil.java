@@ -408,6 +408,7 @@ public final class HDDUtil
         return(result);
         }
 
+    // Class resource Readers of various flavours.
     /**Read ASCII7 text resource from given class as Reader. */
     public static Reader getASCIIResourceReader(final Class<?> clazz, final String path) throws IOException
         { return(new InputStreamReader(new BufferedInputStream(clazz.getResourceAsStream(path)), "ASCII7")); }
@@ -429,9 +430,25 @@ public final class HDDUtil
     /**Return Function to create Reader for GZIPped ASCII7 text resource within given directory and given class, wrapping IOException as RuntimeException. */
     public static Function<String, Reader> getDirGZIPpedResourceReader(final Class<?> clazz, final String dir)
         { return(f -> getGZIPpedASCIIResourceReaderRE(clazz, (new File(dir, f)).toString())); }
-    /**Return Function to create Reader for plaint or GZIPped ASCII7 text resource within given directory and given class, wrapping IOException as RuntimeException.
+    /**Return Function to create Reader for plaintext or GZIPped ASCII7 text resource within given directory and given class, wrapping IOException as RuntimeException.
      * If resource name ends in .gz then GZIP decompression will automatically be applied.
      */
     public static Function<String, Reader> getDirSmartResourceReader(final Class<?> clazz, final String dir)
         { return(f -> f.endsWith(".gz") ? getGZIPpedASCIIResourceReaderRE(clazz, (new File(dir, f)).toString()) : getASCIIResourceReaderRE(clazz, (new File(dir, f)).toString())); }
+
+
+    // File Readers of various flavours.
+    private static Reader getGZIPpedASCIIFileReaderRE(File file)
+        {
+        throw new RuntimeException("NOT IMPLEMENTED");
+        }
+    private static Reader getASCIIFileReaderRE(File file)
+        {
+        throw new RuntimeException("NOT IMPLEMENTED");
+        }
+    /**Return Function to create Reader for plaintext or GZIPped ASCII7 text file within given directory and given class, wrapping IOException as RuntimeException.
+     * If resource name ends in .gz then GZIP decompression will automatically be applied.
+     */
+    public static Function<String, Reader> getDirSmartFileReader(final File dir)
+        { return(f -> f.endsWith(".gz") ? getGZIPpedASCIIFileReaderRE(new File(dir, f)) : getASCIIFileReaderRE(new File(dir, f))); }
     }
