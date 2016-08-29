@@ -34,8 +34,8 @@ public class ETVSegmentationTest
     @Test public void testEmptySegmentation() throws IOException
         {
         // Check that with no devices a non-null empty result is produced.
-        assertNotNull(StatusSegmentation.segmentActivity(Collections.emptyList()));
-        assertNotNull(StatusSegmentation.segmentActivity(Collections.emptyList()).getOptionalEnabledAndUsableFlagsByLocalDay());
-        assertTrue(StatusSegmentation.segmentActivity(Collections.emptyList()).getOptionalEnabledAndUsableFlagsByLocalDay().isEmpty());
+        assertNotNull(StatusSegmentation.segmentActivity("", Collections.emptyList()));
+        assertNotNull(StatusSegmentation.segmentActivity("", Collections.emptyList()).getOptionalEnabledAndUsableFlagsByLocalDay());
+        assertTrue(StatusSegmentation.segmentActivity("", Collections.emptyList()).getOptionalEnabledAndUsableFlagsByLocalDay().isEmpty());
         }
     }

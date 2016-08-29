@@ -18,9 +18,14 @@ Author(s) / Copyright (s): Damon Hart-Davis 2016
 
 package uk.org.opentrv.ETV.filter;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.Collections;
 import java.util.function.Predicate;
 
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationResult;
+import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationSystemStatus;
+import uk.org.opentrv.ETV.ETVPerHouseholdComputation.SavingEnabledAndDataStatus;
 
 /**Common filters for eliminating outliers from ETV dataset simple results during processing. */
 public final class CommonSimpleResultFilters
@@ -58,4 +63,9 @@ public final class CommonSimpleResultFilters
      */
     public static final Predicate<ETVPerHouseholdComputationResult> goodDailyDataResults =
         hasHDDMetrics.and(isEnoughPointsControlAndNormal).and(isOKDailyRSq);
+
+    /**True for households that have enough control and normal days after segmentation for further analysis. */
+    public static final Predicate<? super ETVPerHouseholdComputationSystemStatus> enoughControlAndNormal =
+        r-> ((Collections.frequency(r.getOptionalEnabledAndUsableFlagsByLocalDay().values(), SavingEnabledAndDataStatus.Enabled) >= MIN_N_DAILY_DATA) &&
+             (Collections.frequency(r.getOptionalEnabledAndUsableFlagsByLocalDay().values(), SavingEnabledAndDataStatus.Disabled) >= MIN_N_DAILY_DATA));
     }

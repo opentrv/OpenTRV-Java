@@ -363,7 +363,7 @@ S001,synthd
      *
      * @return  the combined result
      */
-    public static ETVPerHouseholdComputationSystemStatus analyseHouseLogs(final Function<String, Reader> dataReader, final TimeZone localTimeZoneForDayBoundaries, final Collection<String> devices)
+    public static ETVPerHouseholdComputationSystemStatus analyseHouseLogs(final Function<String, Reader> dataReader, final TimeZone localTimeZoneForDayBoundaries, final String houseID, final Collection<String> devices)
         {
         // Per-device log parse results.
         final List<ValveLogParseResult> perDevice = new ArrayList<>(devices.size());
@@ -375,7 +375,7 @@ S001,synthd
             if(null != vlpr) { perDevice.add(vlpr); }
             }
 
-        return(StatusSegmentation.segmentActivity(perDevice));
+        return(StatusSegmentation.segmentActivity(houseID, perDevice));
         }
 
     /**Read/parse an entire set of log records and produce per-household sets of dates for segmentation and analysis; never null but may be empty.
@@ -417,7 +417,7 @@ S001,synthd
         for(final String houseID : gm.keySet())
             {
             if((null != restrictToHouseholds) && !restrictToHouseholds.contains(houseID)) { continue; }
-            final ETVPerHouseholdComputationSystemStatus houseStatus = analyseHouseLogs(dataReader, localTimeZoneForDayBoundaries, gm.get(houseID));
+            final ETVPerHouseholdComputationSystemStatus houseStatus = analyseHouseLogs(dataReader, localTimeZoneForDayBoundaries, houseID, gm.get(houseID));
             result.put(houseID, houseStatus);
             }
 

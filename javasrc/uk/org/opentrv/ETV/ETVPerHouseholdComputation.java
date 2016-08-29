@@ -90,6 +90,8 @@ public interface ETVPerHouseholdComputation
      */
     public interface ETVPerHouseholdComputationSystemStatus
         {
+        /**Get unique house ID as alphanumeric String; never null. */
+        String getHouseID();
         /**Map from calendar days (local midnight to local midnight) to device status for segmentation; null if not supported.
          * Days for which there are data,
          * but that do not count as either fully enabled or disabled,

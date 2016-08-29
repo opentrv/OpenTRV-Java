@@ -47,8 +47,9 @@ public final class StatusSegmentation
      * @param devices  collection of devices (eg valves) in household; never null
      * @return  the overall household status by day; never null
      */
-    public static ETVPerHouseholdComputationSystemStatus segmentActivity(final Collection<ValveLogParseResult> devices)
+    public static ETVPerHouseholdComputationSystemStatus segmentActivity(final String houseID, final Collection<ValveLogParseResult> devices)
         {
+        if(null == houseID) { throw new IllegalArgumentException(); }
         if(null == devices) { throw new IllegalArgumentException(); }
 
         final SortedMap<Integer, SavingEnabledAndDataStatus> result = new TreeMap<>();
@@ -90,6 +91,7 @@ public final class StatusSegmentation
             }
 
         return(new ETVPerHouseholdComputationSystemStatus(){
+            @Override public String getHouseID() { return(houseID); }
             @Override public SortedMap<Integer, SavingEnabledAndDataStatus> getOptionalEnabledAndUsableFlagsByLocalDay()
                 { return(Collections.unmodifiableSortedMap(result));  }
             });

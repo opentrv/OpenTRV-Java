@@ -147,7 +147,7 @@ public class ETVDriverTest
                 { cpReaderToWriter(r, w); }
             }
         // Copy valve logs (from compressed to uncompressed form in, in this case).
-        try(final Reader r = HDDUtil.getGZIPpedASCIIResourceReader(ETVParseTest.class, ETVParseTest.VALVE_LOG_SAMPLE_DIR + "/3015.json.gz"))
+        try(final Reader r = HDDUtil.getGZIPpedASCIIResourceReader(ETVParseTest.class, ETVParseTest.VALVE_LOG_SAMPLE_DIR + "/2d1a.json.gz"))
             {
             try(final FileWriter w = new FileWriter(new File(inDir, "3015.json")))
                 { cpReaderToWriter(r, w); }

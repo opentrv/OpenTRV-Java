@@ -121,17 +121,38 @@ public final class ETVSimpleDriverNBulkInputs
         // Write output...
         try(final FileWriter w = new FileWriter(basicFilteredResultFile)) { w.write(rlBasicFilteredCSV); }
 
-        // Test if log data is available for segmentation.
+        // Stop if no candidates left after filtering.
+        // Probably an error.
+        if(rlBasicFiltered.isEmpty())
+            {
+            System.err.println("No candidate households left after filtering.");
+            return;
+            }
+
+        // Test if log data is available for segmentation, else stop.
+        // Not an error.
         if(!(new File(inDir, OTLogActivityParse.LOGDIR_PATH_TO_GROUPING_CSV)).exists())
             {
             System.out.println("No grouping file in input dir, so no segmentation attempted: " + OTLogActivityParse.LOGDIR_PATH_TO_GROUPING_CSV);
             return;
             }
 
-        // Segment and look for changes in energy efficiency.
+        // Segment, and look for changes in energy efficiency.
         final Set<String> stage1FilteredHouseIDs = rlBasicFiltered.stream().map(e -> e.getHouseID()).collect(Collectors.toSet());
         final Map<String, ETVPerHouseholdComputationSystemStatus> byHouseholdSegmentation = OTLogActivityParse.loadAndParseAllOTLogs(HDDUtil.getDirSmartFileReader(inDir), NBulkKWHParseByID.DEFAULT_NB_TIMEZONE, stage1FilteredHouseIDs);
-System.out.println(byHouseholdSegmentation);
+
+        // Filter out households with too little control and normal data left.
+        final List<ETVPerHouseholdComputationSystemStatus> enoughControlAndNormal = byHouseholdSegmentation.values().stream().filter(CommonSimpleResultFilters.enoughControlAndNormal).collect(Collectors.toList());
+
+        // Stop if no candidates left after attempting to segment.
+        // Probably an error.
+        if(enoughControlAndNormal.isEmpty())
+            {
+            System.err.println("No candidate households left after attempting to segment.");
+            return;
+            }
+System.out.println(enoughControlAndNormal.iterator().next().getOptionalEnabledAndUsableFlagsByLocalDay());
+
 
 
         // TODO
