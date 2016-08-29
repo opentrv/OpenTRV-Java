@@ -122,6 +122,8 @@ public final class OTLogActivityParse
     public static final Pattern REGEX_TEMP_SETBACK_C = Pattern.compile(".*\"tS\\|C\":[1-9].*");
 
     /**Parses 'c' and 'pd' format valve log files; never null.
+     * Intended to parse/interpret the logs of TRV1 valves, eg software released ~2016H1.
+     * <p>
      * Quite crude and so is able to parse either format.
      * <p>
      * Intended to be reasonably robust.
@@ -139,7 +141,7 @@ public final class OTLogActivityParse
      * @param r  line-oriented log file as reader, not closed by routine; never null
      * @param localTimeZoneForDayBoundaries  timezone for household; never null
      */
-    public static ValveLogParseResult parseValveLog(final Reader r, final TimeZone localTimeZoneForDayBoundaries) throws IOException
+    public static ValveLogParseResult parseTRV1ValveLog(final Reader r, final TimeZone localTimeZoneForDayBoundaries) throws IOException
         {
         if(null == r) { throw new IllegalAccessError(); }
         if(null == localTimeZoneForDayBoundaries) { throw new IllegalAccessError(); }
@@ -341,7 +343,7 @@ S001,synthd
             try {
                 // Stop as soon as one succeeds.
                 try(final Reader r = dataReader.apply(filename))
-                    { return(parseValveLog(r, localTimeZoneForDayBoundaries)); }
+                    { return(parseTRV1ValveLog(r, localTimeZoneForDayBoundaries)); }
                 }
             catch(final Exception e1) { /* ignore */ }
             }

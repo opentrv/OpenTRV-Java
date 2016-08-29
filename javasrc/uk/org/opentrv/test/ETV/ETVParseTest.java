@@ -313,7 +313,7 @@ public class ETVParseTest
     @Test public void testValveLogParse() throws IOException
         {
         // Empty source should produce empty (not non-null) result.
-        final ValveLogParseResult e = OTLogActivityParse.parseValveLog(new StringReader(""), TimeZone.getDefault());
+        final ValveLogParseResult e = OTLogActivityParse.parseTRV1ValveLog(new StringReader(""), TimeZone.getDefault());
         assertNotNull(e);
         assertNotNull(e.getDaysInWhichDataPresent());
         assertNotNull(e.getDaysInWhichCallingForHeat());
@@ -323,7 +323,7 @@ public class ETVParseTest
         assertTrue(e.getDaysInWhichEnergySavingActive().isEmpty());
 
         // Parse single canonical-format log entry.
-        final ValveLogParseResult sc = OTLogActivityParse.parseValveLog(new StringReader(cValveLogSample), DEFAULT_UK_TIMEZONE);
+        final ValveLogParseResult sc = OTLogActivityParse.parseTRV1ValveLog(new StringReader(cValveLogSample), DEFAULT_UK_TIMEZONE);
         assertNotNull(sc);
         assertNotNull(sc.getDaysInWhichDataPresent());
         assertEquals(1, sc.getDaysInWhichDataPresent().size());
@@ -333,7 +333,7 @@ public class ETVParseTest
         assertEquals(1, sc.getDaysInWhichEnergySavingStatsReported().size());
 
         // Parse single partially-decrypted-format log entry.
-        final ValveLogParseResult spd = OTLogActivityParse.parseValveLog(new StringReader(pdValveLogSample), DEFAULT_UK_TIMEZONE);
+        final ValveLogParseResult spd = OTLogActivityParse.parseTRV1ValveLog(new StringReader(pdValveLogSample), DEFAULT_UK_TIMEZONE);
         assertNotNull(spd);
         assertNotNull(spd.getDaysInWhichDataPresent());
         assertEquals(1, spd.getDaysInWhichDataPresent().size());
@@ -359,7 +359,7 @@ public class ETVParseTest
         {
         try(final Reader r = vlr.apply("0a45.json.gz"))
             {
-            final ValveLogParseResult sc = OTLogActivityParse.parseValveLog(r, DEFAULT_UK_TIMEZONE);
+            final ValveLogParseResult sc = OTLogActivityParse.parseTRV1ValveLog(r, DEFAULT_UK_TIMEZONE);
             assertNotNull(sc);
             assertNotNull(sc.getDaysInWhichDataPresent());
             assertEquals(183, sc.getDaysInWhichDataPresent().size());
@@ -413,7 +413,7 @@ public class ETVParseTest
         {
         try(final Reader r = vlr.apply("synthd.dlog.gz"))
             {
-            final ValveLogParseResult sc = OTLogActivityParse.parseValveLog(r, DEFAULT_UK_TIMEZONE);
+            final ValveLogParseResult sc = OTLogActivityParse.parseTRV1ValveLog(r, DEFAULT_UK_TIMEZONE);
             assertNotNull(sc);
             assertNotNull(sc.getDaysInWhichDataPresent());
 
@@ -468,7 +468,7 @@ public class ETVParseTest
         assertTrue(va.containsKey("5013"));
         assertTrue(va.containsKey("S001"));
         assertEquals(55, va.get("5013").getOptionalEnabledAndUsableFlagsByLocalDay().size());
-//System.out.println(va.get("5013").getOptionalEnabledAndUsableFlagsByLocalDay());
+System.out.println(va.get("5013").getOptionalEnabledAndUsableFlagsByLocalDay());
         assertEquals(15, Collections.frequency(va.get("5013").getOptionalEnabledAndUsableFlagsByLocalDay().values(), SavingEnabledAndDataStatus.Enabled));
         assertEquals(11, Collections.frequency(va.get("5013").getOptionalEnabledAndUsableFlagsByLocalDay().values(), SavingEnabledAndDataStatus.Disabled));
         // The synthetic logs should have 6 days enabled and 6 disabled.
