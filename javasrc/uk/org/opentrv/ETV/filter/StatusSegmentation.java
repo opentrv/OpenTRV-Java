@@ -74,7 +74,7 @@ public final class StatusSegmentation
 
         // From potentially usable days note those with majority of devices with
         // reporting energy-saving status and with energy-saving features enabled/disabled.
-        // Other days without a clear majority can be marked as explicitly unusable.
+        // Other days, without a clear majority, are explicitly marked as unusable.
         final int quorum = (devices.size() / 2) + 1;
         for(final Integer day : potentiallyUsableDays)
             {
