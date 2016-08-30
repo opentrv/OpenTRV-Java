@@ -62,12 +62,16 @@ public final class ETVSimpleDriverNBulkInputs
     public static final String INPUT_FILE_STATUS = "status.csv";
 
     /**Name within output directory of basic per-household stats as ASCII7 CSV (no efficacy computation). */
-    public static final String OUTPUT_FILE_BASIC_STATS = "basicStatsOut.csv";
+    public static final String OUTPUT_STATS_FILE_BASIC = "basicStatsOut.csv";
     /**Name within output directory of filtered basic per-household stats as ASCII7 CSV (no efficacy computation).
      * The filtering removes those entries that are outliers
      * or have inadequate data points or no/poor correlation.
      */
-    public static final String OUTPUT_FILE_FILTERED_BASIC_STATS = "basicFilteredStatsOut.csv";
+    public static final String OUTPUT_STATS_FILE_FILTERED_BASIC = "basicFilteredStatsOut.csv";
+    /**Name within output directory of segmented per-household stats as ASCII7 CSV including efficacy computation.
+     * The HDD metrics are from the normal state, with energy-saving features enabled.
+     */
+    public static final String OUTPUT_STATS_FILE_SEGMENTED = "segmentedStatsOut.csv";
 
     /**Gets a reader for the specified file; no checked exceptions. */
     private static Reader getReader(final File f)
@@ -119,7 +123,7 @@ public final class ETVSimpleDriverNBulkInputs
         final List<ETVPerHouseholdComputationResult> rlBasic = mhi.values().stream().map(computationInstance).collect(Collectors.toList());
         Collections.sort(rlBasic, new ETVPerHouseholdComputation.ResultSortByHouseID());
         final String rlBasicCSV = (new ETVPerHouseholdComputationResultsToCSV()).apply(rlBasic);
-        final File basicResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_FILE_BASIC_STATS);
+        final File basicResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_STATS_FILE_BASIC);
 //System.out.println(rlCSV);
         // Write output...
         try(final FileWriter w = new FileWriter(basicResultFile)) { w.write(rlBasicCSV); }
@@ -128,7 +132,7 @@ public final class ETVSimpleDriverNBulkInputs
         final List<ETVPerHouseholdComputationResult> rlBasicFiltered = rlBasic.stream().filter(CommonSimpleResultFilters.goodDailyDataResults).collect(Collectors.toList());
         Collections.sort(rlBasicFiltered, new ETVPerHouseholdComputation.ResultSortByHouseID());
         final String rlBasicFilteredCSV = (new ETVPerHouseholdComputationResultsToCSV()).apply(rlBasicFiltered);
-        final File basicFilteredResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_FILE_FILTERED_BASIC_STATS);
+        final File basicFilteredResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_STATS_FILE_FILTERED_BASIC);
 //System.out.println(rlCSV);
         // Write output...
         try(final FileWriter w = new FileWriter(basicFilteredResultFile)) { w.write(rlBasicFilteredCSV); }
@@ -171,8 +175,16 @@ public final class ETVSimpleDriverNBulkInputs
             if(null == input) { throw new Error("should not happen"); }
             final ETVPerHouseholdComputationInput inputWithStatus =
                 StatusSegmentation.injectStatusInfo(input, statusByID);
-            rlSegmented.add(computationInstance.apply(inputWithStatus));
+            final ETVPerHouseholdComputationResult reanalysed = computationInstance.apply(inputWithStatus);
+//System.out.println(reanalysed.getRatiokWhPerHDDNotSmartOverSmart());
+            rlSegmented.add(reanalysed);
             }
+        // Output segmented results per household.
+        Collections.sort(rlSegmented, new ETVPerHouseholdComputation.ResultSortByHouseID());
+        final String rlSegmentedCSV = (new ETVPerHouseholdComputationResultsToCSV()).apply(rlSegmented);
+        final File segmentedResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_STATS_FILE_SEGMENTED);
+        // Write output...
+        try(final FileWriter w = new FileWriter(segmentedResultFile)) { w.write(rlSegmentedCSV); }
 
 
         // TODO

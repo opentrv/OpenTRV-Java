@@ -109,10 +109,10 @@ public class ETVDriverTest
                 { cpReaderToWriter(r, w); }
             }
         // Ensure no old result files hanging around...
-        final File basicResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_FILE_BASIC_STATS);
+        final File basicResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_STATS_FILE_BASIC);
         basicResultFile.delete(); // Make sure no output file.
         assertFalse("output file should not yet exist", basicResultFile.isFile());
-        final File basicFilteredResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_FILE_FILTERED_BASIC_STATS);
+        final File basicFilteredResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_STATS_FILE_FILTERED_BASIC);
         basicFilteredResultFile.delete(); // Make sure no output file.
         assertFalse("output filtered file should not yet exist", basicFilteredResultFile.isFile());
         // Do the computation...
@@ -160,24 +160,34 @@ public class ETVDriverTest
             }
 
         // Ensure no old result files hanging around...
-        final File basicResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_FILE_BASIC_STATS);
+        final File basicResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_STATS_FILE_BASIC);
         basicResultFile.delete(); // Make sure no output file.
         assertFalse("output file should not yet exist", basicResultFile.isFile());
-        final File basicFilteredResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_FILE_FILTERED_BASIC_STATS);
+        final File basicFilteredResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_STATS_FILE_FILTERED_BASIC);
         basicFilteredResultFile.delete(); // Make sure no output file.
         assertFalse("output filtered file should not yet exist", basicFilteredResultFile.isFile());
-//        // Do the computation...
-//        ETVSimpleDriverNBulkInputs.doComputation(inDir, outDir);
-//        // Check results.
-//        assertTrue("output file should now exist", basicResultFile.isFile());
-//        assertTrue("output filtered file should now exist", basicFilteredResultFile.isFile());
-//        final String expected =
-//            "\"house ID\",\"slope energy/HDD\",\"baseload energy\",\"R^2\",\"n\",\"efficiency gain if computed\"\n" +
-//            "\"5013\",1.5532478,1.3065631,0.62608224,156,\n";
-//        final String actualBasic = new String(Files.readAllBytes(basicResultFile.toPath()), "ASCII7");
-//        assertEquals(expected, actualBasic);
-//        final String actualFilteredBasic = new String(Files.readAllBytes(basicFilteredResultFile.toPath()), "ASCII7");
-//        assertEquals(expected, actualFilteredBasic);
+        final File segmentedResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_STATS_FILE_SEGMENTED);
+        segmentedResultFile.delete(); // Make sure no output file.
+        assertFalse("output segmented file should not yet exist", segmentedResultFile.isFile());
+        // Do the computation...
+        ETVSimpleDriverNBulkInputs.doComputation(inDir, outDir);
+        // Check results.
+        assertTrue("output file should now exist", basicResultFile.isFile());
+        assertTrue("output filtered file should now exist", basicFilteredResultFile.isFile());
+        assertTrue("output segmented file should now exist", segmentedResultFile.isFile());
+        final String expected =
+            "\"house ID\",\"slope energy/HDD\",\"baseload energy\",\"R^2\",\"n\",\"efficiency gain if computed\"\n" +
+            "\"5013\",1.5532478,1.3065631,0.62608224,156,\n";
+        final String actualBasic = new String(Files.readAllBytes(basicResultFile.toPath()), "ASCII7");
+        assertEquals(expected, actualBasic);
+        final String actualFilteredBasic = new String(Files.readAllBytes(basicFilteredResultFile.toPath()), "ASCII7");
+        assertEquals(expected, actualFilteredBasic);
+        final String expectedS =
+            "\"house ID\",\"slope energy/HDD\",\"baseload energy\",\"R^2\",\"n\",\"efficiency gain if computed\"\n" + 
+            "\"5013\",1.138506,5.764153,0.24607657,10,1.9855182\n";
+        final String actualSegmentedBasic = new String(Files.readAllBytes(segmentedResultFile.toPath()), "ASCII7");
+System.out.println(actualSegmentedBasic);
+        assertEquals(expectedS, actualSegmentedBasic);
 
 
 
@@ -210,10 +220,10 @@ public class ETVDriverTest
         assertTrue(outDir.isDirectory());
         assertTrue(outDir.canWrite());
         // Ensure no old result files hanging around...
-        final File basicResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_FILE_BASIC_STATS);
+        final File basicResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_STATS_FILE_BASIC);
         basicResultFile.delete(); // Make sure no output file.
         assertFalse("output file should not yet exist", basicResultFile.isFile());
-        final File basicFilteredResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_FILE_FILTERED_BASIC_STATS);
+        final File basicFilteredResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_STATS_FILE_FILTERED_BASIC);
         basicFilteredResultFile.delete(); // Make sure no output file.
         assertFalse("output filtered file should not yet exist", basicFilteredResultFile.isFile());
         // Do the computation.

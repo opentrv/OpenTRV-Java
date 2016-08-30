@@ -22,12 +22,13 @@ import java.io.IOException;
 import java.util.SortedMap;
 import java.util.SortedSet;
 
+import uk.org.opentrv.ETV.filter.StatusSegmentation;
 import uk.org.opentrv.hdd.ConsumptionHDDTuple;
 import uk.org.opentrv.hdd.ContinuousDailyHDD;
 import uk.org.opentrv.hdd.HDDUtil;
 import uk.org.opentrv.hdd.HDDUtil.HDDMetrics;
 
-/**Simple computation implementation for one household, no efficacy.
+/**Simple computation implementation for one household.
  * This can do a simple computation to find overall kWh/HDD
  * from the supplied house's data,
  * ignoring (not computing) change in efficiency with equipment operation
@@ -46,13 +47,9 @@ public final class ETVPerHouseholdComputationSimpleImpl implements ETVPerHouseho
     private static class ETVPerHouseholdComputationSimpleImplHolder { static final ETVPerHouseholdComputationSimpleImpl INSTANCE = new ETVPerHouseholdComputationSimpleImpl(); }
     public static ETVPerHouseholdComputationSimpleImpl getInstance() { return(ETVPerHouseholdComputationSimpleImplHolder.INSTANCE); }
 
-    @Override
-    public ETVPerHouseholdComputationResult apply(final ETVPerHouseholdComputationInput in) throws IllegalArgumentException
+    /**Computes result over all energy data supplied (ignores status); never null. */
+    private ETVPerHouseholdComputationResult all(final ETVPerHouseholdComputationInput in) throws IllegalArgumentException
         {
-        if(null == in) { throw new IllegalArgumentException(); }
-
-        if(null != in.getOptionalEnabledAndUsableFlagsByLocalDay()) { throw new IllegalArgumentException("NOT IMPLEMENTED"); }
-
         // FIXME: not meeting contract if HDD data discontinuous; should check.
         final ContinuousDailyHDD cdh = new ContinuousDailyHDD()
             {
@@ -60,7 +57,7 @@ public final class ETVPerHouseholdComputationSimpleImpl implements ETVPerHouseho
             @Override public float getBaseTemperatureAsFloat() { return(in.getBaseTemperatureAsFloat()); }
             };
 
-        final SortedSet<ConsumptionHDDTuple> combined;
+            final SortedSet<ConsumptionHDDTuple> combined;
         try {
             final SortedMap<Integer, Float> kWhByLocalDay = in.getKWhByLocalDay();
             if(kWhByLocalDay.isEmpty())
@@ -83,6 +80,34 @@ public final class ETVPerHouseholdComputationSimpleImpl implements ETVPerHouseho
             @Override public HDDMetrics getHDDMetrics() { return(metrics); }
             // Efficacy computation not implemented for simple analysis.
             @Override public Float getRatiokWhPerHDDNotSmartOverSmart() { return(null); }
+            });
+        }
+
+    @Override
+    public ETVPerHouseholdComputationResult apply(final ETVPerHouseholdComputationInput in) throws IllegalArgumentException
+        {
+        if(null == in) { throw new IllegalArgumentException(); }
+
+        // Simple case, with no segmentation/status.
+        final SortedMap<Integer, SavingEnabledAndDataStatus> statuses = in.getOptionalEnabledAndUsableFlagsByLocalDay();
+        if(null == statuses) { return(all(in)); }
+
+        // With status/segmentation
+        // run for both Enabled and Disabled cases,
+        // and combine the results.
+        final ETVPerHouseholdComputationInput inE = StatusSegmentation.filterByStatus(in, SavingEnabledAndDataStatus.Enabled);
+        final ETVPerHouseholdComputationResult rE = all(inE);
+        final ETVPerHouseholdComputationInput inD = StatusSegmentation.filterByStatus(in, SavingEnabledAndDataStatus.Disabled);
+        final ETVPerHouseholdComputationResult rD = all(inD);
+
+        // Compute the efficacy, energy-saving features disabled over enabled, > 1.0 is good.
+        final float efficacy = rD.getHDDMetrics().slopeEnergyPerHDD / rE.getHDDMetrics().slopeEnergyPerHDD;
+
+        // Return HDD stats for 'enabled' state, with ratio set.
+        return(new ETVPerHouseholdComputationResult() {
+            @Override public String getHouseID() { return(in.getHouseID()); }
+            @Override public HDDMetrics getHDDMetrics() { return(rE.getHDDMetrics()); }
+            @Override public Float getRatiokWhPerHDDNotSmartOverSmart() { return(efficacy); }
             });
         }
     }
