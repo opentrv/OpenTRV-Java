@@ -70,6 +70,8 @@ public final class ETVHouseholdGroupSimpleSummaryStats
         int getAllHouseholdsCount();
         /**The final households count; non-negative and no greater than getAllHouseholdCount(). */
         int getFinalHouseholdsCount();
+        /**The normal day count; non-negative. */
+        int getNormalDayCount();
         }
 
     /**Compute simple stats summary; never null. */
@@ -80,11 +82,14 @@ public final class ETVHouseholdGroupSimpleSummaryStats
         final int n = perHousehold.size();
         if(allHouseholdCount < n) { throw new IllegalArgumentException(); }
 
+        // Count all 'enabled'/normal days.
+        final int normalDayCount = perHousehold.stream().mapToInt(p -> p.getHDDMetrics().n).sum();
 // TODO
 
         return(new SummaryStats(){
             @Override public int getAllHouseholdsCount() { return(allHouseholdCount); }
             @Override public int getFinalHouseholdsCount() { return(n); }
+            @Override public int getNormalDayCount() { return(normalDayCount); }
 
 // TODO
             });
