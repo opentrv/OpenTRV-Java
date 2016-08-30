@@ -86,6 +86,11 @@ public final class ETVSimpleDriverNBulkInputs
      * Efficacy computation will be attempted if log files are present.
      * <p>
      * Note: currently assumes N-format bulk energy data and timezone.
+     * <p>
+     * If this is unable to complete a run
+     * eg because there is insufficient/unsuitable data
+     * then it will terminating with an exception
+     * having generated what outputs that it can.
      *
      * @param inDir  directory containing input files, must exist and be readable; never null
      * @param outDir  directory for output files, must exist and be writeable; never null
@@ -124,10 +129,7 @@ public final class ETVSimpleDriverNBulkInputs
         // Stop if no candidates left after filtering.
         // Probably an error.
         if(rlBasicFiltered.isEmpty())
-            {
-            System.err.println("No candidate households left after filtering.");
-            return;
-            }
+            { throw new UnsupportedOperationException("No candidate households left after filtering."); }
 
         // Test if log data is available for segmentation, else stop.
         // Not an error.
@@ -147,10 +149,7 @@ public final class ETVSimpleDriverNBulkInputs
         // Stop if no candidates left after attempting to segment.
         // Probably an error.
         if(enoughControlAndNormal.isEmpty())
-            {
-            System.err.println("No candidate households left after attempting to segment.");
-            return;
-            }
+            { throw new UnsupportedOperationException("No candidate households left after attempting to segment."); }
 System.out.println(enoughControlAndNormal.iterator().next().getOptionalEnabledAndUsableFlagsByLocalDay());
 
 
