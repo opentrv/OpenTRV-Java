@@ -102,6 +102,8 @@ public interface ETVPerHouseholdComputation
         }
 
     /**Abstract input for running the computation for one household.
+     * Implementation instances should generally be immutable.
+     * <p>
      * This should have an implementation that is backed by
      * plain-text CSV input data files,
      * though these may need filtering, transforming, and cross-referencing.

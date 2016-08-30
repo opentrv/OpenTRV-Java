@@ -21,16 +21,13 @@ package uk.org.opentrv.ETV.filter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TimeZone;
 import java.util.TreeMap;
 
-import uk.org.opentrv.ETV.ETVPerHouseholdComputation;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationInput;
-import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationResult;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationSystemStatus;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.SavingEnabledAndDataStatus;
 import uk.org.opentrv.ETV.parse.OTLogActivityParse.ValveLogParseResult;
@@ -107,8 +104,9 @@ public final class StatusSegmentation
      * Will reject attempts to replace a non-null existing array,
      * and will perform some other sanity checks.
      * <p>
-     * Wraps now instance around existing calls and new status.
-     * Each is wrapped as unmodifiable to try to reduce the risk of accident.
+     * Wraps new instance around existing calls and new status.
+     * Status is wrapped as unmodifiable to try to reduce the risk of accident.
+     *
      *
      * @param in  existing input, with status Map null; never null
      * @param status  new status by day; never null
@@ -119,15 +117,63 @@ public final class StatusSegmentation
         if(null == in) { throw new IllegalArgumentException(); }
         if(null == status) { throw new IllegalArgumentException(); }
         if(null != in.getOptionalEnabledAndUsableFlagsByLocalDay()) { throw new IllegalArgumentException("already has status"); }
-        if(!in.getHouseID().equals(status.getHouseID())) { throw new IllegalArgumentException("mismatched houseIDs"); }
+        final String houseID = in.getHouseID();
+        if(!houseID.equals(status.getHouseID())) { throw new IllegalArgumentException("mismatched houseIDs"); }
         // Synthesise result wrapped around old input plus new status.
         return(new ETVPerHouseholdComputationInput(){
             @Override public SortedMap<Integer, SavingEnabledAndDataStatus> getOptionalEnabledAndUsableFlagsByLocalDay()
                 { return(Collections.unmodifiableSortedMap(status.getOptionalEnabledAndUsableFlagsByLocalDay())); }
             @Override public SortedMap<Integer, Float> getKWhByLocalDay() throws IOException
-                { return(Collections.unmodifiableSortedMap(in.getKWhByLocalDay())); }
+                { return(in.getKWhByLocalDay()); }
             @Override public SortedMap<Integer, Float> getHDDByLocalDay() throws IOException
-                { return(Collections.unmodifiableSortedMap(in.getHDDByLocalDay())); }
+                { return(in.getHDDByLocalDay()); }
+            @Override public float getBaseTemperatureAsFloat()
+                { return(in.getBaseTemperatureAsFloat()); }
+            @Override public String getHouseID()
+                { return houseID; }
+            @Override public TimeZone getLocalTimeZoneForDayBoundaries()
+                { return(in.getLocalTimeZoneForDayBoundaries()); }
+            });
+        }
+
+    /**Split the energy-use data according to the energy-saving status; never null.
+     * Other than filtering the kWhByLocalDay, everything else is passed-through as-is.
+     * <p>
+     * Note that getKWhByLocalDay() does the filtering work, so is expensive.
+     *
+     * @param in  existing input, with status Map non-null; never null
+     * @param forStatus  only retain data for days with this status; never null
+     * @return filtered (immutable) getKWhByLocalDay() result; never null but may be empty
+     */
+    public static ETVPerHouseholdComputationInput filterByStatus(
+        final ETVPerHouseholdComputationInput in, final SavingEnabledAndDataStatus forStatus)
+        {
+        if(null == in) { throw new IllegalArgumentException(); }
+        final SortedMap<Integer, SavingEnabledAndDataStatus> statuses = in.getOptionalEnabledAndUsableFlagsByLocalDay();
+        if(null == statuses) { throw new IllegalArgumentException(); }
+        if(null == forStatus) { throw new IllegalArgumentException(); }
+
+        // Synthesise result wrapped around old input with filtered energy data.
+        return(new ETVPerHouseholdComputationInput(){
+            @Override public SortedMap<Integer, SavingEnabledAndDataStatus> getOptionalEnabledAndUsableFlagsByLocalDay()
+                { return(statuses); }
+            @Override public SortedMap<Integer, Float> getKWhByLocalDay() throws IOException
+                {
+                // Make new copy of kWh (energy) data to include only those with appropriate status.
+                final SortedMap<Integer, Float> filteredKWhByLocalDay = new TreeMap<>();
+                final SortedMap<Integer, Float> kWhByLocalDay = in.getKWhByLocalDay();
+                for(final Integer date : statuses.keySet())
+                    {
+                    if(forStatus == statuses.get(date))
+                        {
+                        final Float kWh = kWhByLocalDay.get(date);
+                        if(null != kWh) { filteredKWhByLocalDay.put(date, kWh); }
+                        }
+                    }
+                return(Collections.unmodifiableSortedMap(filteredKWhByLocalDay));
+                }
+            @Override public SortedMap<Integer, Float> getHDDByLocalDay() throws IOException
+                { return(in.getHDDByLocalDay()); }
             @Override public float getBaseTemperatureAsFloat()
                 { return(in.getBaseTemperatureAsFloat()); }
             @Override public String getHouseID()
