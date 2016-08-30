@@ -150,11 +150,17 @@ public final class ETVSimpleDriverNBulkInputs
         // Probably an error.
         if(enoughControlAndNormal.isEmpty())
             { throw new UnsupportedOperationException("No candidate households left after attempting to segment."); }
+
 System.out.println(enoughControlAndNormal.iterator().next().getOptionalEnabledAndUsableFlagsByLocalDay());
 
 
-
         // TODO
+
+// Analyse segmented data per household.
+
+// Analyse across groups of households, with confidence estimate.
+
+// Write report(s).
 
 
         }
