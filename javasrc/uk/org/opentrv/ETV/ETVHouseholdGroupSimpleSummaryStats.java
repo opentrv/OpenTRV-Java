@@ -33,9 +33,9 @@ import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationR
  * <p>
  * Reports on:
  * <dt>all households count</dt>
- * <dd>the original number of households before filtering</dd>
+ * <dd>the original count of households before filtering</dd>
  * <dt>final households count</dt>
- * <dd>the final number of households in the result computation,
+ * <dd>the final count of households in the result computation,
  *     after rejecting those with insufficient or poor data, etc</dd>
  * <dt>normal day count</dt>
  * <dd>the aggregate number of non-control days for which efficacy was been computed after all filtering</dd>
@@ -55,13 +55,21 @@ import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationR
  * <p>
  * For Apache Commons Maths see:
  * http://commons.apache.org/proper/commons-math/javadocs/api-3.6.1/index.html
+ * <p>
+ * For some lambda/stats trickery see:
+ * http://commons.apache.org/proper/commons-math/javadocs/api-3.6.1/org/apache/commons/math3/stat/StatUtils.html
+ * http://stackoverflow.com/questions/23079003/how-to-convert-a-java-8-stream-to-an-array
+ * http://stackoverflow.com/questions/30125296/how-to-sum-a-list-of-integers-with-java-streams
+ * ...
  */
 public final class ETVHouseholdGroupSimpleSummaryStats
     {
     public static interface SummaryStats
         {
-        /**The original number of households before filtering. */
-        int getAllHouseholdCount();
+        /**The original count of households before filtering; non-negative. */
+        int getAllHouseholdsCount();
+        /**The final households count; non-negative and no greater than getAllHouseholdCount(). */
+        int getFinalHouseholdsCount();
         }
 
     /**Compute simple stats summary; never null. */
@@ -69,12 +77,15 @@ public final class ETVHouseholdGroupSimpleSummaryStats
         {
         if(null == perHousehold) { throw new IllegalArgumentException(); }
         if(allHouseholdCount < 0) { throw new IllegalArgumentException(); }
-        if(allHouseholdCount < perHousehold.size()) { throw new IllegalArgumentException(); }
+        final int n = perHousehold.size();
+        if(allHouseholdCount < n) { throw new IllegalArgumentException(); }
 
 // TODO
 
         return(new SummaryStats(){
-            @Override public int getAllHouseholdCount() { return(allHouseholdCount); }
+            @Override public int getAllHouseholdsCount() { return(allHouseholdCount); }
+            @Override public int getFinalHouseholdsCount() { return(n); }
+
 // TODO
             });
         }
