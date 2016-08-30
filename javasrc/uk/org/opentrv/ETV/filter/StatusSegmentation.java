@@ -18,13 +18,16 @@ Author(s) / Copyright (s): Damon Hart-Davis 2016
 
 package uk.org.opentrv.ETV.filter;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.TimeZone;
 import java.util.TreeMap;
 
+import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationInput;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationSystemStatus;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.SavingEnabledAndDataStatus;
 import uk.org.opentrv.ETV.parse.OTLogActivityParse.ValveLogParseResult;
@@ -94,6 +97,40 @@ public final class StatusSegmentation
             @Override public String getHouseID() { return(houseID); }
             @Override public SortedMap<Integer, SavingEnabledAndDataStatus> getOptionalEnabledAndUsableFlagsByLocalDay()
                 { return(Collections.unmodifiableSortedMap(result));  }
+            });
+        }
+
+    /**Fold a status array into an existing set of inputs; never null.
+     * Will reject attempts to replace a non-null existing array,
+     * and will perform some other sanity checks.
+     * <p>
+     * Wraps now instance around existing calls and new status.
+     * Each is wrapped as unmodifiable to try to reduce the risk of accident.
+     *
+     * @param in  existing input, with status Map null; never null
+     * @param status  new status by day; never null
+     */
+    public static final ETVPerHouseholdComputationInput injectStatusInfo(
+        final ETVPerHouseholdComputationInput in, final ETVPerHouseholdComputationSystemStatus status)
+        {
+        if(null == in) { throw new IllegalArgumentException(); }
+        if(null == status) { throw new IllegalArgumentException(); }
+        if(null != in.getOptionalEnabledAndUsableFlagsByLocalDay()) { throw new IllegalArgumentException("already has status"); }
+        if(!in.getHouseID().equals(status.getHouseID())) { throw new IllegalArgumentException("mismatched houseIDs"); }
+        // Synthesise result wrapped around old input plus new status.
+        return(new ETVPerHouseholdComputationInput(){
+            @Override public SortedMap<Integer, SavingEnabledAndDataStatus> getOptionalEnabledAndUsableFlagsByLocalDay()
+                { return(Collections.unmodifiableSortedMap(status.getOptionalEnabledAndUsableFlagsByLocalDay())); }
+            @Override public SortedMap<Integer, Float> getKWhByLocalDay() throws IOException
+                { return(Collections.unmodifiableSortedMap(in.getKWhByLocalDay())); }
+            @Override public SortedMap<Integer, Float> getHDDByLocalDay() throws IOException
+                { return(Collections.unmodifiableSortedMap(in.getHDDByLocalDay())); }
+            @Override public float getBaseTemperatureAsFloat()
+                { return(in.getBaseTemperatureAsFloat()); }
+            @Override public String getHouseID()
+                { return(in.getHouseID()); }
+            @Override public TimeZone getLocalTimeZoneForDayBoundaries()
+                { return(in.getLocalTimeZoneForDayBoundaries()); }
             });
         }
     }
