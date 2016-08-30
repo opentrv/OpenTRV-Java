@@ -190,7 +190,6 @@ System.out.println(actualSegmentedBasic);
         assertEquals(expectedS, actualSegmentedBasic);
 
 
-
         // TODO
 
 
