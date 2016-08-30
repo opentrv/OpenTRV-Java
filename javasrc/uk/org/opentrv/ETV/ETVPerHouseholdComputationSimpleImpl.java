@@ -19,6 +19,7 @@ Author(s) / Copyright (s): Damon Hart-Davis 2016
 package uk.org.opentrv.ETV;
 
 import java.io.IOException;
+import java.util.EnumMap;
 import java.util.SortedMap;
 import java.util.SortedSet;
 
@@ -31,6 +32,8 @@ import uk.org.opentrv.hdd.HDDUtil.HDDMetrics;
  * This can do a simple computation to find overall kWh/HDD
  * from the supplied house's data,
  * ignoring (not computing) change in efficiency with equipment operation.
+ * <p>
+ * This ignores
  * <p>
  * May not work if input data is discontinuous,
  * or iff energy data date range is not completely within HDD data date range.
@@ -81,4 +84,25 @@ public final class ETVPerHouseholdComputationSimpleImpl implements ETVPerHouseho
             @Override public Float getRatiokWhPerHDDNotSmartOverSmart() { return(null); }
             });
         }
+
+    /**Split energy data by savings-features type (enabled/disabled).
+     * Computes the heating-efficiency metric (kWh/HDD) separately
+     * for the cases where energy saving measures are
+     * enabled (normal) and disabled (control).
+     *
+     * @param in   per-day raw input energy and HDD and status values; never null
+     * @return  mapping from Enabled and Disabled (not DontUse) to the HDD metrics and efficacy measure;
+     *    never null though may be empty
+     */
+    public static EnumMap<SavingEnabledAndDataStatus, ETVPerHouseholdComputationResult> splitData(
+        final ETVPerHouseholdComputationInput in)
+        {
+
+        // TODO
+
+
+
+        throw new RuntimeException("NOT IMPLEMENTED");
+        }
+
     }

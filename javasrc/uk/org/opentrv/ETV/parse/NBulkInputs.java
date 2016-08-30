@@ -67,7 +67,8 @@ house_id,received_timestamp,device_timestamp,energy,temperature
      * @param HDDDataFile  Reader (eg from file) for simple HDD data with standard/default baseline,
      *        Reader is closed when done; never null
      * @return  collection of all data to process to compute
-     *     overall kWh/HDD per household, no efficacy computation;
+     *     overall kWh/HDD per household,
+     *     no efficacy computation (ie getOptionalEnabledAndUsableFlagsByLocalDay() returns null);
      *     never null
      * @throws IOException  in case of input data problems
      */

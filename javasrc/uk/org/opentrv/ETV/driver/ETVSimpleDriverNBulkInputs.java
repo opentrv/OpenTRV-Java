@@ -23,6 +23,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +34,7 @@ import uk.org.opentrv.ETV.ETVPerHouseholdComputation;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationInput;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationResult;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationSystemStatus;
+import uk.org.opentrv.ETV.ETVPerHouseholdComputation.SavingEnabledAndDataStatus;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputationSimpleImpl;
 import uk.org.opentrv.ETV.filter.CommonSimpleResultFilters;
 import uk.org.opentrv.ETV.output.ETVPerHouseholdComputationResultsToCSV;
@@ -103,12 +106,13 @@ public final class ETVSimpleDriverNBulkInputs
         if(!inDir.isDirectory()) { throw new IOException("Cannot open input directory " + inDir); }
         if(!outDir.isDirectory()) { throw new IOException("Cannot open output directory " + outDir); }
 
+        // Gather raw kWh and HDD data; savings-measure status Map is null.
         final Map<String, ETVPerHouseholdComputationInput> mhi =
                 NBulkInputs.gatherDataForAllHouseholds(
                         () -> getReader(new File(inDir, INPUT_FILE_NKWH)),
                         getReader(new File(inDir, INPUT_FILE_HDD)));
 
-        // Compute and output basic results.
+        // Compute and output basic results, no efficacy.
         final List<ETVPerHouseholdComputationResult> rlBasic = mhi.values().stream().map(ETVPerHouseholdComputationSimpleImpl.getInstance()).collect(Collectors.toList());
         Collections.sort(rlBasic, new ETVPerHouseholdComputation.ResultSortByHouseID());
         final String rlBasicCSV = (new ETVPerHouseholdComputationResultsToCSV()).apply(rlBasic);
@@ -153,14 +157,26 @@ public final class ETVSimpleDriverNBulkInputs
 
 System.out.println(enoughControlAndNormal.iterator().next().getOptionalEnabledAndUsableFlagsByLocalDay());
 
+        // Analyse segmented data per household.
+        // Inject the per-day savings-measures status into the input,
+        // and use the split analysis.
+        final Map<String, EnumMap<SavingEnabledAndDataStatus, ETVPerHouseholdComputationResult>> segmentedAnalysis = new HashMap<>();
+        for(final ETVPerHouseholdComputationSystemStatus statusByID : enoughControlAndNormal)
+            {
+
+
+            // TODO
+
+
+
+            }
+
 
         // TODO
 
-// Analyse segmented data per household.
-
 // Analyse across groups of households, with confidence estimate.
 
-// Write report(s).
+// Generate and write report(s).
 
 
         }
