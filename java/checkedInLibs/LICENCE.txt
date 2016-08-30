@@ -25,4 +25,10 @@ Name: jtwitter-3.0.7 + Signpost + Apache commons
 Licence: LGPL + Apache 2.0 + Apache 2.0
 Maintainer: Developed by Daniel Winterstein. Copyright (c) Winterwell Associates Ltd, 2008-2012 and ThinkTank Mathematics Ltd, 2007, except where otherwise stated.
 http://www.winterwell.com/software/jtwitter.php
-Stored complete as ZIP plus plartial expanded for Java classpath.
+Stored complete as ZIP and partially expanded for Java classpath.
+
+Name: Commons Math 3.6.1: The Apache Commons Mathematics Library
+Licence: Apache 2.0
+Maintainer: Apache
+http://commons.apache.org/proper/commons-math/
+Stored complete as (binary) ZIP plus partially expanded for Java classpath.

@@ -20,6 +20,8 @@ package uk.org.opentrv.ETV;
 
 import java.util.Collection;
 
+import org.apache.commons.math3.stat.StatUtils;
+
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationResult;
 
 /**Compute space-heat energy efficiency stats per ETV protocol for a group of households.
@@ -50,6 +52,9 @@ import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationR
  *
  * <dt>TBD</dt>
  * <dl>
+ * <p>
+ * For Apache Commons Maths see:
+ * http://commons.apache.org/proper/commons-math/javadocs/api-3.6.1/index.html
  */
 public final class ETVHouseholdGroupSimpleSummaryStats
     {
