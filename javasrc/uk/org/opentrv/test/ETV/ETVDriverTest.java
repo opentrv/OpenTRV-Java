@@ -169,12 +169,16 @@ public class ETVDriverTest
         final File segmentedResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_STATS_FILE_SEGMENTED);
         segmentedResultFile.delete(); // Make sure no output file.
         assertFalse("output segmented file should not yet exist", segmentedResultFile.isFile());
+        final File summaryResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_STATS_FILE_MULITHOUSEHOLD_SUMMARY);
+        summaryResultFile.delete(); // Make sure no output file.
+        assertFalse("output summary file should not yet exist", summaryResultFile.isFile());
         // Do the computation...
         ETVSimpleDriverNBulkInputs.doComputation(inDir, outDir);
         // Check results.
         assertTrue("output file should now exist", basicResultFile.isFile());
         assertTrue("output filtered file should now exist", basicFilteredResultFile.isFile());
         assertTrue("output segmented file should now exist", segmentedResultFile.isFile());
+        assertTrue("output summary file should now exist", summaryResultFile.isFile());
         final String expected =
             "\"house ID\",\"slope energy/HDD\",\"baseload energy\",\"R^2\",\"n\",\"efficiency gain if computed\"\n" +
             "\"5013\",1.5532478,1.3065631,0.62608224,156,\n";
@@ -183,12 +187,18 @@ public class ETVDriverTest
         final String actualFilteredBasic = new String(Files.readAllBytes(basicFilteredResultFile.toPath()), "ASCII7");
         assertEquals(expected, actualFilteredBasic);
         final String expectedS =
-            "\"house ID\",\"slope energy/HDD\",\"baseload energy\",\"R^2\",\"n\",\"efficiency gain if computed\"\n" + 
+            "\"house ID\",\"slope energy/HDD\",\"baseload energy\",\"R^2\",\"n\",\"efficiency gain if computed\"\n" +
             "\"5013\",1.138506,5.764153,0.24607657,10,1.9855182\n";
-        final String actualSegmentedBasic = new String(Files.readAllBytes(segmentedResultFile.toPath()), "ASCII7");
-System.out.println(actualSegmentedBasic);
-        assertEquals(expectedS, actualSegmentedBasic);
+        final String actualSegmented = new String(Files.readAllBytes(segmentedResultFile.toPath()), "ASCII7");
+System.out.println(actualSegmented);
+        assertEquals(expectedS, actualSegmented);
 
+
+        final String expectedSummary =
+            "";
+        final String actualSummary = new String(Files.readAllBytes(summaryResultFile.toPath()), "ASCII7");
+System.out.println(expectedSummary);
+        assertEquals(expectedSummary, actualSummary);
 
         // TODO
 

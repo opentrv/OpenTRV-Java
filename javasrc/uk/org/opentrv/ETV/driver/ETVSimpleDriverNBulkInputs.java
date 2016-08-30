@@ -24,21 +24,21 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import uk.org.opentrv.ETV.ETVHouseholdGroupSimpleSummaryStats;
+import uk.org.opentrv.ETV.ETVHouseholdGroupSimpleSummaryStats.SummaryStats;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationInput;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationResult;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationSystemStatus;
-import uk.org.opentrv.ETV.ETVPerHouseholdComputation.SavingEnabledAndDataStatus;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputationSimpleImpl;
 import uk.org.opentrv.ETV.filter.CommonSimpleResultFilters;
 import uk.org.opentrv.ETV.filter.StatusSegmentation;
+import uk.org.opentrv.ETV.output.ETVHouseholdGroupSimpleSummaryStatsToCSV;
 import uk.org.opentrv.ETV.output.ETVPerHouseholdComputationResultsToCSV;
 import uk.org.opentrv.ETV.parse.NBulkInputs;
 import uk.org.opentrv.ETV.parse.NBulkKWHParseByID;
@@ -72,6 +72,10 @@ public final class ETVSimpleDriverNBulkInputs
      * The HDD metrics are from the normal state, with energy-saving features enabled.
      */
     public static final String OUTPUT_STATS_FILE_SEGMENTED = "segmentedStatsOut.csv";
+    /**Name within output directory of household group simple summary stats as ASCII7 CSV including efficacy computation.
+     * The HDD metrics are from the normal state, with energy-saving features enabled.
+     */
+    public static final String OUTPUT_STATS_FILE_MULITHOUSEHOLD_SUMMARY = "multihouseholdSummaryStatsOut.csv";
 
     /**Gets a reader for the specified file; no checked exceptions. */
     private static Reader getReader(final File f)
@@ -183,13 +187,16 @@ public final class ETVSimpleDriverNBulkInputs
         Collections.sort(rlSegmented, new ETVPerHouseholdComputation.ResultSortByHouseID());
         final String rlSegmentedCSV = (new ETVPerHouseholdComputationResultsToCSV()).apply(rlSegmented);
         final File segmentedResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_STATS_FILE_SEGMENTED);
-        // Write output...
         try(final FileWriter w = new FileWriter(segmentedResultFile)) { w.write(rlSegmentedCSV); }
+
+        // Analyse across groups of households, with confidence estimate.
+        final SummaryStats summaryStats = ETVHouseholdGroupSimpleSummaryStats.computeSummaryStats(mhi.size(), rlSegmented);
+        final String summaryCSV = (new ETVHouseholdGroupSimpleSummaryStatsToCSV()).apply(summaryStats);
+        final File summaryResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_STATS_FILE_MULITHOUSEHOLD_SUMMARY);
+        try(final FileWriter w = new FileWriter(summaryResultFile)) { w.write(summaryCSV); }
 
 
         // TODO
-
-// Analyse across groups of households, with confidence estimate.
 
 // Generate and write report(s).
 
