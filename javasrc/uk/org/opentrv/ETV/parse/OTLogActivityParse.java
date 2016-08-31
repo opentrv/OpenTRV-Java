@@ -122,6 +122,13 @@ public final class OTLogActivityParse
     public static final Pattern REGEX_TEMP_SETBACK_C = Pattern.compile(".*\"tS\\|C\":[1-9].*");
 
     /**Parses 'c' and 'pd' format valve log files; never null.
+     * Equivalent to parseTRV1ValveLog(r, localTimeZoneForDayBoundaries, null, null).
+     */
+    public static ValveLogParseResult parseTRV1ValveLog(final Reader r, final TimeZone localTimeZoneForDayBoundaries)
+        throws IOException
+        { return(parseTRV1ValveLog(r, localTimeZoneForDayBoundaries, null, null)); }
+
+    /**Parses 'c' and 'pd' format valve log files; never null.
      * Intended to parse/interpret the logs of TRV1 valves, eg software released ~2016H1.
      * <p>
      * Quite crude and so is able to parse either format.
@@ -137,11 +144,18 @@ public final class OTLogActivityParse
      * to validate days where tS|C is available as a metric.
      * <p>
      * Uses v|% > 0 to detect call for heat and thus daysInWhichCallingForHeat.
+     * <p>
+     * Primary ID is @ field in JSON files (lowercase hex, no spaces).
+     * Secondary ID is NN NN NN NN prefix of device ID in lowercase hex with spaces (eg "a1 a2 a3 a4") for dlog files.
      *
      * @param r  line-oriented log file as reader, not closed by routine; never null
      * @param localTimeZoneForDayBoundaries  timezone for household; never null
+     * @param valvePrimaryID  if not null, primary ID to filter on; null implies whole log file is single device
+     * @param valveSecondaryID  if not null, secondary ID to filter on; null implies whole log file is single device
      */
-    public static ValveLogParseResult parseTRV1ValveLog(final Reader r, final TimeZone localTimeZoneForDayBoundaries) throws IOException
+    public static ValveLogParseResult parseTRV1ValveLog(final Reader r, final TimeZone localTimeZoneForDayBoundaries,
+            final String valvePrimaryID, final String valveSecondaryID)
+        throws IOException
         {
         if(null == r) { throw new IllegalAccessError(); }
         if(null == localTimeZoneForDayBoundaries) { throw new IllegalAccessError(); }
@@ -150,6 +164,12 @@ public final class OTLogActivityParse
         final Set<Integer> daysInWhichCallingForHeat = new HashSet<>();
         final Set<Integer> daysInWhichEnergySavingStatsReported = new HashSet<>();
         final Set<Integer> daysInWhichEnergySavingActive = new HashSet<>();
+
+        // Do some early work once for filtering.
+        final boolean hasSecondaryIDFilter = (null != valveSecondaryID);
+        // Look for presence of "','cf 74 II II II II " in dlog files.
+        final Pattern dlogSecondaryIDMatcher = hasSecondaryIDFilter ?
+            Pattern.compile(".*','cf " + valveSecondaryID + " .*") : null;
 
         final LineNumberReader lr = new LineNumberReader(r);
 
@@ -186,6 +206,8 @@ public final class OTLogActivityParse
                 final String timeStamp = (String) array.get(0);
                 if(!(array.get(2) instanceof JSONObject)) { System.err.println("input line leaf JSON ([2]) is not an object/map: " + line); continue; }
                 leafObject = (JSONObject)array.get(2);
+                // Apply filtering by primary ID if needed.
+                if((null != valvePrimaryID) && !valvePrimaryID.equals(leafObject.get("@"))) { continue; }
                 // Parse the timestamp...
                 final Instant instant = Instant.parse(timeStamp);
                 time = instant.getEpochSecond() * 1000L;
@@ -200,6 +222,8 @@ public final class OTLogActivityParse
                 }
             else
                 {
+                // Apply filtering by secondary ID if needed.
+                if(hasSecondaryIDFilter && !dlogSecondaryIDMatcher.matcher(line).matches()) { continue; }
                 // Parse the timestamp at start of line:
                 //    '2016-05-12-11:21:45'
                 if('\'' != line.charAt(20))
@@ -352,8 +376,16 @@ S001,synthd
         // Use the extensions as the filename,
         // and perform filtering with the primary ID,
         // or secondary ID if it is supplied.
-
-        // TODO
+        for(final String e : endings)
+            {
+            final String filename = e;
+            try {
+                // Stop as soon as one succeeds.
+                try(final Reader r = dataReader.apply(filename))
+                    { return(parseTRV1ValveLog(r, localTimeZoneForDayBoundaries, valvePrimaryID, valveSecondaryID)); }
+                }
+            catch(final Exception e1) { /* ignore */ }
+            }
 
         return(null); // Not found.
         }
