@@ -47,7 +47,7 @@ public final class ETVPerHouseholdComputationSimpleImpl implements ETVPerHouseho
     private static class ETVPerHouseholdComputationSimpleImplHolder { static final ETVPerHouseholdComputationSimpleImpl INSTANCE = new ETVPerHouseholdComputationSimpleImpl(); }
     public static ETVPerHouseholdComputationSimpleImpl getInstance() { return(ETVPerHouseholdComputationSimpleImplHolder.INSTANCE); }
 
-    /**Computes result over all energy data supplied (ignores status); never null. */
+    /**Compute result over all energy data supplied (ignores status map); never null. */
     private ETVPerHouseholdComputationResult all(final ETVPerHouseholdComputationInput in) throws IllegalArgumentException
         {
         // FIXME: not meeting contract if HDD data discontinuous; should check.
@@ -104,7 +104,7 @@ public final class ETVPerHouseholdComputationSimpleImpl implements ETVPerHouseho
         final HDDMetrics hddMetricsE = rE.getHDDMetrics();
         final float efficacy = rD.getHDDMetrics().slopeEnergyPerHDD / rE.getHDDMetrics().slopeEnergyPerHDD;
 
-        // Return HDD stats for 'enabled' state, with ratio computed D/E.
+        // Return HDD stats for 'enabled' state, with efficacy (D/E slope ratio) provided.
         return(new ETVPerHouseholdComputationResult() {
             @Override public String getHouseID() { return(in.getHouseID()); }
             @Override public HDDMetrics getHDDMetrics() { return(hddMetricsE); }
