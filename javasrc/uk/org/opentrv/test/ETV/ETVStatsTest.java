@@ -19,10 +19,12 @@ Author(s) / Copyright (s): Damon Hart-Davis 2016
 package uk.org.opentrv.test.ETV;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.junit.Test;
@@ -54,7 +56,7 @@ public class ETVStatsTest
             }
         }
 
-    /**Test for main features of an singleton final simple stats summary.
+    /**Test for main features of a singleton final simple stats summary.
      * All variance/SD should be zero,
      * and all means the same as the input value.
      */
@@ -74,14 +76,53 @@ public class ETVStatsTest
         for(final MeanAndPopSD mp : new MeanAndPopSD[]{s.getStatsOverRSquared(), s.getStatsOverSlope(), s.getStatsOverEfficacy()})
             {
             assertNotNull(mp);
-            assertTrue(!Double.isNaN(mp.mean));
-            assertTrue(!Double.isNaN(mp.pVariance));
-            assertTrue(!Double.isNaN(mp.pSD));
+            assertFalse(Double.isNaN(mp.mean));
+            assertFalse(Double.isNaN(mp.pVariance));
+            assertFalse(Double.isNaN(mp.pSD));
             assertEquals(0.0, mp.pVariance, 0.01);
             assertEquals(0.0, mp.pSD, 0.01);
             }
         assertEquals(0.8, s.getStatsOverRSquared().mean, 0.01);
         assertEquals(1.5, s.getStatsOverSlope().mean, 0.01);
         assertEquals(1.3, s.getStatsOverEfficacy().mean, 0.01);
+        }
+
+    /**Test for main features of a multi-household final simple stats summary.
+     * All variance/SD should be zero,
+     * and all means the same as the input value.
+     */
+    @Test public void testMultiSimpleStatsSummary() throws IOException
+        {
+        // Given representative household HDD metrics...
+        final ETVPerHouseholdComputationResult hcr1 = new ETVPerHouseholdComputationResult(){
+            @Override public Float getRatiokWhPerHDDNotSmartOverSmart() { return(1.3f); }
+            @Override public String getHouseID() { return("TheAvenue"); }
+            @Override public HDDMetrics getHDDMetrics() { return(new HDDMetrics(1.5f, 4.0f, 0.8f, 42)); }
+            };
+        final ETVPerHouseholdComputationResult hcr2 = new ETVPerHouseholdComputationResult(){
+            @Override public Float getRatiokWhPerHDDNotSmartOverSmart() { return(1.1f); }
+            @Override public String getHouseID() { return("TheGrange"); }
+            @Override public HDDMetrics getHDDMetrics() { return(new HDDMetrics(5.5f, 7.0f, 0.6f, 41)); }
+            };
+        final SummaryStats s = ETVHouseholdGroupSimpleSummaryStats.computeSummaryStats(5, Arrays.asList(hcr1, hcr2));
+        assertNotNull(s);
+        assertEquals(5, s.getAllHouseholdsCount());
+        assertEquals(2, s.getFinalHouseholdsCount());
+        assertEquals(83, s.getNormalDayCount());
+        for(final MeanAndPopSD mp : new MeanAndPopSD[]{s.getStatsOverRSquared(), s.getStatsOverSlope(), s.getStatsOverEfficacy()})
+            {
+            assertNotNull(mp);
+            assertFalse(Double.isNaN(mp.mean));
+            assertFalse(Double.isNaN(mp.pVariance));
+            assertFalse(Double.isNaN(mp.pSD));
+            assertTrue(mp.pVariance > 0.0);
+            assertTrue(mp.pSD > 0.0);
+            }
+        assertEquals(0.7, s.getStatsOverRSquared().mean, 0.01);
+        assertEquals(3.5, s.getStatsOverSlope().mean, 0.01);
+        assertEquals(1.2, s.getStatsOverEfficacy().mean, 0.01);
+        assertEquals(0.1, s.getStatsOverRSquared().pSD, 0.01);
+        assertEquals(2.0, s.getStatsOverSlope().pSD, 0.01);
+        assertEquals(0.1, s.getStatsOverEfficacy().pSD, 0.01);
         }
     }
