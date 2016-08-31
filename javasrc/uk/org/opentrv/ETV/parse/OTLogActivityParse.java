@@ -169,7 +169,8 @@ public final class OTLogActivityParse
         final boolean hasSecondaryIDFilter = (null != valveSecondaryID);
         // Look for presence of "','cf 74 II II II II " in dlog files.
         final Pattern dlogSecondaryIDMatcher = hasSecondaryIDFilter ?
-            Pattern.compile(".*','cf " + valveSecondaryID + " .*") : null;
+            Pattern.compile(".*','cf .. "+valveSecondaryID+" .*") : null;
+//            Pattern.compile(".*','cf [0-9a-z][0-9a-z] " + valveSecondaryID + " .*") : null;
 
         final LineNumberReader lr = new LineNumberReader(r);
 
@@ -299,6 +300,7 @@ HouseID,deviceID,secondaryDeviceID(2ndaryIDOfHouseIfDeviceIDBlank)
 5013,3015
 S001,,synthetic1
 S001,synthd
+S001,synthd2,aa ab ac ad
      * </pre>
      * <p>
      * No valve can belong to more than one household, though this is not yet verified.
@@ -407,7 +409,8 @@ S001,synthd
 
         for(final String valveID : devices)
             {
-            final ValveLogParseResult vlpr = findAndAnalyseLog(dataReader, localTimeZoneForDayBoundaries, valveID, null);
+            final String secondaryID = null; // FIXME
+            final ValveLogParseResult vlpr = findAndAnalyseLog(dataReader, localTimeZoneForDayBoundaries, valveID, secondaryID);
             // Silently OMIT any device for which there is no data at all.
             if(null != vlpr) { perDevice.add(vlpr); }
             }
