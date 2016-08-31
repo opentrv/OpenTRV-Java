@@ -41,6 +41,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.org.opentrv.ETV.driver.ETVSimpleDriverNBulkInputs;
+import uk.org.opentrv.ETV.output.ETVHouseholdGroupSimpleSummaryStatsToCSV;
 import uk.org.opentrv.ETV.parse.OTLogActivityParse;
 import uk.org.opentrv.hdd.HDDUtil;
 import uk.org.opentrv.test.hdd.DDNExtractorTest;
@@ -190,20 +191,18 @@ public class ETVDriverTest
             "\"house ID\",\"slope energy/HDD\",\"baseload energy\",\"R^2\",\"n\",\"efficiency gain if computed\"\n" +
             "\"5013\",1.138506,5.764153,0.24607657,10,1.9855182\n";
         final String actualSegmented = new String(Files.readAllBytes(segmentedResultFile.toPath()), "ASCII7");
-System.out.println(actualSegmented);
+//System.out.println(actualSegmented);
         assertEquals(expectedS, actualSegmented);
-
-
         final String expectedSummary =
-            "";
+            ETVHouseholdGroupSimpleSummaryStatsToCSV.headerCSV + '\n' +
+            "1,1,10,0.24607657,0.0,1.138506,0.0,1.9855182,0.0,\n";
         final String actualSummary = new String(Files.readAllBytes(summaryResultFile.toPath()), "ASCII7");
-System.out.println(expectedSummary);
+System.out.println(actualSummary);
         assertEquals(expectedSummary, actualSummary);
 
         // TODO
 
-
-
+        // Verify textual report if any?
 
         }
 

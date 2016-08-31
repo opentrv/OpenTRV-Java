@@ -101,12 +101,13 @@ public final class ETVPerHouseholdComputationSimpleImpl implements ETVPerHouseho
         final ETVPerHouseholdComputationResult rD = all(inD);
 
         // Compute the efficacy, energy-saving features disabled over enabled, > 1.0 is good.
+        final HDDMetrics hddMetricsE = rE.getHDDMetrics();
         final float efficacy = rD.getHDDMetrics().slopeEnergyPerHDD / rE.getHDDMetrics().slopeEnergyPerHDD;
 
-        // Return HDD stats for 'enabled' state, with ratio set.
+        // Return HDD stats for 'enabled' state, with ratio computed D/E.
         return(new ETVPerHouseholdComputationResult() {
             @Override public String getHouseID() { return(in.getHouseID()); }
-            @Override public HDDMetrics getHDDMetrics() { return(rE.getHDDMetrics()); }
+            @Override public HDDMetrics getHDDMetrics() { return(hddMetricsE); }
             @Override public Float getRatiokWhPerHDDNotSmartOverSmart() { return(efficacy); }
             });
         }

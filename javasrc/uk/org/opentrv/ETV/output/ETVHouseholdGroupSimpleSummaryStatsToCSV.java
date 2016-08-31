@@ -22,7 +22,7 @@ import java.util.function.Function;
 
 import uk.org.opentrv.ETV.ETVHouseholdGroupSimpleSummaryStats.SummaryStats;
 
-/**Generate machine-readable (multi-line-CVS with header) form of simple summary stats for a result list.
+/**Generate machine-readable (single-line-CVS with header) form of simple summary stats.
  * A header line is included.
  * <p>
  * Lines are terminated with '\n'.
@@ -32,14 +32,29 @@ import uk.org.opentrv.ETV.ETVHouseholdGroupSimpleSummaryStats.SummaryStats;
 public final class ETVHouseholdGroupSimpleSummaryStatsToCSV
         implements Function<SummaryStats,String>
     {
-    /**Produce simple CVS format "house ID,slope,baseload,R^2,n,efficiency gain" eg "12345,1.2,3.5,0.73,156,1.1"; no leading/terminating comma, never null. */
-    public String apply(SummaryStats rl)
+    /**Produce simple CVS format output with header row and one data row.
+     * Precision is reduced to float for printing,
+     * as anything beyond that is probably spurious.
+     */
+    @Override
+    public String apply(final SummaryStats ss)
         {
-//        final ETVPerHouseholdComputationResultToCSV s = new ETVPerHouseholdComputationResultToCSV();
         final StringBuilder sb = new StringBuilder();
-//        sb.append(ETVPerHouseholdComputationResultToCSV.headerCSV()).append('\n');
-//        for(final ETVPerHouseholdComputationResult r : rl)
-//            { sb.append(s.apply(r)).append('\n'); }
+        sb.append(headerCSV).append('\n');
+        sb.append(ss.getAllHouseholdsCount()).append(',');
+        sb.append(ss.getFinalHouseholdsCount()).append(',');
+        sb.append(ss.getNormalDayCount()).append(',');
+        sb.append((float) ss.getStatsOverRSquared().mean).append(',');
+        sb.append((float) ss.getStatsOverRSquared().pSD).append(',');
+        sb.append((float) ss.getStatsOverSlope().mean).append(',');
+        sb.append((float) ss.getStatsOverSlope().pSD).append(',');
+        sb.append((float) ss.getStatsOverEfficacy().mean).append(',');
+        sb.append((float) ss.getStatsOverEfficacy().pSD).append(',');
+        sb.append('\n');
         return(sb.toString());
         }
+
+    /**CSV header row (no trailing line-ending). */
+    public static final String headerCSV =
+        "allHouseholdsCount,finalHouseholdsCount,normalDayCount,RsqMean,RsqSD,SlopeMean,SlopeSD,EfficacyMean,EfficacySD";
     }
