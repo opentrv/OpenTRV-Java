@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -489,18 +490,18 @@ public class ETVParseTest
     @Test public void testGroupingParse() throws IOException
         {
         // Parse as map for all devices/valves in a household.
-        final Map<String, Set<String>> gm = OTLogActivityParse.loadGroupingCSVAsMap(vlr);
+        final Map<String, Set<Map.Entry<String,String>>> gm = OTLogActivityParse.loadGroupingCSVAsMap(vlr);
         assertNotNull(gm);
         assertEquals(2, gm.size());
-        final Set<String> h1 = gm.get("5013");
+        final Set<Map.Entry<String,String>> h1 = gm.get("5013");
         assertNotNull(h1);
         assertEquals(5, h1.size());
-        assertTrue(h1.contains("414a"));
-        final Set<String> h2 = gm.get("S001");
+        assertTrue(h1.contains(new AbstractMap.SimpleImmutableEntry<String,String>("414a",null)));
+        final Set<Map.Entry<String,String>> h2 = gm.get("S001");
         assertNotNull(h2);
         assertEquals(2, h2.size());
-        assertTrue(h2.contains("synthd"));
-        assertTrue(h2.contains("synthd2"));
+        assertTrue(h2.contains(new AbstractMap.SimpleEntry<String,String>("synthd",null)));
+        assertTrue(h2.contains(new AbstractMap.SimpleEntry<String,String>("synthd2",null)));
         }
 
     /**Test basic mass load and analysis of log files. */

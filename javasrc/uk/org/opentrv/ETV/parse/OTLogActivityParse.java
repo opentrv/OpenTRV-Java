@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.Reader;
 import java.time.Instant;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -307,13 +308,14 @@ S001,synthd2,aa ab ac ad
      * <p>
      * Closes the Reader when finished.
      *
+     * @returns  Map from household to Set of pairs of primary (key) and optional secondary (value) device IDs
      * @throws  IOException if file cannot be read or parsed
      */
-    public static Map<String, Set<String>> loadGroupingCSVAsMap(final Function<String, Reader> dataReader)
+    public static Map<String, Set<Map.Entry<String,String>>> loadGroupingCSVAsMap(final Function<String, Reader> dataReader)
         throws IOException
         {
         final List<String> rl = loadGroupingCSVAsList(dataReader);
-        final Map<String, Set<String>> result = new HashMap<>();
+        final Map<String, Set<Map.Entry<String,String>>> result = new HashMap<>();
 
         // Skip header row if present.
         final List<String> l = (rl.get(0).startsWith("HouseID,") ? rl.subList(1, rl.size()) : rl);
@@ -329,15 +331,16 @@ S001,synthd2,aa ab ac ad
             // Ignore row with no valve ID.
             if("".equals(valveID)) { continue; }
             // Create appropriate entry.
-            if(!result.containsKey(houseID)) { result.put(houseID, new HashSet<String>()); }
-            result.get(houseID).add(valveID);
+            if(!result.containsKey(houseID)) { result.put(houseID, new HashSet<>()); }
+            result.get(houseID).add(new AbstractMap.SimpleImmutableEntry(valveID, null));
             }
 
         // Check that no valve was associated with more than one household.
         // Union size should be sum of all constituent sets, ie no overlap.
+        // Should possibly by by only primary ID...
         int nPerHousehold = 0;
-        final Set<String> unionValveIDs = new HashSet<>();
-        for(final Set<String> h : result.values())
+        final Set<Map.Entry<String,String>> unionValveIDs = new HashSet<>();
+        for(final Set<Map.Entry<String,String>> h : result.values())
             {
             nPerHousehold += h.size();
             unionValveIDs.addAll(h);
@@ -402,15 +405,16 @@ S001,synthd2,aa ab ac ad
      *
      * @return  the combined result
      */
-    public static ETVPerHouseholdComputationSystemStatus analyseHouseLogs(final Function<String, Reader> dataReader, final TimeZone localTimeZoneForDayBoundaries, final String houseID, final Collection<String> devices)
+    public static ETVPerHouseholdComputationSystemStatus analyseHouseLogs(final Function<String, Reader> dataReader, final TimeZone localTimeZoneForDayBoundaries, final String houseID, final Collection<Map.Entry<String,String>> devices)
         {
         // Per-device log parse results.
         final List<ValveLogParseResult> perDevice = new ArrayList<>(devices.size());
 
-        for(final String valveID : devices)
+        for(final Map.Entry<String,String> m : devices)
             {
-            final String secondaryID = null; // FIXME
-            final ValveLogParseResult vlpr = findAndAnalyseLog(dataReader, localTimeZoneForDayBoundaries, valveID, secondaryID);
+            final String valvePrimaryID = m.getKey();
+            final String valveSecondaryID = m.getValue();
+            final ValveLogParseResult vlpr = findAndAnalyseLog(dataReader, localTimeZoneForDayBoundaries, valvePrimaryID, valveSecondaryID);
             // Silently OMIT any device for which there is no data at all.
             if(null != vlpr) { perDevice.add(vlpr); }
             }
@@ -448,7 +452,7 @@ S001,synthd2,aa ab ac ad
         throws IOException
         {
         // Load groupings: abort with exception if not possible.
-        final Map<String, Set<String>> gm = loadGroupingCSVAsMap(dataReader);
+        final Map<String, Set<Map.Entry<String,String>>> gm = loadGroupingCSVAsMap(dataReader);
 
         final Map<String, ETVPerHouseholdComputationSystemStatus> result = new HashMap<>(gm.size() * 2);
 
