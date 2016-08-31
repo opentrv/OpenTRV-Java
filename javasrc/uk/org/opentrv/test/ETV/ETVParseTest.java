@@ -455,8 +455,9 @@ public class ETVParseTest
         assertTrue(h1.contains("414a"));
         final Set<String> h2 = gm.get("S001");
         assertNotNull(h2);
-        assertEquals(1, h2.size());
+        assertEquals(2, h2.size());
         assertTrue(h2.contains("synthd"));
+        assertTrue(h2.contains("synthd2"));
         }
 
     /**Test basic mass load and analysis of log files. */

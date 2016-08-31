@@ -7,3 +7,4 @@ HouseID,deviceID,secondaryDeviceID(2ndaryIDOfHouseIfDeviceIDBlank)
 5013,3015
 S001,,synthetic1
 S001,synthd
+S001,synthd2,aa ab ac ad
