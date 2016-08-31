@@ -20,6 +20,7 @@ package uk.org.opentrv.test.ETV;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -27,6 +28,7 @@ import java.util.Collections;
 import org.junit.Test;
 
 import uk.org.opentrv.ETV.ETVHouseholdGroupSimpleSummaryStats;
+import uk.org.opentrv.ETV.ETVHouseholdGroupSimpleSummaryStats.MeanAndPopSD;
 import uk.org.opentrv.ETV.ETVHouseholdGroupSimpleSummaryStats.SummaryStats;
 
 /**Testing statistical computations for ETV. */
@@ -35,10 +37,18 @@ public class ETVStatsTest
     /**Test for main features of the final simple stats summary. */
     @Test public void testSimpleStatsSummary() throws IOException
         {
+        // All zeros and NaNs expected for empty data set.
         final SummaryStats e = ETVHouseholdGroupSimpleSummaryStats.computeSummaryStats(0, Collections.emptyList());
         assertNotNull(e);
         assertEquals(0, e.getAllHouseholdsCount());
         assertEquals(0, e.getFinalHouseholdsCount());
         assertEquals(0, e.getNormalDayCount());
+        for(final MeanAndPopSD mp : new MeanAndPopSD[]{e.getStatsOverRSquared(), e.getStatsOverSlope(), e.getStatsOverEfficacy()})
+            {
+            assertNotNull(mp);
+            assertTrue(Double.isNaN(mp.mean));
+            assertTrue(Double.isNaN(mp.pVariance));
+            assertTrue(Double.isNaN(mp.pSD));
+            }
         }
     }
