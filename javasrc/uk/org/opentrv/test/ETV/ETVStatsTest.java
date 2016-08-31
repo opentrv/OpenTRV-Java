@@ -88,8 +88,7 @@ public class ETVStatsTest
         }
 
     /**Test for main features of a multi-household final simple stats summary.
-     * All variance/SD should be zero,
-     * and all means the same as the input value.
+     * All variance/SD should be +ve.
      */
     @Test public void testMultiSimpleStatsSummary() throws IOException
         {
