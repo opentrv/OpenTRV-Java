@@ -41,14 +41,15 @@ import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationR
  * <dd>the aggregate number of non-control days for which efficacy was been computed after all filtering</dd>
  * <dt>all households count</dt>
  * <dd>the original number of households before filtering</dd>
- * <dt>mean R^2</dt>
- * <dd>mean of R^2 value across final household set</dd>
- * <dt>mean efficacy</dt>
- * <dd>linear regression of kWh/HDD for space-heating fuel,
- *     ie the basic heating efficiency independent of any interventions</dd>
- * <dt>variance in efficacy</dt>
- * <dd>linear regression of kWh/HDD for space-heating fuel,
- *     ie the basic heating efficiency independent of any interventions</dd>
+ * <dt>stats over R^2</dt>
+ * <dd>stats over R^2 across final household set</dd>
+ * <dt>stats over basic heating efficiency (kWh/HDD)</dt>
+ * <dd>stats over linear regression of kWh/HDD for space-heating fuel,
+ *     ie the basic heating efficiency independent of any interventions;
+ *     SD expected to be relatively large even over similar-sized and located homes</dd>
+ * <dt>stats over efficacy of energy-saving measures</dt>
+ * <dd>stats over ratio of before and after enabling energy-saving measures
+ *     in kWh/HDD basic efficiency</dd>
  *
  * <dt>TBD</dt>
  * <dl>
@@ -64,6 +65,32 @@ import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationR
  */
 public final class ETVHouseholdGroupSimpleSummaryStats
     {
+    /**Concrete immutable implementation computing mean and variance over a set of inputs.
+     * The population variance/SD is computed on the assumption that
+     * data from the entire set of households with adequate data is used.
+     */
+    public static final class MeanAndPopSD
+        {
+        /**Count of data points; non-negative. */
+        public final int n;
+        /**Arithmetic mean of data points. */
+        public final double mean;
+        /**Population variance of data points. */
+        public final double pVariance;
+        /**Population standard deviation. */
+        public final double pSD;
+        /**Construct from data points.*/
+        public MeanAndPopSD(final double data[])
+            {
+            if(null == data) { throw new IllegalArgumentException(); }
+            n = data.length;
+            mean = StatUtils.mean(data);
+            pVariance = StatUtils.populationVariance(data, mean);
+            pSD = Math.sqrt(pVariance);
+            }
+        }
+
+    /**Interface providing standard simple summary stats across multiple households. */
     public static interface SummaryStats
         {
         /**The original count of households before filtering; non-negative. */
@@ -72,6 +99,12 @@ public final class ETVHouseholdGroupSimpleSummaryStats
         int getFinalHouseholdsCount();
         /**The normal day count; non-negative. */
         int getNormalDayCount();
+        /**Get standard stats over R^2; never null though elements may be NaN. */
+        MeanAndPopSD getStatsOverRSquared();
+        /**Get standard stats over kWh/HDD slope; never null though elements may be NaN. */
+        MeanAndPopSD getStatsOverSlope();
+        /**Get standard stats over efficacy; never null though elements may be NaN. */
+        MeanAndPopSD getStatsOverEfficacy();
         }
 
     /**Compute simple stats summary; never null. */
@@ -84,14 +117,19 @@ public final class ETVHouseholdGroupSimpleSummaryStats
 
         // Count all 'enabled'/normal days.
         final int normalDayCount = perHousehold.stream().mapToInt(p -> p.getHDDMetrics().n).sum();
-// TODO
+
+        // Compute standard stats sets.
+        final MeanAndPopSD sRSquared = new MeanAndPopSD(perHousehold.stream().mapToDouble(p -> new Double(p.getHDDMetrics().rsqFit)).toArray());
+        final MeanAndPopSD sSlope = new MeanAndPopSD(perHousehold.stream().mapToDouble(p -> new Double(p.getHDDMetrics().slopeEnergyPerHDD)).toArray());
+        final MeanAndPopSD sEfficacy = new MeanAndPopSD(perHousehold.stream().mapToDouble(p -> new Double(p.getRatiokWhPerHDDNotSmartOverSmart())).toArray());
 
         return(new SummaryStats(){
             @Override public int getAllHouseholdsCount() { return(allHouseholdCount); }
             @Override public int getFinalHouseholdsCount() { return(n); }
             @Override public int getNormalDayCount() { return(normalDayCount); }
-
-// TODO
+            @Override public MeanAndPopSD getStatsOverRSquared() { return(sRSquared); }
+            @Override public MeanAndPopSD getStatsOverSlope() { return(sSlope); }
+            @Override public MeanAndPopSD getStatsOverEfficacy() { return(sEfficacy); }
             });
         }
     }
