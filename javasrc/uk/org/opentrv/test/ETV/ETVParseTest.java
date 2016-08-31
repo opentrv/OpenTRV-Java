@@ -442,6 +442,49 @@ public class ETVParseTest
             }
         }
 
+    /**Test parse of OpenTRV synthetic valve log file (partially-decrypted-format) with filtering for activity/status. */
+    @Test public void testValveHugeDLogFilteringParse() throws IOException
+        {
+        // Parse with wrong secondary ID and should get nothing.
+        try(final Reader r = vlr.apply("dlog.gz"))
+            {
+            final ValveLogParseResult sc = OTLogActivityParse.parseTRV1ValveLog(r, DEFAULT_UK_TIMEZONE, "synth2", "ff ff ac ad");
+            assertNotNull(sc);
+            assertNotNull(sc.getDaysInWhichDataPresent());
+            assertEquals(0, sc.getDaysInWhichDataPresent().size());
+            }
+        // Parse with correct secondary ID and should get fill data.
+        try(final Reader r = vlr.apply("dlog.gz"))
+            {
+            final ValveLogParseResult sc = OTLogActivityParse.parseTRV1ValveLog(r, DEFAULT_UK_TIMEZONE, "synth2", "aa ab ac ad");
+            assertNotNull(sc);
+            assertNotNull(sc.getDaysInWhichDataPresent());
+
+            assertEquals(18, sc.getDaysInWhichDataPresent().size());
+            final SortedSet<Integer> sdp = new TreeSet<Integer>(sc.getDaysInWhichDataPresent());
+            assertEquals(20160427, sdp.first().intValue());
+            assertEquals(20160613, sdp.last().intValue());
+            final SortedSet<Integer> sdessr = new TreeSet<Integer>(sc.getDaysInWhichEnergySavingStatsReported());
+            assertEquals(20160427, sdessr.first().intValue());
+            assertEquals(20160613, sdessr.last().intValue());
+
+            // TODO: validate these numbers
+            assertEquals(18, sc.getDaysInWhichEnergySavingStatsReported().size());
+            assertEquals(12, sc.getDaysInWhichCallingForHeat().size());
+            assertEquals(10, sc.getDaysInWhichEnergySavingActive().size());
+            // Verify that all days with savings and days with savings reported (must be subset).
+            assertTrue(sc.getDaysInWhichEnergySavingStatsReported().containsAll(sc.getDaysInWhichEnergySavingActive()));
+
+            // Compute days with call-for-heat (and setback reporting) but no setbacks applied/active.
+            // Should be approximate control period.
+            final Set<Integer> hns = new HashSet<Integer>(sc.getDaysInWhichCallingForHeat());
+            hns.retainAll(sc.getDaysInWhichEnergySavingStatsReported());
+            hns.removeAll(sc.getDaysInWhichEnergySavingActive());
+//System.out.println(new TreeSet<Integer>(hns));
+            assertEquals(6, hns.size());
+            }
+        }
+
     /**Test basic load of grouping file. */
     @Test public void testGroupingParse() throws IOException
         {

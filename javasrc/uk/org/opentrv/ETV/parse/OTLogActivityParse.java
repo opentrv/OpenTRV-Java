@@ -169,7 +169,8 @@ public final class OTLogActivityParse
         final boolean hasSecondaryIDFilter = (null != valveSecondaryID);
         // Look for presence of "','cf 74 II II II II " in dlog files.
         final Pattern dlogSecondaryIDMatcher = hasSecondaryIDFilter ?
-            Pattern.compile(".*','cf " + valveSecondaryID + " .*") : null;
+            Pattern.compile(".*','cf .. "+valveSecondaryID+" .*") : null;
+//            Pattern.compile(".*','cf [0-9a-z][0-9a-z] " + valveSecondaryID + " .*") : null;
 
         final LineNumberReader lr = new LineNumberReader(r);
 
