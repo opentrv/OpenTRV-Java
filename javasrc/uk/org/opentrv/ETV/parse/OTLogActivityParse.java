@@ -336,7 +336,7 @@ S001,synthd
 
         // Try all combinations of name with and without compression
         // for single-file format.
-        final String[] endings = { "blah", "json.gz", "dlog.gz", "json", "dlog" };
+        final String[] endings = { "json.gz", "dlog.gz", "json", "dlog" };
         for(final String e : endings)
             {
             final String filename = valvePrimaryID + "." + e;
@@ -348,7 +348,8 @@ S001,synthd
             catch(final Exception e1) { /* ignore */ }
             }
 
-        // TODO: read from multi-device dump if no stand-alone file found...
+        // TODO: read from multi-device dump(s) if no stand-alone file found...
+        // {json,dlog}[.gz]
 
         return(null); // Not found.
         }
