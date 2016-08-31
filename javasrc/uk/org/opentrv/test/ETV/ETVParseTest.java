@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -453,23 +454,23 @@ public class ETVParseTest
             assertNotNull(sc.getDaysInWhichDataPresent());
             assertEquals(0, sc.getDaysInWhichDataPresent().size());
             }
-        // Parse with correct secondary ID and should get fill data.
+        // Parse with correct secondary ID and should get full data.
         try(final Reader r = vlr.apply("dlog.gz"))
             {
             final ValveLogParseResult sc = OTLogActivityParse.parseTRV1ValveLog(r, DEFAULT_UK_TIMEZONE, "synth2", "aa ab ac ad");
             assertNotNull(sc);
             assertNotNull(sc.getDaysInWhichDataPresent());
 
-            assertEquals(18, sc.getDaysInWhichDataPresent().size());
+            assertEquals(17, sc.getDaysInWhichDataPresent().size());
             final SortedSet<Integer> sdp = new TreeSet<Integer>(sc.getDaysInWhichDataPresent());
             assertEquals(20160427, sdp.first().intValue());
-            assertEquals(20160613, sdp.last().intValue());
+            assertEquals(20160612, sdp.last().intValue());
             final SortedSet<Integer> sdessr = new TreeSet<Integer>(sc.getDaysInWhichEnergySavingStatsReported());
             assertEquals(20160427, sdessr.first().intValue());
-            assertEquals(20160613, sdessr.last().intValue());
+            assertEquals(20160612, sdessr.last().intValue());
 
             // TODO: validate these numbers
-            assertEquals(18, sc.getDaysInWhichEnergySavingStatsReported().size());
+            assertEquals(17, sc.getDaysInWhichEnergySavingStatsReported().size());
             assertEquals(12, sc.getDaysInWhichCallingForHeat().size());
             assertEquals(10, sc.getDaysInWhichEnergySavingActive().size());
             // Verify that all days with savings and days with savings reported (must be subset).
@@ -489,18 +490,18 @@ public class ETVParseTest
     @Test public void testGroupingParse() throws IOException
         {
         // Parse as map for all devices/valves in a household.
-        final Map<String, Set<String>> gm = OTLogActivityParse.loadGroupingCSVAsMap(vlr);
+        final Map<String, Set<Map.Entry<String,String>>> gm = OTLogActivityParse.loadGroupingCSVAsMap(vlr);
         assertNotNull(gm);
         assertEquals(2, gm.size());
-        final Set<String> h1 = gm.get("5013");
+        final Set<Map.Entry<String,String>> h1 = gm.get("5013");
         assertNotNull(h1);
         assertEquals(5, h1.size());
-        assertTrue(h1.contains("414a"));
-        final Set<String> h2 = gm.get("S001");
+        assertTrue(h1.contains(new AbstractMap.SimpleImmutableEntry<String,String>("414a",null)));
+        final Set<Map.Entry<String,String>> h2 = gm.get("S001");
         assertNotNull(h2);
         assertEquals(2, h2.size());
-        assertTrue(h2.contains("synthd"));
-        assertTrue(h2.contains("synthd2"));
+        assertTrue(h2.contains(new AbstractMap.SimpleEntry<String,String>("synthd",null)));
+        assertTrue(h2.contains(new AbstractMap.SimpleEntry<String,String>("synthd2",null)));
         }
 
     /**Test basic mass load and analysis of log files. */
