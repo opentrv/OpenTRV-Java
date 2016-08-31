@@ -334,8 +334,8 @@ S001,synthd
         if(null == valvePrimaryID) { throw new IllegalArgumentException(); }
         if(null == localTimeZoneForDayBoundaries) { throw new IllegalArgumentException(); }
 
-        // Try all combinations of name with and without compression
-        // for single-file format.
+        // Try appending all combinations of name with and without compression
+        // for single-file format log data (one device per file).
         final String[] endings = { "json.gz", "dlog.gz", "json", "dlog" };
         for(final String e : endings)
             {
@@ -348,8 +348,12 @@ S001,synthd
             catch(final Exception e1) { /* ignore */ }
             }
 
-        // TODO: read from multi-device dump(s) if no stand-alone file found...
-        // {json,dlog}[.gz]
+        // Read from multi-device dump(s) if no stand-alone file found.
+        // Use the extensions as the filename,
+        // and perform filtering with the primary ID,
+        // or secondary ID if it is supplied.
+
+        // TODO
 
         return(null); // Not found.
         }
