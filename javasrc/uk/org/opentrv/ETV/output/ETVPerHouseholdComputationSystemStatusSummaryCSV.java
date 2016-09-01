@@ -36,7 +36,7 @@ import uk.org.opentrv.ETV.ETVPerHouseholdComputation.SavingEnabledAndDataStatus;
 public final class ETVPerHouseholdComputationSystemStatusSummaryCSV
         implements Function<List<ETVPerHouseholdComputationSystemStatus>,String>
     {
-    /**Produce simple CVS format "houseID,controlDays,normalDays" eg "12345,8,55"; no leading/terminating comma, never null. */
+    /**Produce simple CVS format "houseID,controlDays,normalDays,dontuseDays" eg "12345,8,55,17"; no leading/terminating comma, never null. */
     @Override
     public String apply(final List<ETVPerHouseholdComputationSystemStatus> rl)
         {
@@ -46,11 +46,12 @@ public final class ETVPerHouseholdComputationSystemStatusSummaryCSV
             {
             final int fE = Collections.frequency(r.getOptionalEnabledAndUsableFlagsByLocalDay().values(), SavingEnabledAndDataStatus.Enabled);
             final int fD = Collections.frequency(r.getOptionalEnabledAndUsableFlagsByLocalDay().values(), SavingEnabledAndDataStatus.Disabled);
-            sb.append(r.getHouseID()).append(',').append(fD).append(',').append(fE).append('\n');
+            final int fn = Collections.frequency(r.getOptionalEnabledAndUsableFlagsByLocalDay().values(), SavingEnabledAndDataStatus.Disabled);
+            sb.append(r.getHouseID()).append(',').append(fD).append(',').append(fE).append(',').append(fn).append('\n');
             }
         return(sb.toString());
         }
 
     /**CSV header line. */
-    public static final String headerCSV = "houseID,controlDays,normalDays";
+    public static final String headerCSV = "houseID,controlDays,normalDays,dontuseDays";
     }
