@@ -40,7 +40,6 @@ public final class ETVPerHouseholdComputationSystemStatusSummaryCSV
     @Override
     public String apply(final List<ETVPerHouseholdComputationSystemStatus> rl)
         {
-        final ETVPerHouseholdComputationResultToCSV s = new ETVPerHouseholdComputationResultToCSV();
         final StringBuilder sb = new StringBuilder();
         sb.append(headerCSV).append('\n');
         for(final ETVPerHouseholdComputationSystemStatus r : rl)
@@ -52,6 +51,6 @@ public final class ETVPerHouseholdComputationSystemStatusSummaryCSV
         return(sb.toString());
         }
 
-    /**SCV header line. */
+    /**CSV header line. */
     public static final String headerCSV = "houseID,controlDays,normalDays";
     }

@@ -461,6 +461,7 @@ S001,synthd2,aa ab ac ad
         // Create a segmented view for the household as a whole.
         for(final String houseID : gm.keySet())
             {
+//System.out.println("HouseID:" + houseID + "...");
             if((null != restrictToHouseholds) && !restrictToHouseholds.contains(houseID)) { continue; }
             final ETVPerHouseholdComputationSystemStatus houseStatus = analyseHouseLogs(dataReader, localTimeZoneForDayBoundaries, houseID, gm.get(houseID));
 System.out.print((new ETVPerHouseholdComputationSystemStatusSummaryCSV()).apply(Collections.singletonList(houseStatus)));
