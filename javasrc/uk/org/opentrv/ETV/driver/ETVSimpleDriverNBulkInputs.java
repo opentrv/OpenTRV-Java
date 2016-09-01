@@ -63,24 +63,24 @@ public final class ETVSimpleDriverNBulkInputs
     public static final String INPUT_FILE_STATUS = "status.csv";
 
     /**Name within output directory of basic per-household stats as ASCII7 CSV (no efficacy computation). */
-    public static final String OUTPUT_STATS_FILE_BASIC = "basicStatsOut.csv";
+    public static final String OUTPUT_STATS_FILE_BASIC = "10_basicStatsOut.csv";
     /**Name within output directory of filtered basic per-household stats as ASCII7 CSV (no efficacy computation).
      * The filtering removes those entries that are outliers
      * or have inadequate data points or no/poor correlation.
      */
-    public static final String OUTPUT_STATS_FILE_FILTERED_BASIC = "basicFilteredStatsOut.csv";
+    public static final String OUTPUT_STATS_FILE_FILTERED_BASIC = "20_basicFilteredStatsOut.csv";
     /**Name within output directory of pre-segmented per-household stats as ASCII7 CSV.
      * This consists of one line per house of houseID,controlDays,normalDays.
      */
-    public static final String OUTPUT_STATS_FILE_PRESEGMENTED = "presegmentedStatsOut.csv";
+    public static final String OUTPUT_STATS_FILE_PRESEGMENTED = "30_presegmentedStatsOut.csv";
     /**Name within output directory of segmented per-household stats as ASCII7 CSV including efficacy computation.
      * The HDD metrics are from the normal state, with energy-saving features enabled.
      */
-    public static final String OUTPUT_STATS_FILE_SEGMENTED = "segmentedStatsOut.csv";
+    public static final String OUTPUT_STATS_FILE_SEGMENTED = "31_segmentedStatsOut.csv";
     /**Name within output directory of household group simple summary stats as ASCII7 CSV including efficacy computation.
      * The HDD metrics are from the normal state, with energy-saving features enabled.
      */
-    public static final String OUTPUT_STATS_FILE_MULITHOUSEHOLD_SUMMARY = "multihouseholdSummaryStatsOut.csv";
+    public static final String OUTPUT_STATS_FILE_MULITHOUSEHOLD_SUMMARY = "40_multihouseholdSummaryStatsOut.csv";
 
     /**Gets a reader for the specified file; no checked exceptions. */
     private static Reader getReader(final File f)
