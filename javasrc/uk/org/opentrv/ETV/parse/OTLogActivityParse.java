@@ -133,9 +133,7 @@ public final class OTLogActivityParse
     /**Parses 'c' and 'pd' format valve log files; never null.
      * Intended to parse/interpret the logs of TRV1 valves, eg software released ~2016H1.
      * <p>
-     * Quite crude and so is able to parse either format.
-     * <p>
-     * Intended to be reasonably robust.
+     * Intended to be robust, and is able to parse either format.
      * <p>
      * Uses timestamp to work out daysInWhichDataPresent.
      * <p>
@@ -380,17 +378,20 @@ S001,synthd2,aa ab ac ad
 
         // Read from multi-device dump(s) if no stand-alone file found.
         // Use the extensions as the filename,
-        // and perform filtering with the primary ID,
-        // or secondary ID if it is supplied.
-        for(final String e : endings)
+        // and perform filtering with the primary ID and/or secondary ID.
+        // This will not be used unless a secondary IDs is provided.
+        if(null != valveSecondaryID)
             {
-            final String filename = e;
-            try {
-                // Stop as soon as one succeeds.
-                try(final Reader r = dataReader.apply(filename))
-                    { return(parseTRV1ValveLog(r, localTimeZoneForDayBoundaries, valvePrimaryID, valveSecondaryID)); }
+            for(final String e : endings)
+                {
+                final String filename = e;
+                try {
+                    // Stop as soon as one succeeds.
+                    try(final Reader r = dataReader.apply(filename))
+                        { return(parseTRV1ValveLog(r, localTimeZoneForDayBoundaries, valvePrimaryID, valveSecondaryID)); }
+                    }
+                catch(final Exception e1) { /* ignore */ }
                 }
-            catch(final Exception e1) { /* ignore */ }
             }
 
         return(null); // Not found.
