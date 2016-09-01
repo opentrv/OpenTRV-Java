@@ -501,7 +501,7 @@ public class ETVParseTest
         assertNotNull(h2);
         assertEquals(2, h2.size());
         assertTrue(h2.contains(new AbstractMap.SimpleEntry<String,String>("synthd",null)));
-        assertTrue(h2.contains(new AbstractMap.SimpleEntry<String,String>("synthd2",null)));
+        assertTrue(h2.contains(new AbstractMap.SimpleEntry<String,String>("synthd2","aa ab ac ad")));
         }
 
     /**Test basic mass load and analysis of log files. */

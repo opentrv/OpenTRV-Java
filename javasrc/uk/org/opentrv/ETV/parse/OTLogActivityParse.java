@@ -327,11 +327,12 @@ S001,synthd2,aa ab ac ad
             final String houseID = cols[0];
             if("".equals(houseID)) { throw new IOException("bad (empty) houseID: " + record); }
             final String valveID = cols[1];
+            final String valveSecondaryID = (cols.length < 3) ? null : cols[2];
             // Ignore row with no valve ID.
             if("".equals(valveID)) { continue; }
             // Create appropriate entry.
             if(!result.containsKey(houseID)) { result.put(houseID, new HashSet<>()); }
-            result.get(houseID).add(new AbstractMap.SimpleImmutableEntry(valveID, null));
+            result.get(houseID).add(new AbstractMap.SimpleImmutableEntry(valveID, valveSecondaryID));
             }
 
         // Check that no valve was associated with more than one household.

@@ -46,7 +46,7 @@ public final class ETVPerHouseholdComputationSystemStatusSummaryCSV
             {
             final int fE = Collections.frequency(r.getOptionalEnabledAndUsableFlagsByLocalDay().values(), SavingEnabledAndDataStatus.Enabled);
             final int fD = Collections.frequency(r.getOptionalEnabledAndUsableFlagsByLocalDay().values(), SavingEnabledAndDataStatus.Disabled);
-            sb.append(r.getHouseID()).append(',').append(fD).append(',').append(fE).append(',').append('\n');
+            sb.append(r.getHouseID()).append(',').append(fD).append(',').append(fE).append('\n');
             }
         return(sb.toString());
         }
