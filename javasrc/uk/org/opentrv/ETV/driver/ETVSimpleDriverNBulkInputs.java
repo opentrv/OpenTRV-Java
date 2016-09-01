@@ -68,6 +68,10 @@ public final class ETVSimpleDriverNBulkInputs
      * or have inadequate data points or no/poor correlation.
      */
     public static final String OUTPUT_STATS_FILE_FILTERED_BASIC = "basicFilteredStatsOut.csv";
+//    /**Name within output directory of pre-segmented per-household stats as ASCII7 CSV.
+//     * This just consists of one line per house of houseID,controlDays,normalDays.
+//     */
+//    public static final String OUTPUT_STATS_FILE_PRESEGMENTED = "presegmentedStatsOut.csv";
     /**Name within output directory of segmented per-household stats as ASCII7 CSV including efficacy computation.
      * The HDD metrics are from the normal state, with energy-saving features enabled.
      */
