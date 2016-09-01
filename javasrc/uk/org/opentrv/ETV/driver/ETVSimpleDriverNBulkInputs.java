@@ -79,6 +79,8 @@ public final class ETVSimpleDriverNBulkInputs
     public static final String OUTPUT_STATS_FILE_SEGMENTED = "31_segmentedStatsOut.csv";
     /**Name within output directory of household group simple summary stats as ASCII7 CSV including efficacy computation.
      * The HDD metrics are from the normal state, with energy-saving features enabled.
+     * <p>
+     * This is the final CSV numerical report.
      */
     public static final String OUTPUT_STATS_FILE_MULITHOUSEHOLD_SUMMARY = "90_multihouseholdSummaryStatsOut.csv";
 
