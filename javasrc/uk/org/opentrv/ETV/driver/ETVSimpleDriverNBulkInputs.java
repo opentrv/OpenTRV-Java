@@ -40,6 +40,7 @@ import uk.org.opentrv.ETV.filter.CommonSimpleResultFilters;
 import uk.org.opentrv.ETV.filter.StatusSegmentation;
 import uk.org.opentrv.ETV.output.ETVHouseholdGroupSimpleSummaryStatsToCSV;
 import uk.org.opentrv.ETV.output.ETVPerHouseholdComputationResultsToCSV;
+import uk.org.opentrv.ETV.output.ETVPerHouseholdComputationSystemStatusSummaryCSV;
 import uk.org.opentrv.ETV.parse.NBulkInputs;
 import uk.org.opentrv.ETV.parse.NBulkKWHParseByID;
 import uk.org.opentrv.ETV.parse.OTLogActivityParse;
@@ -68,6 +69,10 @@ public final class ETVSimpleDriverNBulkInputs
      * or have inadequate data points or no/poor correlation.
      */
     public static final String OUTPUT_STATS_FILE_FILTERED_BASIC = "basicFilteredStatsOut.csv";
+    /**Name within output directory of pre-segmented per-household stats as ASCII7 CSV.
+     * This just consists of one line per house of houseID,controlDays,normalDays.
+     */
+    public static final String OUTPUT_STATS_FILE_PRESEGMENTED = "presegmentedStatsOut.csv";
     /**Name within output directory of segmented per-household stats as ASCII7 CSV including efficacy computation.
      * The HDD metrics are from the normal state, with energy-saving features enabled.
      */
@@ -157,6 +162,14 @@ public final class ETVSimpleDriverNBulkInputs
         // Segment, and look for changes in energy efficiency.
         final Set<String> stage1FilteredHouseIDs = rlBasicFiltered.stream().map(e -> e.getHouseID()).collect(Collectors.toSet());
         final Map<String, ETVPerHouseholdComputationSystemStatus> byHouseholdSegmentation = OTLogActivityParse.loadAndParseAllOTLogs(HDDUtil.getDirSmartFileReader(inDir), NBulkKWHParseByID.DEFAULT_NB_TIMEZONE, stage1FilteredHouseIDs);
+
+        // Output pre-segmented results per household
+        // to give an indication of which (don't) have enough control and non-control days
+        final List<ETVPerHouseholdComputationSystemStatus> rlPresegmented = new ArrayList<>(byHouseholdSegmentation.values());
+//        Collections.sort(rlPresegmented, new ETVPerHouseholdComputation.ResultSortByHouseID());
+        final String rlPresegmentedCSV = (new ETVPerHouseholdComputationSystemStatusSummaryCSV()).apply(rlPresegmented);
+        final File presegmentedResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_STATS_FILE_PRESEGMENTED);
+        try(final FileWriter w = new FileWriter(presegmentedResultFile)) { w.write(rlPresegmentedCSV); }
 
         // Filter out households with too little control and normal data left.
         final List<ETVPerHouseholdComputationSystemStatus> enoughControlAndNormal = byHouseholdSegmentation.values().stream().filter(CommonSimpleResultFilters.enoughControlAndNormal).collect(Collectors.toList());

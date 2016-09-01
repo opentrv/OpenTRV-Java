@@ -43,6 +43,7 @@ import org.json.simple.JSONValue;
 
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationSystemStatus;
 import uk.org.opentrv.ETV.filter.StatusSegmentation;
+import uk.org.opentrv.ETV.output.ETVPerHouseholdComputationSystemStatusSummaryCSV;
 import uk.org.opentrv.hdd.HDDUtil;
 
 /**Process OpenTRV device log files for key activity.
@@ -462,6 +463,7 @@ S001,synthd2,aa ab ac ad
             {
             if((null != restrictToHouseholds) && !restrictToHouseholds.contains(houseID)) { continue; }
             final ETVPerHouseholdComputationSystemStatus houseStatus = analyseHouseLogs(dataReader, localTimeZoneForDayBoundaries, houseID, gm.get(houseID));
+System.out.print((new ETVPerHouseholdComputationSystemStatusSummaryCSV()).apply(Collections.singletonList(houseStatus)));
             result.put(houseID, houseStatus);
             }
 
