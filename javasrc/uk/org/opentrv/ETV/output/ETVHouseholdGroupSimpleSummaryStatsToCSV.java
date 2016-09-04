@@ -49,8 +49,8 @@ public final class ETVHouseholdGroupSimpleSummaryStatsToCSV
         sb.append((float) ss.getStatsOverSlope().mean).append(',');
         sb.append((float) ss.getStatsOverSlope().pSD).append(',');
         sb.append((float) ss.getStatsOverEfficacy().mean).append(',');
-        sb.append((float) ss.getStatsOverEfficacy().pSD).append(',');
-        sb.append('\n');
+        sb.append((float) ss.getStatsOverEfficacy().pSD);
+            sb.append('\n');
         return(sb.toString());
         }
 

@@ -195,15 +195,11 @@ public class ETVDriverTest
         assertEquals(expectedS, actualSegmented);
         final String expectedSummary =
             ETVHouseholdGroupSimpleSummaryStatsToCSV.headerCSV + '\n' +
-            "1,1,10,0.24607657,0.0,1.138506,0.0,1.9855182,0.0,\n";
+            "1,1,10,0.24607657,0.0,1.138506,0.0,1.9855182,0.0\n";
         final String actualSummary = new String(Files.readAllBytes(summaryResultFile.toPath()), "ASCII7");
 System.out.println(actualSummary);
         assertEquals(expectedSummary, actualSummary);
-
-        // TODO
-
-        // Verify textual report if any?
-
+        // TODO: verify textual report if any?
         }
 
     /**Input directory in home dir for testWithExternalDataSet(). */

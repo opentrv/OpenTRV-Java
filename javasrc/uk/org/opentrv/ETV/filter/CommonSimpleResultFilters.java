@@ -18,8 +18,6 @@ Author(s) / Copyright (s): Damon Hart-Davis 2016
 
 package uk.org.opentrv.ETV.filter;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.Collections;
 import java.util.function.Predicate;
 
