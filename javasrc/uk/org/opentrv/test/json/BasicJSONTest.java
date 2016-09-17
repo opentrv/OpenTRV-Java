@@ -188,6 +188,7 @@ public class BasicJSONTest
             }
         }
 
+
     /**OK local PRNG. */
     private static final Random rnd = new Random();
     }
