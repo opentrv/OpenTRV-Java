@@ -62,7 +62,7 @@ public final class JSONStatsLineStreamReader extends FilterReader
     /**Offset in nextLineOut of next char to output; never >= nextLineOut.length(); */
     private int offsetNLO;
 
-    /**Is multiID columnar output format if true.
+    /**Returns true if output is multiID columnar format.
      * True when more than one ID is specified.
      * <p>
      * Note that the multiID format is columnar, with dashes in place of values
@@ -90,7 +90,7 @@ public final class JSONStatsLineStreamReader extends FilterReader
     /**Construct a new filter with the specified input stream and filter parameters.
      * @param in  input stream, array-per-line JSON as described in the class comment; never null
      * @param field  name of field to extract; never null
-     * @param id  leaf ID (as in "@" field) to select values from; null means all leaf values
+     * @param ids  ordered list of leaf IDs (as in "@" field) to select values from; null means all leaf values
      * @param concentratorID  concentrator ID to select values from; null means all concentrators
      */
     public JSONStatsLineStreamReader(final Reader in, final String field, final String id, final String concentratorID)
@@ -215,12 +215,17 @@ public final class JSONStatsLineStreamReader extends FilterReader
      * Arguments are:
      * <ul>
      * <li><code>fieldName [leafID [concentratorID]]</code></li>
+<<<<<<< HEAD
      * <li><code>-multiID [options] fieldName leafID { leafID }*</code></li>
      * </ul>
      * <p>
      * Note that the multiID format is columnar, with dashes in place of values
      * other than for the the specific ID that a matching data line is for,
      * and those columns are by ID in the order specified on the command line.
+=======
+     * <li><code>-multiid [options] fieldName leafID { leafID }*</code></li>
+     * </ul>
+>>>>>>> branch 'master' of git@github.com:opentrv/OpenTRV-Java.git
      */
     public static void main(final String args[])
         {
