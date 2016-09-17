@@ -32,7 +32,8 @@ import org.json.simple.JSONValue;
 
 
 /**Filter a line-oriented JSON stream for a particular stat and ID(s).
- * The input from a Reader is one JSON array per line with the UTC/ISO timestamp, concentrator ID, and raw lightweight sensor JSON,
+ * The input from a Reader is one JSON array per line with the
+ * UTC/ISO timestamp, concentrator ID, and raw lightweight sensor JSON,
  * of the form:
 <pre>
 [ "2014-12-19T15:39:50Z", "", {"@":"0a45","+":5,"L":163,"B|mV":3315,"v|%":0,"tT|C":7} ]
@@ -52,7 +53,7 @@ public final class JSONStatsLineStreamReader extends FilterReader
     /**Field to filter on; never null. */
     private final String field;
 
-    /**Immutable ordered leaf/node IDs of stats/records to accept; null if to accept records from all IDs; case insensitive. */
+    /**Immutable ordered leaf/node IDs of stats/records to accept; null if to accept records from all IDs. */
     private final List<String> ids;
 
     /**Next line of output, starting at specified offset (offsetNLO), or null if none remaining. */
@@ -151,7 +152,6 @@ public final class JSONStatsLineStreamReader extends FilterReader
             if(!(ido instanceof String))  { throw new IOException("ID (@ field) must be a string: " + lineIn); }
             final String id = (String) ido;
             if((null != this.ids) && !this.ids.contains(id)) { continue; } // Failed ID match.
-//            if((null != this.id) && !this.id.equalsIgnoreCase(id)) { continue; } // Failed ID match.
             final Object fo = leafObject.get(field);
             if(null == fo) { continue; } // No match...
             // Generate '\n'-terminated output.
