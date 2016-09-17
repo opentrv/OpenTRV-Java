@@ -202,9 +202,6 @@ public final class JSONStatsLineStreamReader extends FilterReader
                 {
                 // Generate '\n'-terminated output for non-multiID format.
                 sb.append(' ').append(id).append(' ').append(fos);
-//                // Checks that the correct number of fields have been generated, eg no spurious spaces.
-//                final String out = sb.toString();
-//                if(3 != out.split(" ").length) { throw new IOException("cannot construct safe output from: " + lineIn); }
                 }
             else
                 {
@@ -214,10 +211,7 @@ public final class JSONStatsLineStreamReader extends FilterReader
                     {
                     sb.append(' ');
                     if(cid.equals(id)) { sb.append(fos); }
-                    else
-                        {
-                            sb.append('-');
-                            }
+                    else { sb.append('-'); }
                     }
                 }
             // All output formats end with a newline.

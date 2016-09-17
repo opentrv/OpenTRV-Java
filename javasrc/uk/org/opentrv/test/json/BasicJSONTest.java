@@ -9,6 +9,7 @@ import static org.junit.Assert.fail;
 import java.io.BufferedReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -101,7 +102,8 @@ public class BasicJSONTest
             {
             assertNull(br.readLine());
             }
-        // Non-empty input.
+
+        // Non-empty input, non-multi-column output (all IDs accepted).
         try(final BufferedReader br = new BufferedReader(new JSONStatsLineStreamReader(new StringReader(StreamedJSONSample1), "v|%")))
             {
             assertEquals("2014-12-19T14:58:20Z 2d1a 0", br.readLine());
@@ -112,10 +114,36 @@ public class BasicJSONTest
             assertNull(br.readLine());
             }
 
+        // Non-empty input, non-multi-column output (one ID accepted).
         // Test filter by field and ID.
         try(final BufferedReader br = new BufferedReader(new JSONStatsLineStreamReader(new StringReader(StreamedJSONSample1), "v|%", "414a")))
             {
             assertEquals("2014-12-19T15:00:06Z 414a 0", br.readLine());
+            assertNull(br.readLine());
+            }
+
+        // Non-empty input, multi-column output (one ID accepted).
+        // Test filter by field and ID.
+        try(final BufferedReader br = new BufferedReader(new JSONStatsLineStreamReader(new StringReader(StreamedJSONSample1), "v|%",
+                Arrays.asList("414a", "XXXX"))))
+            {
+            assertEquals("2014-12-19T15:00:06Z 0 -", br.readLine());
+            assertNull(br.readLine());
+            }
+        try(final BufferedReader br = new BufferedReader(new JSONStatsLineStreamReader(new StringReader(StreamedJSONSample1), "v|%",
+                Arrays.asList("XXXX", "414a"))))
+            {
+            assertEquals("2014-12-19T15:00:06Z - 0", br.readLine());
+            assertNull(br.readLine());
+            }
+
+        // Non-empty imput, multi-column output, several matchable IDs.
+        try(final BufferedReader br = new BufferedReader(new JSONStatsLineStreamReader(new StringReader(StreamedJSONSample1), "v|%",
+                Arrays.asList("2d1a", "3015", "414a"))))
+            {
+            assertEquals("2014-12-19T14:58:20Z 0 - -", br.readLine());
+            assertEquals("2014-12-19T15:00:06Z - - 0", br.readLine());
+            assertEquals("2014-12-19T15:00:28Z - 0 -", br.readLine());
             assertNull(br.readLine());
             }
 
@@ -131,15 +159,15 @@ public class BasicJSONTest
 
     /**Sample of [ timestamp, concentratorID, lightweightNodeJSON ] format, line oriented, longer IDs. */
     public static final String StreamedJSONSample2 =
-        "[ \"2016-09-17T07:38:55Z\", \"\", {\"@\":\"91ACF3CFF388D4E0\",\"+\":5,\"O\":2,\"tT|C\":18,\"T|C16\":341} ]\n" + 
-        "[ \"2016-09-17T07:39:35Z\", \"\", {\"@\":\"96F0CED3B4E690E8\",\"+\":2,\"L\":34,\"tT|C\":19,\"T|C16\":341} ]\n" + 
-        "[ \"2016-09-17T07:39:51Z\", \"\", {\"@\":\"819C99B4B9BD84BB\",\"+\":14,\"L\":195,\"T|C16\":234,\"O\":1} ]\n" + 
-        "[ \"2016-09-17T07:41:06Z\", \"\", {\"@\":\"FEDA88A08188E083\",\"+\":11,\"tS|C\":0,\"vC|%\":0,\"gE\":11} ]\n" + 
-        "[ \"2016-09-17T07:41:38Z\", \"\", {\"@\":\"E68EF783B0EFCBBB\",\"+\":8,\"T|C16\":372,\"b\":0} ]\n" + 
-        "[ \"2016-09-17T07:41:56Z\", \"\", {\"@\":\"FA97A8A7B7D2D3B6\",\"+\":0,\"H|%\":60,\"tT|C\":16} ]\n" + 
-        "[ \"2016-09-17T07:42:34Z\", \"\", {\"@\":\"A9B2F7C089EECD89\",\"+\":5,\"T|C16\":335,\"H|%\":62,\"O\":1} ]\n" + 
-        "[ \"2016-09-17T07:42:40Z\", \"\", {\"@\":\"E091B7DC8FEDC7A9\",\"+\":1,\"tT|C\":14,\"tS|C\":4} ]\n" + 
-        "[ \"2016-09-17T07:42:43Z\", \"\", {\"@\":\"91ACF3CFF388D4E0\",\"+\":6,\"H|%\":60,\"O\":2,\"vac|h\":0} ]\n" + 
+        "[ \"2016-09-17T07:38:55Z\", \"\", {\"@\":\"91ACF3CFF388D4E0\",\"+\":5,\"O\":2,\"tT|C\":18,\"T|C16\":341} ]\n" +
+        "[ \"2016-09-17T07:39:35Z\", \"\", {\"@\":\"96F0CED3B4E690E8\",\"+\":2,\"L\":34,\"tT|C\":19,\"T|C16\":341} ]\n" +
+        "[ \"2016-09-17T07:39:51Z\", \"\", {\"@\":\"819C99B4B9BD84BB\",\"+\":14,\"L\":195,\"T|C16\":234,\"O\":1} ]\n" +
+        "[ \"2016-09-17T07:41:06Z\", \"\", {\"@\":\"FEDA88A08188E083\",\"+\":11,\"tS|C\":0,\"vC|%\":0,\"gE\":11} ]\n" +
+        "[ \"2016-09-17T07:41:38Z\", \"\", {\"@\":\"E68EF783B0EFCBBB\",\"+\":8,\"T|C16\":372,\"b\":0} ]\n" +
+        "[ \"2016-09-17T07:41:56Z\", \"\", {\"@\":\"FA97A8A7B7D2D3B6\",\"+\":0,\"H|%\":60,\"tT|C\":16} ]\n" +
+        "[ \"2016-09-17T07:42:34Z\", \"\", {\"@\":\"A9B2F7C089EECD89\",\"+\":5,\"T|C16\":335,\"H|%\":62,\"O\":1} ]\n" +
+        "[ \"2016-09-17T07:42:40Z\", \"\", {\"@\":\"E091B7DC8FEDC7A9\",\"+\":1,\"tT|C\":14,\"tS|C\":4} ]\n" +
+        "[ \"2016-09-17T07:42:43Z\", \"\", {\"@\":\"91ACF3CFF388D4E0\",\"+\":6,\"H|%\":60,\"O\":2,\"vac|h\":0} ]\n" +
         "[ \"2016-09-17T07:43:38Z\", \"\", {\"@\":\"96F0CED3B4E690E8\",\"+\":3,\"H|%\":61,\"O\":1,\"B|cV\":266} ]\n";
 
     /**OK local PRNG. */
