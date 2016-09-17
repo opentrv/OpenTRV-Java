@@ -50,7 +50,7 @@ public final class JSONStatsLineStreamReader extends FilterReader
     /**Field to filter on; never null. */
     private final String field;
 
-    /**Leaf/node ID of stats/records to accept; null if to accept records from all IDs. */
+    /**Leaf/node IDs of stats/records to accept; null if to accept records from all IDs; case insensitive. */
     private final String id;
 
     /**Next line of output, starting at specified offset (offsetNLO), or null if none remaining. */
@@ -148,7 +148,7 @@ public final class JSONStatsLineStreamReader extends FilterReader
             if(null == ido) { continue; } // No ID so cannot match...
             if(!(ido instanceof String))  { throw new IOException("ID (@ field) must be a string: " + lineIn); }
             final String id = (String) ido;
-            if((null != this.id) && !this.id.equals(id)) { continue; } // Failed ID match.
+            if((null != this.id) && !this.id.equalsIgnoreCase(id)) { continue; } // Failed ID match.
             final Object fo = leafObject.get(field);
             if(null == fo) { continue; } // No match...
             // Generate '\n'-terminated output.
