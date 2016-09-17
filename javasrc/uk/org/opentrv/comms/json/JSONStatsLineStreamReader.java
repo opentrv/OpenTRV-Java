@@ -62,7 +62,7 @@ public final class JSONStatsLineStreamReader extends FilterReader
     /**Offset in nextLineOut of next char to output; never >= nextLineOut.length(); */
     private int offsetNLO;
 
-    /**Is multiID columnar output format if true.
+    /**Returns true if output is multiID columnar format.
      * True when more than one ID is specified.
      * <p>
      * Note that the multiID format is columnar, with dashes in place of values
@@ -90,7 +90,7 @@ public final class JSONStatsLineStreamReader extends FilterReader
     /**Construct a new filter with the specified input stream and filter parameters.
      * @param in  input stream, array-per-line JSON as described in the class comment; never null
      * @param field  name of field to extract; never null
-     * @param id  leaf ID (as in "@" field) to select values from; null means all leaf values
+     * @param ids  ordered list of leaf IDs (as in "@" field) to select values from; null means all leaf values
      * @param concentratorID  concentrator ID to select values from; null means all concentrators
      */
     public JSONStatsLineStreamReader(final Reader in, final String field, final String id, final String concentratorID)
@@ -136,7 +136,7 @@ public final class JSONStatsLineStreamReader extends FilterReader
         return(buf[0]);
         }
 
-    /**Normal multi-char read.
+    /**Normal multi-char read; returns number of bytes/chars written to the buffer passed.
      * Lazily parses more from the input only as needed to produce another line of output.
      */
     @Override
@@ -182,17 +182,28 @@ public final class JSONStatsLineStreamReader extends FilterReader
             if((null != this.ids) && !this.ids.contains(id)) { continue; } // Failed ID match.
             final Object fo = leafObject.get(field);
             if(null == fo) { continue; } // No match...
-            // Generate '\n'-terminated output.
-            final StringBuilder sb = new StringBuilder(32);
-            sb.append(timeStamp).append(' ').
-               append(id).append(' ').
-               append(fo).append('\n');
-            // Checks that the correct number of fields have been generated, eg no spurious spaces.
-            final String out = sb.toString();
-            if(3 != out.split(" ").length) { throw new IOException("cannot construct safe output from: " + lineIn); }
 
+            // Generate output.
+            final StringBuilder sb = new StringBuilder(32);
+            // All output formats start with a standard timestamp and space.
+            sb.append(timeStamp).append(' ');
+            if(!isMultiIDPOutput())
+                {
+                // Generate '\n'-terminated output for non-multiID format.
+                sb.append(id).append(' '). append(fo);
+//                // Checks that the correct number of fields have been generated, eg no spurious spaces.
+//                final String out = sb.toString();
+//                if(3 != out.split(" ").length) { throw new IOException("cannot construct safe output from: " + lineIn); }
+                }
+            else
+                {
+                // Generate '\n'-terminated output for multiID multi-column format.
+
+                }
+            // All output formats end with a newline.
+            sb.append('\n');;
             offsetNLO = 0;
-            nextLineOut = out;
+            nextLineOut = sb.toString();
             }
         }
 
@@ -215,12 +226,17 @@ public final class JSONStatsLineStreamReader extends FilterReader
      * Arguments are:
      * <ul>
      * <li><code>fieldName [leafID [concentratorID]]</code></li>
+<<<<<<< HEAD
      * <li><code>-multiID [options] fieldName leafID { leafID }*</code></li>
      * </ul>
      * <p>
      * Note that the multiID format is columnar, with dashes in place of values
      * other than for the the specific ID that a matching data line is for,
      * and those columns are by ID in the order specified on the command line.
+=======
+     * <li><code>-multiid [options] fieldName leafID { leafID }*</code></li>
+     * </ul>
+>>>>>>> branch 'master' of git@github.com:opentrv/OpenTRV-Java.git
      */
     public static void main(final String args[])
         {
