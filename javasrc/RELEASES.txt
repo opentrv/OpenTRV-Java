@@ -9,9 +9,19 @@ or release/freeze points.
 
 
 pending:
-    DHD20150725: improved reporting on bad input from V0p2 unit over serial
 
 
+
+
+20150712:
+    freezepoint name: V0.2.3
+    branch name: HEAD
+    Deployed where: 16WW RPi and elsewhere.
+    Changes since last freezepoint (developer/mgr initials and brief description):
+    Previous significant freezepoint: V0.2.1
+    DHD20160917: TODO-976: better OpenTRV JSON log filtering in JSONStatsLineStreamReader.
+    DHD20160904: TODO-897: ETV analytics (ETV-20160904-RC1)
+    DHD20150725: improved reporting on bad input from V0p2 unit over serial.
 
 20150712:
     freezepoint name: V0.2.1

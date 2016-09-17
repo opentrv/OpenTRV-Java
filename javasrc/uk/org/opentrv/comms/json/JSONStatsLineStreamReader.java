@@ -239,29 +239,42 @@ public final class JSONStatsLineStreamReader extends FilterReader
      * <p>
      * Arguments are:
      * <ul>
-     * <li><code>fieldName [leafID [concentratorID]]</code></li>
+     * <li><code>fieldName [leafID [concentratorID*]]</code></li>
      * <li><code>-multiID [options] fieldName leafID leafID { leafID }*</code></li>
      * </ul>
      * <p>
      * Note that the multiID format is columnar, with dashes in place of values
      * other than for the the specific ID that a matching data line is for,
      * and those columns are by ID in the order specified on the command line.
+     * <p>
+     * For now, the concentrator ID is always ignored.
      */
     public static void main(final String args[])
         {
         if(args.length < 1)
             {
-            System.err.println("fieldName [leafID [concentratorID]]");
+            System.err.println("fieldName [leafID [concentratorID]] | -multiID [options] fieldName leafID leafID { leafID }*");
             System.exit(1);
             return;
             }
 
         try
             {
-            try(final BufferedReader br = new BufferedReader(new JSONStatsLineStreamReader(new InputStreamReader(System.in),
-                    args[0],
-                    (args.length > 1) ? args[1] : null,
-                    (args.length > 2) ? args[1] : null)))
+            // Discover argument format.
+            final boolean isMultiID = "-multiID".equals(args[0]);
+
+            // Extract the field name.
+            final String fieldName = (!isMultiID) ? args[0] : args[1];
+
+            // Collect the IDs to extract for, if selecting/filtering.
+            final List<String> ids = new ArrayList<>();
+            if(!isMultiID) { if(args.length > 1) { ids.add(args[1]); } }
+            else { for(int i = 2; i < args.length; ++i) { ids.add(args[i]); } }
+
+            try(final BufferedReader br = new BufferedReader(new JSONStatsLineStreamReader(
+                    new InputStreamReader(System.in),
+                    fieldName,
+                    ids.isEmpty() ? null : ids)))
                 {
                 for( ; ; )
                     {
