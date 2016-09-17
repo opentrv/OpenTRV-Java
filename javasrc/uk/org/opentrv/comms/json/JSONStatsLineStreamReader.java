@@ -202,9 +202,6 @@ public final class JSONStatsLineStreamReader extends FilterReader
                 {
                 // Generate '\n'-terminated output for non-multiID format.
                 sb.append(' ').append(id).append(' ').append(fos);
-//                // Checks that the correct number of fields have been generated, eg no spurious spaces.
-//                final String out = sb.toString();
-//                if(3 != out.split(" ").length) { throw new IOException("cannot construct safe output from: " + lineIn); }
                 }
             else
                 {
@@ -214,10 +211,7 @@ public final class JSONStatsLineStreamReader extends FilterReader
                     {
                     sb.append(' ');
                     if(cid.equals(id)) { sb.append(fos); }
-                    else
-                        {
-                            sb.append('-');
-                            }
+                    else { sb.append('-'); }
                     }
                 }
             // All output formats end with a newline.
@@ -246,17 +240,12 @@ public final class JSONStatsLineStreamReader extends FilterReader
      * Arguments are:
      * <ul>
      * <li><code>fieldName [leafID [concentratorID]]</code></li>
-<<<<<<< HEAD
-     * <li><code>-multiID [options] fieldName leafID { leafID }*</code></li>
+     * <li><code>-multiID [options] fieldName leafID leafID { leafID }*</code></li>
      * </ul>
      * <p>
      * Note that the multiID format is columnar, with dashes in place of values
      * other than for the the specific ID that a matching data line is for,
      * and those columns are by ID in the order specified on the command line.
-=======
-     * <li><code>-multiid [options] fieldName leafID { leafID }*</code></li>
-     * </ul>
->>>>>>> branch 'master' of git@github.com:opentrv/OpenTRV-Java.git
      */
     public static void main(final String args[])
         {
