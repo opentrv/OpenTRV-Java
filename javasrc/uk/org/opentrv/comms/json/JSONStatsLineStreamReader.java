@@ -23,13 +23,15 @@ import java.io.FilterReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Collections;
+import java.util.List;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 
-/**Filter a line-oriented JSON stream for a particular stat and ID.
+/**Filter a line-oriented JSON stream for a particular stat and ID(s).
  * The input from a Reader is one JSON array per line with the UTC/ISO timestamp, concentrator ID, and raw lightweight sensor JSON,
  * of the form:
 <pre>
@@ -50,8 +52,8 @@ public final class JSONStatsLineStreamReader extends FilterReader
     /**Field to filter on; never null. */
     private final String field;
 
-    /**Leaf/node ID of stats/records to accept; null if to accept records from all IDs. */
-    private final String id;
+    /**Immutable ordered leaf/node IDs of stats/records to accept; null if to accept records from all IDs; case insensitive. */
+    private final List<String> ids;
 
     /**Next line of output, starting at specified offset (offsetNLO), or null if none remaining. */
     private String nextLineOut;
@@ -70,7 +72,7 @@ public final class JSONStatsLineStreamReader extends FilterReader
         if(null == field) { throw new IllegalArgumentException(); }
         if(null != concentratorID) { throw new IllegalArgumentException("concentratorID match not implemented"); }
         this.field = field;
-        this.id = id;
+        this.ids = (null == id) ? null : Collections.singletonList(id);
         }
 
     /**Construct a new filter with the specified input stream and filter parameters.
@@ -148,7 +150,8 @@ public final class JSONStatsLineStreamReader extends FilterReader
             if(null == ido) { continue; } // No ID so cannot match...
             if(!(ido instanceof String))  { throw new IOException("ID (@ field) must be a string: " + lineIn); }
             final String id = (String) ido;
-            if((null != this.id) && !this.id.equals(id)) { continue; } // Failed ID match.
+            if((null != this.ids) && !this.ids.contains(id)) { continue; } // Failed ID match.
+//            if((null != this.id) && !this.id.equalsIgnoreCase(id)) { continue; } // Failed ID match.
             final Object fo = leafObject.get(field);
             if(null == fo) { continue; } // No match...
             // Generate '\n'-terminated output.
