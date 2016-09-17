@@ -23,6 +23,7 @@ import java.io.FilterReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -64,17 +65,27 @@ public final class JSONStatsLineStreamReader extends FilterReader
     /**Construct a new filter with the specified input stream and filter parameters.
      * @param in  input stream, array-per-line JSON as described in the class comment; never null
      * @param field  name of field to extract; never null
-     * @param id  leaf ID (as in "@" field) to select values from; null means all leaf values
+     * @param ids  ordered list of leaf IDs (as in "@" field) to select values from; null means all leaf values
      * @param concentratorID  concentrator ID to select values from; null means all concentrators
      */
-    public JSONStatsLineStreamReader(final Reader in, final String field, final String id, final String concentratorID)
+    public JSONStatsLineStreamReader(final Reader in, final String field, final List<String> ids, final String concentratorID)
         {
         super((in instanceof BufferedReader) ? in : new BufferedReader(in));
         if(null == field) { throw new IllegalArgumentException(); }
         if(null != concentratorID) { throw new IllegalArgumentException("concentratorID match not implemented"); }
         this.field = field;
-        this.ids = (null == id) ? null : Collections.singletonList(id);
+        // Take immutable copy of IDs.
+        this.ids = (null == ids) ? null : Collections.unmodifiableList(new ArrayList<String>(ids));
         }
+
+    /**Construct a new filter with the specified input stream and filter parameters.
+     * @param in  input stream, array-per-line JSON as described in the class comment; never null
+     * @param field  name of field to extract; never null
+     * @param id  leaf ID (as in "@" field) to select values from; null means all leaf values
+     * @param concentratorID  concentrator ID to select values from; null means all concentrators
+     */
+    public JSONStatsLineStreamReader(final Reader in, final String field, final String id, final String concentratorID)
+        { this(in, field, (null == id) ? null : Collections.singletonList(id), concentratorID); }
 
     /**Construct a new filter with the specified input stream and filter parameters.
      * @param in  input stream, array-per-line JSON as described in the class comment; never null
@@ -84,12 +95,20 @@ public final class JSONStatsLineStreamReader extends FilterReader
     public JSONStatsLineStreamReader(final Reader in, final String field, final String id)
         { this(in, field, id, null); }
 
+    /**Construct a new filter with the specified input stream and filter parameters.
+     * @param in  input stream, array-per-line JSON as described in the class comment; never null
+     * @param field  name of field to extract; never null
+     * @param ids  ordered list of leaf IDs (as in "@" field) to select values from; null means all leaf values
+     */
+    public JSONStatsLineStreamReader(final Reader in, final String field, final List<String> ids)
+        { this(in, field, ids, null); }
+
     /**Construct a new filter with the specified input stream and filter parameter.
      * @param in  input stream, array-per-line JSON as described in the class comment; never null
      * @param field  name of field to extract; never null
      */
     public JSONStatsLineStreamReader(final Reader in, final String field)
-        { this(in, field, null); }
+        { this(in, field, (String)null); }
 
     /**Implement single-char read in terms of multi-char read. */
     @Override
@@ -184,7 +203,11 @@ public final class JSONStatsLineStreamReader extends FilterReader
     /**Allow this filter to be run directly from the command line.
      * Filters from System.in to System.out.
      * <p>
-     * Arguments are fieldName [leafID [concentratorID]].
+     * Arguments are:
+     * <ul>
+     * <li><code>fieldName [leafID [concentratorID]]</code></li>
+     * <li><code>-multiid [options] fieldName leafID { leafID }*</code></li>
+     * </ul>
      */
     public static void main(final String args[])
         {
