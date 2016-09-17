@@ -177,20 +177,31 @@ public final class JSONStatsLineStreamReader extends FilterReader
             // continue to the next input line/record, if any.
             final Object ido = leafObject.get("@");
             if(null == ido) { continue; } // No ID so cannot match...
-            if(!(ido instanceof String))  { throw new IOException("ID (@ field) must be a string: " + lineIn); }
+            if(!(ido instanceof String)) { throw new IOException("ID (@ field) must be a string: " + lineIn); }
             final String id = (String) ido;
             if((null != this.ids) && !this.ids.contains(id)) { continue; } // Failed ID match.
             final Object fo = leafObject.get(field);
             if(null == fo) { continue; } // No match...
+            final String fos = String.valueOf(fo);
+
+            // Do not attempt to write a field value pf which the string form
+            // contains characters such as whitespace
+            // that may cause problems with parsing.
+            // Reject any character outside the range [32,126].
+            for(int i = fos.length(); --i >= 0; )
+                {
+                final char c = fos.charAt(i);
+                if((c <= 32) || (c >= 127)) { throw new IOException("field value not safe to write: " + lineIn); }
+                }
 
             // Generate output.
             final StringBuilder sb = new StringBuilder(32);
-            // All output formats start with a standard timestamp and space.
-            sb.append(timeStamp).append(' ');
+            // All output formats start with a standard timestamp (and space).
+            sb.append(timeStamp);
             if(!isMultiIDPOutput())
                 {
                 // Generate '\n'-terminated output for non-multiID format.
-                sb.append(id).append(' '). append(fo);
+                sb.append(' ').append(id).append(' ').append(fos);
 //                // Checks that the correct number of fields have been generated, eg no spurious spaces.
 //                final String out = sb.toString();
 //                if(3 != out.split(" ").length) { throw new IOException("cannot construct safe output from: " + lineIn); }
@@ -198,7 +209,16 @@ public final class JSONStatsLineStreamReader extends FilterReader
             else
                 {
                 // Generate '\n'-terminated output for multiID multi-column format.
-
+                // A '-' is used in place of a value for all columns that do not match the ID.
+                for(final String cid : ids)
+                    {
+                    sb.append(' ');
+                    if(cid.equals(id)) { sb.append(fos); }
+                    else
+                        {
+                            sb.append('-');
+                            }
+                    }
                 }
             // All output formats end with a newline.
             sb.append('\n');;
