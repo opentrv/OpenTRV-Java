@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Random;
 import java.util.SortedMap;
 
 import org.junit.Test;
@@ -145,17 +146,40 @@ public class ETVStatsTest
         "2016-01-12,9.9,0\n" +
         "2016-01-13,10.8,0\n" +
         "2016-01-14,11.7,0\n" +
-        "2016-01-15,12.7,0\n";
+        "2016-01-15,12.7,0\n" +
+        "2016-01-16,13.3,0\n" +
+        "2016-01-17,13.1,0\n" +
+        "2016-01-18,12.5,0\n";
 
-    /**Test a synthetic data set for correct efficacy computation. */
+    /**Test a synthetic data set for correct efficacy computation.
+     * Generates multiple data set variants.
+     */
     @Test public void testSyntheticRatioComputation() throws IOException
         {
+        // Load (real) HDD set; first half to be 'control' and the rest 'normal'.
         final SortedMap<Integer, Float> hdd = DDNExtractor.extractSimpleHDD(new StringReader(HDDsample), NBulkInputs.STD_BASE_TEMP_C).getMap();
-        assertEquals(15, hdd.size());
+        final int nPoints = 18;
+        assertEquals(nPoints, hdd.size());
+        final int controlPoints = nPoints / 2;
 
+        // Test multiple target efficacies from bad to good, to synthesise data points.
+        for(float targetEfficacy = 0.5f; targetEfficacy <= 1.8f; targetEfficacy += 0.1f)
+            {
+            // Create plausible initial slope from < 1kWh/HDD to > 10kWh/HDD.
+            final float initialSlope = 0.5f + (10f * rnd.nextFloat());
+            final float finalSlope = initialSlope / targetEfficacy;
+            // Create plausible (flat) baseline.
+            final float baseline = 2.0f + (10f * rnd.nextFloat());
+
+
+
+            }
 
 
 
 
         }
+
+    /**OK PRNG. */
+    private static final Random rnd = new Random();
     }
