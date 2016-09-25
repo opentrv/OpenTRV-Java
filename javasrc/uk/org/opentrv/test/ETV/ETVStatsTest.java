@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Random;
 import java.util.SortedMap;
 
 import org.junit.Test;
@@ -147,15 +148,31 @@ public class ETVStatsTest
         "2016-01-14,11.7,0\n" +
         "2016-01-15,12.7,0\n";
 
-    /**Test a synthetic data set for correct efficacy computation. */
+    /**Test a synthetic data set for correct efficacy computation.
+     * Generates multiple data set variants.
+     */
     @Test public void testSyntheticRatioComputation() throws IOException
         {
         final SortedMap<Integer, Float> hdd = DDNExtractor.extractSimpleHDD(new StringReader(HDDsample), NBulkInputs.STD_BASE_TEMP_C).getMap();
         assertEquals(15, hdd.size());
 
+        // Try multiple target efficacies from bad to good, to synthesise data points.
+        for(float targetEfficacy = 0.5f; targetEfficacy <= 1.8f; targetEfficacy += 0.1f)
+            {
+            // Choose plausible initial slope from < 1kWh/HDD to > 10kWh/HDD.
+            final float initialSlope = 0.5f + (10 * rnd.nextFloat());
+            final float finalSlope = initialSlope / targetEfficacy;
+
+
+
+
+            }
 
 
 
 
         }
+
+    /**OK PRNG. */
+    private static final Random rnd = new Random();
     }
