@@ -24,8 +24,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.SortedMap;
 
 import org.junit.Test;
 
@@ -33,6 +35,8 @@ import uk.org.opentrv.ETV.ETVHouseholdGroupSimpleSummaryStats;
 import uk.org.opentrv.ETV.ETVHouseholdGroupSimpleSummaryStats.MeanAndPopSD;
 import uk.org.opentrv.ETV.ETVHouseholdGroupSimpleSummaryStats.SummaryStats;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationResult;
+import uk.org.opentrv.ETV.parse.NBulkInputs;
+import uk.org.opentrv.hdd.DDNExtractor;
 import uk.org.opentrv.hdd.HDDUtil.HDDMetrics;
 
 /**Testing statistical computations for ETV. */
@@ -123,5 +127,35 @@ public class ETVStatsTest
         assertEquals(0.1, s.getStatsOverRSquared().pSD, 0.01);
         assertEquals(2.0, s.getStatsOverSlope().pSD, 0.01);
         assertEquals(0.1, s.getStatsOverEfficacy().pSD, 0.01);
+        }
+
+    /**Sample (real, EGLL) HDD data for just large enough for a meaningful computation. */
+    static final String HDDsample = "Date,HDD,% Estimated,\"EGLL 15.5C base, source www.degreedays.net (using temperature data from www.wunderground.com)\"\n" +
+        "2016-01-01,10.2,0\n" +
+        "2016-01-02,5.6,0\n" +
+        "2016-01-03,7.8,0\n" +
+        "2016-01-04,8,0\n" +
+        "2016-01-05,7.8,1\n" +
+        "2016-01-06,9.1,0\n" +
+        "2016-01-07,8.3,0\n" +
+        "2016-01-08,9.8,0\n" +
+        "2016-01-09,6.8,0\n" +
+        "2016-01-10,9.4,0\n" +
+        "2016-01-11,9.6,0\n" +
+        "2016-01-12,9.9,0\n" +
+        "2016-01-13,10.8,0\n" +
+        "2016-01-14,11.7,0\n" +
+        "2016-01-15,12.7,0\n";
+
+    /**Test a synthetic data set for correct efficacy computation. */
+    @Test public void testSyntheticRatioComputation() throws IOException
+        {
+        final SortedMap<Integer, Float> hdd = DDNExtractor.extractSimpleHDD(new StringReader(HDDsample), NBulkInputs.STD_BASE_TEMP_C).getMap();
+        assertEquals(15, hdd.size());
+
+
+
+
+
         }
     }
