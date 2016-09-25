@@ -35,13 +35,12 @@ import java.util.TreeMap;
 import org.junit.Test;
 
 import uk.org.opentrv.ETV.ETVHouseholdGroupSimpleSummaryStats;
-import uk.org.opentrv.ETV.ETVPerHouseholdComputationSimpleImpl;
 import uk.org.opentrv.ETV.ETVHouseholdGroupSimpleSummaryStats.MeanAndPopSD;
 import uk.org.opentrv.ETV.ETVHouseholdGroupSimpleSummaryStats.SummaryStats;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationInput;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationResult;
-import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationSystemStatus;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.SavingEnabledAndDataStatus;
+import uk.org.opentrv.ETV.ETVPerHouseholdComputationSimpleImpl;
 import uk.org.opentrv.ETV.parse.NBulkInputs;
 import uk.org.opentrv.ETV.parse.NBulkKWHParseByID;
 import uk.org.opentrv.hdd.DDNExtractor;
@@ -189,9 +188,9 @@ public class ETVStatsTest
                 enabledAndUsableFlagsByLocalDay.put(d, mode);
                 }
 
-            // Synthesise daily energy use.
-            // This perfectly matches the specified slope and baseline (no noise),
-            // so r^2 should be 1.0.
+            // Synthesise daily energy use to match efficacy model.
+            // This perfectly matches the specified slope and baseline (no noise).
+            // R^2 will be 1.0.
             final SortedMap<Integer, Float> kWhByLocalDay = new TreeMap<>();
             for(final Integer d : hdd.keySet())
                 {
