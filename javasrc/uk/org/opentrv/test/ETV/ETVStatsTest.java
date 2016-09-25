@@ -29,14 +29,21 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 import java.util.SortedMap;
+import java.util.TimeZone;
+import java.util.TreeMap;
 
 import org.junit.Test;
 
 import uk.org.opentrv.ETV.ETVHouseholdGroupSimpleSummaryStats;
+import uk.org.opentrv.ETV.ETVPerHouseholdComputationSimpleImpl;
 import uk.org.opentrv.ETV.ETVHouseholdGroupSimpleSummaryStats.MeanAndPopSD;
 import uk.org.opentrv.ETV.ETVHouseholdGroupSimpleSummaryStats.SummaryStats;
+import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationInput;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationResult;
+import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationSystemStatus;
+import uk.org.opentrv.ETV.ETVPerHouseholdComputation.SavingEnabledAndDataStatus;
 import uk.org.opentrv.ETV.parse.NBulkInputs;
+import uk.org.opentrv.ETV.parse.NBulkKWHParseByID;
 import uk.org.opentrv.hdd.DDNExtractor;
 import uk.org.opentrv.hdd.HDDUtil.HDDMetrics;
 
@@ -151,7 +158,7 @@ public class ETVStatsTest
         "2016-01-17,13.1,0\n" +
         "2016-01-18,12.5,0\n";
 
-    /**Test a synthetic data set for correct efficacy computation.
+    /**Construct and test a synthetic data set for correct efficacy computation.
      * Generates multiple data set variants.
      */
     @Test public void testSyntheticRatioComputation() throws IOException
@@ -161,6 +168,7 @@ public class ETVStatsTest
         final int nPoints = 18;
         assertEquals(nPoints, hdd.size());
         final int controlPoints = nPoints / 2;
+        final int normalPoints = nPoints - controlPoints;
 
         // Test multiple target efficacies from bad to good, to synthesise data points.
         for(float targetEfficacy = 0.5f; targetEfficacy <= 1.8f; targetEfficacy += 0.1f)
@@ -171,17 +179,48 @@ public class ETVStatsTest
             // Create plausible (flat) baseline.
             final float baseline = 2.0f + (10f * rnd.nextFloat());
 
+            // Compute (initial) control and (remaining) normal days.
+            final SortedMap<Integer, SavingEnabledAndDataStatus> enabledAndUsableFlagsByLocalDay = new TreeMap<>();
+            for(final Integer d : hdd.keySet())
+                {
+                final SavingEnabledAndDataStatus mode =
+                    (enabledAndUsableFlagsByLocalDay.size() < controlPoints) ?
+                        SavingEnabledAndDataStatus.Disabled : SavingEnabledAndDataStatus.Enabled;
+                enabledAndUsableFlagsByLocalDay.put(d, mode);
+                }
 
+            // Synthesise daily energy use.
+            // This perfectly matches the specified slope and baseline (no noise),
+            // so r^2 should be 1.0.
+            final SortedMap<Integer, Float> kWhByLocalDay = new TreeMap<>();
+            for(final Integer d : hdd.keySet())
+                {
+                final float hd = hdd.get(d);
+                final boolean isDisabled = (SavingEnabledAndDataStatus.Disabled == enabledAndUsableFlagsByLocalDay.get(d));
+                final float variableUse = hd * (isDisabled ? initialSlope : finalSlope);
+                final float totalUse = baseline + variableUse;
+                kWhByLocalDay.put(d, totalUse);
+                }
 
+            // Calculation input object.
+            final ETVPerHouseholdComputationInput ci = (new ETVPerHouseholdComputationInput(){
+                @Override public String getHouseID() { return(String.valueOf("Nemo")); }
+                @Override public SortedMap<Integer, Float> getKWhByLocalDay() throws IOException { return(kWhByLocalDay); }
+                @Override public SortedMap<Integer, Float> getHDDByLocalDay() throws IOException { return(hdd); }
+                @Override public TimeZone getLocalTimeZoneForDayBoundaries() { return(NBulkKWHParseByID.DEFAULT_NB_TIMEZONE); }
+                @Override public float getBaseTemperatureAsFloat() { return(NBulkInputs.STD_BASE_TEMP_C); }
+                @Override public SortedMap<Integer, SavingEnabledAndDataStatus> getOptionalEnabledAndUsableFlagsByLocalDay() { return(enabledAndUsableFlagsByLocalDay); }
+                });
 
+            // Analyse household performance.
+            final ETVPerHouseholdComputationSimpleImpl computationInstance = ETVPerHouseholdComputationSimpleImpl.getInstance();
+            final ETVPerHouseholdComputationResult r = computationInstance.apply(ci);
 
-
-
+            // Test that the expected efficacy has been computed correctly.
+            assertEquals(targetEfficacy, r.getRatiokWhPerHDDNotSmartOverSmart().floatValue(), 0.01f);
+            assertEquals(normalPoints, r.getHDDMetrics().n);
+            assertEquals(1.0f, r.getHDDMetrics().rsqFit, 0.01f);
             }
-
-
-
-
         }
 
     /**OK PRNG. */
