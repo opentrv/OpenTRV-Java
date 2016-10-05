@@ -94,7 +94,9 @@ public class RecentStatsWindowTest
         {
         final File tf0 = File.createTempFile("RSWFW0", "json");
         final RecentStatsWindowFileWriter rswfw0 = new RecentStatsWindowFileWriter(tf0);
-        final long t = 1430933201000L; // ~2015/05/06 18:26
+        // % date --date='@1430933201'
+        // Wed May  6 17:26:41 UTC 2015
+        final long t = 1430933201000L; // ~2015/05/06 17:26 UTC
         final boolean authenticated = true;
         final StatsMessageWithMetadata sm0 = new StatsMessageWithMetadata("{\"@\":\"b39a\"}", t, authenticated);
         rswfw0.processStatsMessage(sm0);
@@ -104,13 +106,13 @@ public class RecentStatsWindowTest
         rswfw0.processStatsMessage(sm2);
         final String sm0f = Util.readTextFile(tf0);
 //System.out.println(sm0f);
-        assertEquals("[{},[[\"2015-05-06T18:26:41Z\",\"{\\\"@\\\":\\\"b39a\\\"}\",true],[\"2015-05-06T18:26:41Z\",\"{\\\"@\\\":\\\"b39a\\\"}\",true],[\"2015-05-06T18:26:41Z\",\"@ABCD;\",true]]]", sm0f.trim());
+        assertEquals("[{},[[\"2015-05-06T17:26:41Z\",\"{\\\"@\\\":\\\"b39a\\\"}\",true],[\"2015-05-06T17:26:41Z\",\"{\\\"@\\\":\\\"b39a\\\"}\",true],[\"2015-05-06T17:26:41Z\",\"@ABCD;\",true]]]", sm0f.trim());
         assertTrue(0 != sm0f.length());
         final JSONParser parser = new JSONParser();
         // Output form is currently just the log as a list as last element of an outer list...  FIXME: test more.
-        final List json = (List)parser.parse(sm0f);
+        final List<?> json = (List<?>)parser.parse(sm0f);
         assertEquals(2, json.size());
-        final List log = (List)json.get(1);
+        final List<?> log = (List<?>)json.get(1);
         assertEquals(3, log.size());
         }
 
