@@ -29,23 +29,30 @@ import uk.org.opentrv.comms.statshandlers.StatsMessageWithMetadata;
 
 public class StatsMessageWithMetadataTest
     {
-    /**Test JSON representation. */
+    /**Test JSON representation.
+     * TODO-971: canary test that was incorrectly passing in UK timezone (GMT/GMT+1), not in French (GMT+1/GMT+2),
+     * and was amended by Bruno G 2016/08 to correctly fail in UK timezone again (during BST).
+     * 
+     * @throws ParseException
+     */
     @Test
     public void testAsJSON() throws ParseException
         {
+        // % date --date='@1430933201'
+        // Wed May  6 17:26:41 UTC 2015
         final long t = 1430933201034L; // ~2015/05/06 18:26 BST aka 2015/05/06 17:26 UTC
         final StatsMessageWithMetadata sm1 = new StatsMessageWithMetadata("{}", t, true);
+        assertEquals(t, sm1.timestamp);
         final String sm1s = sm1.asJSONArrayString();
         assertEquals("[\"2015-05-06T17:26:41Z\",\"{}\",true]", sm1s);
         final JSONParser parser = new JSONParser();
         final List<?> jsonArray = (List<?>) parser.parse(sm1s);
-        assertEquals("2015-05-06T18:26:41Z", jsonArray.get(0));
+        assertEquals("2015-05-06T17:26:41Z", jsonArray.get(0));
         assertEquals("{}", jsonArray.get(1));
         assertEquals(Boolean.TRUE, jsonArray.get(2));
-        assertEquals("[\"2015-05-06T18:26:41Z\",\"{}\",true]", sm1s);
+        assertEquals("[\"2015-05-06T17:26:41Z\",\"{}\",true]", sm1s);
         final StatsMessageWithMetadata sm2 = new StatsMessageWithMetadata("@ABCD;\"2", t, true);
         final String sm2s = sm2.asJSONArrayString();
-        assertEquals("[\"2015-05-06T18:26:41Z\",\"@ABCD;\\\"2\",true]", sm2s);
+        assertEquals("[\"2015-05-06T17:26:41Z\",\"@ABCD;\\\"2\",true]", sm2s);
         }
-
     }

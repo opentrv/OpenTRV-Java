@@ -26,12 +26,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.text.FieldPosition;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Map;
 import java.util.Random;
-import java.util.TimeZone;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.json.simple.parser.JSONParser;
@@ -473,13 +473,23 @@ public final class Util
         }
 
 
-    /**Append ISO-8601 UTC full date and time format with Z (eg 2011-12-03T10:15:30Z) to buffer. */
+    /**ISO-8601 UTC full date and time format with Z (eg 2011-12-03T10:15:30Z).
+     * DateTimeFormatter is thread-safe.
+     */
+    private static final DateTimeFormatter fmtWithZone =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX")
+            .withZone(ZoneOffset.UTC);
+
+    /**Append ISO-8601 UTC full date and time format with Z (eg 2011-12-03T10:15:30Z) to buffer.
+     * Fixes TODO-971.
+     */
     public static final void appendISODateTime(final StringBuffer sb, final Date dt)
         {
-        synchronized(dateAndTimeISO8601) { dateAndTimeISO8601.format(dt, sb, new FieldPosition(0)); }
+        fmtWithZone.formatTo(Instant.ofEpochMilli(dt.getTime()), sb);
+//        synchronized(dateAndTimeISO8601) { dateAndTimeISO8601.format(dt, sb, new FieldPosition(0)); }
         }
 
-    /**ISO-8601 UTC full date and time format with Z (eg 2011-12-03T10:15:30Z); hold lock on this instance while using for thread-safety. */
-    private static final SimpleDateFormat dateAndTimeISO8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-    { dateAndTimeISO8601.setTimeZone(TimeZone.getTimeZone("UTC")); }
+//    /**ISO-8601 UTC full date and time format with Z (eg 2011-12-03T10:15:30Z); hold lock on this instance while using for thread-safety. */
+//    private static final SimpleDateFormat dateAndTimeISO8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+//    { dateAndTimeISO8601.setTimeZone(TimeZone.getTimeZone("UTC")); }
     }
