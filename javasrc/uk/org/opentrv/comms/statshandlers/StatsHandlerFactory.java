@@ -14,26 +14,20 @@ specific language governing permissions and limitations
 under the Licence.
 
 Author(s) / Copyright (s): Bruno Girin 2015
+                           Damon Hart-Davis 2016
 */
 
 package uk.org.opentrv.comms.statshandlers;
 
 import static uk.org.opentrv.comms.cfg.ConfigUtil.loadConfigFile;
 
-import java.lang.reflect.Constructor;
 import java.io.File;
 import java.io.Reader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.FileNotFoundException;
-import java.util.Map;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
-
-//import org.json.simple.JSONObject;
-//import org.json.simple.parser.JSONParser;
-//import org.json.simple.parser.ParseException;
+import java.util.Map;
 
 import uk.org.opentrv.comms.cfg.ConfigException;
 import uk.org.opentrv.comms.cfg.ListConfigException;
@@ -59,12 +53,12 @@ public class StatsHandlerFactory {
     /**Create a new handler list from a configuration object.
      * This can be a Map or a JSONObject read from file.
      */
-    public List<StatsHandler> newHandlerList(final Map config) throws ConfigException {
+    public List<StatsHandler> newHandlerList(final Map<?, ?> config) throws ConfigException {
         List<StatsHandler> result = new ArrayList<StatsHandler>();
         List<Map> handlerConfigs = (List<Map>)config.get("handlers");
         if(handlerConfigs != null) {
             ListConfigException errors = null;
-            for (Map handlerConfig : handlerConfigs) {
+            for (Map<?, ?> handlerConfig : handlerConfigs) {
                 try {
                     result.add(newHandler(handlerConfig));
                 } catch(ConfigException ce) {
@@ -100,24 +94,24 @@ public class StatsHandlerFactory {
     /**
      * Create a new handler from a configuration object.
      */
-    public StatsHandler newHandler(final Map config) throws ConfigException {
+    public StatsHandler newHandler(final Map<?, ?> config) throws ConfigException {
         Object hTypeO = config.get("type");
         if (hTypeO == null) {
             throw new ConfigException("No handler type found");
         }
         String hType = hTypeO.toString();
-        Map hOptions = null;
+        Map<?, ?> hOptions = null;
         Object hOptionsO = config.get("options");
         if (hOptionsO == null) {
-            hOptions = new HashMap();
+            hOptions = new HashMap<Object, Object>();
         } else if(hOptionsO instanceof Map) {
-            hOptions = (Map)hOptionsO;
+            hOptions = (Map<?, ?>)hOptionsO;
         } else {
             throw new ConfigException("Invalid options structure");
         }
         try {
-            Class hClass = Class.forName(hType);
-            Constructor hConstruct = hClass.getConstructor(Map.class);
+            Class<?> hClass = Class.forName(hType);
+            Constructor<?> hConstruct = hClass.getConstructor(Map.class);
             return (StatsHandler)hConstruct.newInstance(hOptions);
         } catch(ClassNotFoundException cnfe) {
             throw new ConfigException("Invalid handler type", cnfe);
