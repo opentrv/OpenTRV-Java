@@ -528,8 +528,9 @@ public class ETVParseTest
         assertTrue(va.containsKey("S001"));
         assertEquals(55, va.get("5013").getOptionalEnabledAndUsableFlagsByLocalDay().size());
 //System.out.println(va.get("5013").getOptionalEnabledAndUsableFlagsByLocalDay());
-        assertEquals(15, Collections.frequency(va.get("5013").getOptionalEnabledAndUsableFlagsByLocalDay().values(), SavingEnabledAndDataStatus.Enabled));
+        assertEquals(21, Collections.frequency(va.get("5013").getOptionalEnabledAndUsableFlagsByLocalDay().values(), SavingEnabledAndDataStatus.Enabled));
         assertEquals(11, Collections.frequency(va.get("5013").getOptionalEnabledAndUsableFlagsByLocalDay().values(), SavingEnabledAndDataStatus.Disabled));
+        assertEquals(23, Collections.frequency(va.get("5013").getOptionalEnabledAndUsableFlagsByLocalDay().values(), SavingEnabledAndDataStatus.DontUse));
         // The synthetic logs should have 6 days enabled and 6 disabled.
         assertEquals(12, va.get("S001").getOptionalEnabledAndUsableFlagsByLocalDay().size());
 //System.out.println(va.get("S001").getOptionalEnabledAndUsableFlagsByLocalDay());

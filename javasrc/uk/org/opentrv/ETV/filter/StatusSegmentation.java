@@ -70,10 +70,24 @@ public final class StatusSegmentation
         // From potentially usable days note those with majority of devices with
         // reporting energy-saving status and with energy-saving features enabled/disabled.
         // Other days, without a clear majority, are explicitly marked as unusable.
-        final int quorum = (devices.size() / 2) + 1;
+//      final int quorum = (devices.size() / 2) + 1;
+		// Note: the majority is taken of devices reporting at all on any particular day,
+		// so that multiple sets of devices can be used serially in one home, in particular,
+        // eg to allow replacement/upgrade of equipment.
+        // This should also help extract useful data where some devices only have
+        // very intermittent communications, making a quorum otherwise hard to achieve.
         for(final Integer day : potentiallyUsableDays)
             {
-            int reportingSavingsEnabled = 0;
+        	int active = 0;
+        	for(final ValveLogParseResult vlpr : devices)
+        	    {
+        		if(vlpr.getDaysInWhichCallingForHeat().contains(day) &&
+        		   vlpr.getDaysInWhichEnergySavingStatsReported().contains(day))
+        		{ ++active; }
+        	    }
+            final int quorum = (active / 2) + 1;
+
+        	int reportingSavingsEnabled = 0;
             int reportingSavingsDisabled = 0;
             for(final ValveLogParseResult vlpr : devices)
                 {
@@ -83,6 +97,11 @@ public final class StatusSegmentation
                 else
                     { ++reportingSavingsDisabled; }
                 }
+
+            // If no active devices then savings state cannot be other than 'DontUse'.
+            if((0 == active) && ((reportingSavingsEnabled > 0) || (reportingSavingsDisabled > 0)))
+                { throw new Error("Internal Error"); }
+
             if((reportingSavingsEnabled >= quorum) &&
                (reportingSavingsEnabled > reportingSavingsDisabled))
                 { result.put(day, SavingEnabledAndDataStatus.Enabled); }
