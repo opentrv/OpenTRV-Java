@@ -307,6 +307,10 @@ public class ETVParseTest
     public static final String pdValveLogSample =
         "'2016-05-12-11:21:45','111.11.11.1','cf 74 II II II II 20 0b 40 09 d8 59 0a e5 75 f3 13 57 a5 94 a2 3b e7 26 99 c4 5a 77 74 6a 6e 2c 5a c2 22 f6 b6 5e 0b 02 31 f2 09 45 57 d4 d9 92 3c 8e 45 95 63 65 5b a3 ff 2f 3d 68 14 80','b''\\x00\\x10{\"tT|C\":21,\"tS|C\":1''','\\x00\\x10{\"tT|C\":21,\"tS|C\":1'";
 
+    /**Single valve log entry in alternate partially-decrypted format. */
+    public static final String pdValveLogSampleAlternate =
+        "'2016-05-12-11:21:45','111.11.11.1','cf 74 II II II II 20 0b 40 09 d8 59 0a e5 75 f3 13 57 a5 94 a2 3b e7 26 99 c4 5a 77 74 6a 6e 2c 5a c2 22 f6 b6 5e 0b 02 31 f2 09 45 57 d4 d9 92 3c 8e 45 95 63 65 5b a3 ff 2f 3d 68 14 80','7F 10 {\"tS|C\":1";
+
     /**Default time zone assumed for data for UK based homes. */
     public static final TimeZone DEFAULT_UK_TIMEZONE = TimeZone.getTimeZone("Europe/London");
 
@@ -342,6 +346,16 @@ public class ETVParseTest
         assertEquals(0, spd.getDaysInWhichCallingForHeat().size());
         assertEquals(1, spd.getDaysInWhichEnergySavingActive().size());
         assertEquals(1, spd.getDaysInWhichEnergySavingStatsReported().size());
+
+        // Parse single alternate partially-decrypted-format log entry.
+        final ValveLogParseResult spda = OTLogActivityParse.parseTRV1ValveLog(new StringReader(pdValveLogSampleAlternate), DEFAULT_UK_TIMEZONE);
+        assertNotNull(spda);
+        assertNotNull(spda.getDaysInWhichDataPresent());
+        assertEquals(1, spda.getDaysInWhichDataPresent().size());
+        assertTrue(spda.getDaysInWhichDataPresent().contains(20160512));
+        assertEquals(0, spda.getDaysInWhichCallingForHeat().size());
+        assertEquals(1, spda.getDaysInWhichEnergySavingActive().size());
+        assertEquals(1, spda.getDaysInWhichEnergySavingStatsReported().size());
         }
 
     /**Valve log sample (etc) resource directory. */

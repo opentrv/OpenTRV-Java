@@ -82,6 +82,10 @@ import uk.org.opentrv.hdd.HDDUtil;
 <pre>
 '2016-05-12-11:21:45','111.11.11.1','cf 74 II II II II 20 0b 40 09 d8 59 0a e5 75 f3 13 57 a5 94 a2 3b e7 26 99 c4 5a 77 74 6a 6e 2c 5a c2 22 f6 b6 5e 0b 02 31 f2 09 45 57 d4 d9 92 3c 8e 45 95 63 65 5b a3 ff 2f 3d 68 14 80','b''\x00\x10{"tT|C":21,"tS|C":1''','\x00\x10{"tT|C":21,"tS|C":1'
 </pre>
+ * or:
+<pre>
+'2016-07-07-07:07:07','111.11.11.1','cf 34 II II II II 20 ae 0a 2b b6 0c 47 a7 17 c0 8e 1f cf 48 2e 07 68 2b 0f 85 5a 8f 55 55 4f 15 96 ed 30 ef 27 ba e2 03 4a 32 03 64 03 ea 46 d1 13 66 e9 dc 9d 1c c3 99 fa 8a c7 15 84 80','7F 10 {"tT|C":21,"tS|C":1'
+</pre>
  */
 public final class OTLogActivityParse
     {
@@ -398,7 +402,7 @@ S001,synthd2,aa ab ac ad
         return(null); // Not found.
         }
 
-    /**Load an analyse a household's devices together.
+    /**Load and analyse a household's devices together.
      * Loads the per-device data,
      * does the initial parse per device,
      * combines and returns the result.
@@ -418,8 +422,10 @@ S001,synthd2,aa ab ac ad
             final String valvePrimaryID = m.getKey();
             final String valveSecondaryID = m.getValue();
             final ValveLogParseResult vlpr = findAndAnalyseLog(dataReader, localTimeZoneForDayBoundaries, valvePrimaryID, valveSecondaryID);
-            // Silently OMIT any device for which there is no data at all.
+            // Omit any device for which there is no data at all,
+            // but warn so that operator can check for errors in IDs, etc.
             if(null != vlpr) { perDevice.add(vlpr); }
+            else { System.err.println("WARNING: no log data for valve " + valvePrimaryID); }
             }
 
         return(StatusSegmentation.segmentActivity(houseID, perDevice));

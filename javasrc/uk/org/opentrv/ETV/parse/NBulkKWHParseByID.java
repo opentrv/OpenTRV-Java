@@ -181,8 +181,23 @@ public final class NBulkKWHParseByID implements ETVPerHouseholdComputationInputK
                 final float energy = Float.parseFloat(rf[3]);
                 final long dtsms = 1000L * device_timestamp;
                 // Verify that device time moves monotonically forwards...
-                if((-1 != currentDayYYYYMMDD) && (dtsms <= latestDeviceTimestamp.getTimeInMillis()))
-                    { throw new IOException("device time not increased at row " + l.getLineNumber() + ": " + row + " vs " + latestDeviceTimestamp); }
+                // Allow a repeated device timestamp (omit repeat row).
+                // ASSUME that the value has not changed for now, eg:
+//                X,1481277863,1481277600,5184.53,11
+//                X,1481280530,1481278500,5184.53,10
+//                X,1481280553,1481278500,5184.53,10
+//                X,1481280792,1481279400,5184.53,11
+                final long lDTm;
+                if((-1 != currentDayYYYYMMDD) && (dtsms <= (lDTm = latestDeviceTimestamp.getTimeInMillis())))
+                    {
+                	// Ignore/skip repeat/duplicate device timestamp.
+                	if(dtsms == lDTm)
+                	    {
+                		System.err.println("WARNING: duplicate device timestamp at row " + l.getLineNumber() + ": " + row);
+                		continue;
+                		}
+                	throw new IOException("device time gone backwards at row " + l.getLineNumber() + ": " + row + " vs " + latestDeviceTimestamp);
+                	}
                 // Now convert to local date (and time) allowing for time zone.
                 // Measurement days are local midnight to local midnight.
                 latestDeviceTimestamp.setTimeInMillis(dtsms);
