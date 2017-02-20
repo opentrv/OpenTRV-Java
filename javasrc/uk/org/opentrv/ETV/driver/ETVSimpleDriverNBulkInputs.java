@@ -168,7 +168,11 @@ public final class ETVSimpleDriverNBulkInputs
         // Output pre-segmented results per household
         // to give an indication of which (don't) have enough control and non-control days
         final List<ETVPerHouseholdComputationSystemStatus> rlPresegmented = new ArrayList<>(byHouseholdSegmentation.values());
-//        Collections.sort(rlPresegmented, new ETVPerHouseholdComputation.ResultSortByHouseID());
+        Collections.sort(rlPresegmented, new java.util.Comparator<ETVPerHouseholdComputationSystemStatus>(){
+            @Override
+            public int compare(final ETVPerHouseholdComputationSystemStatus o1, final ETVPerHouseholdComputationSystemStatus o2)
+                { return(o1.getHouseID().compareTo(o2.getHouseID())); }
+            });
         final String rlPresegmentedCSV = (new ETVPerHouseholdComputationSystemStatusSummaryCSV()).apply(rlPresegmented);
         final File presegmentedResultFile = new File(outDir, ETVSimpleDriverNBulkInputs.OUTPUT_STATS_FILE_PRESEGMENTED);
         try(final FileWriter w = new FileWriter(presegmentedResultFile)) { w.write(rlPresegmentedCSV); }
