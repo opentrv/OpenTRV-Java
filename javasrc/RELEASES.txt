@@ -11,7 +11,13 @@ or release/freeze points.
 pending:
 
 
-
+20170224:
+    freezepoint name: V0.2.4
+    branch name: HEAD
+    Deployed where: 16WW RPi and elsewhere.
+    Changes since last freezepoint (developer/mgr initials and brief description):
+    Previous significant freezepoint: V0.2.3
+    DHD20170224: includes ETV-20170220-RC2
 
 20150712:
     freezepoint name: V0.2.3
