@@ -287,6 +287,7 @@ build.time=${build.time} UTC
             haltonfailure="yes">
             <classpath>
                 <pathelement path="${cp.dbg.test}"/>
+            	<pathelement path="${jsrc.base.dir}"/> <!-- Pick up test input files. -->
                 <pathelement location="${build.dir.dbg}/${tmp.workdir}/${test}"/>
             </classpath>
         	<formatter type="brief" usefile="false" />
