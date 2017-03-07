@@ -284,11 +284,12 @@ build.time=${build.time} UTC
         depends="test.compile.dbg">
         <junit printsummary="on"
             fork="true"
-            haltonfailure="no">
+            haltonfailure="yes">
             <classpath>
                 <pathelement path="${cp.dbg.test}"/>
                 <pathelement location="${build.dir.dbg}/${tmp.workdir}/${test}"/>
             </classpath>
+        	<formatter type="brief" usefile="false" />
             <formatter type="xml"/>
             <batchtest todir="${build.dir.dbg}/${test.reportdir.xml}">
                 <fileset dir="${comms.src.dir}">
@@ -311,18 +312,9 @@ build.time=${build.time} UTC
     <!-- Builds debug and optimised code from scratch, and tests it.         -->
     <!-- =================================================================== -->
     <target name="all"
-        depends="clean,comms.jar.dbg,comms.jar.opt"
+        depends="clean,comms.jar.dbg,comms.jar.opt,test"
         description="cleans, then does optimised/release build.">
         <echo message="Builds complete."/>
-    </target>
-
-    <!-- =================================================================== -->
-    <!-- Builds and test debug and optimised code from scratch.              -->
-    <!-- =================================================================== -->
-    <target name="test"
-        depends="clean,all"
-        description="cleans, then does optimised/release build and test">
-        <echo message="Builds and tests complete."/>
     </target>
 
     <!-- =================================================================== -->
@@ -336,6 +328,21 @@ build.time=${build.time} UTC
             <delete dir="${build.dir.cmn}" quiet="true"/>
             <delete dir="${build.dir.opt}" quiet="true"/>
         </parallel>
+    </target>
+
+  <path id="classpath.test">
+    <pathelement location="java/checkedInLibs.test/junit-4.12.jar" />
+    <pathelement location="java/checkedInLibs.test/hamcrest-core-1.3.jar" />
+    <pathelement location="jsrc.base.dir"/>
+  </path>
+
+    <!-- =================================================================== -->
+    <!-- Builds and test debug and optimised code from scratch.              -->
+    <!-- =================================================================== -->
+    <target name="test"
+        depends="clean,test.dbg.run"
+        description="cleans, then does optimised/release build and JUnit tests">
+        <echo message="Builds and jUnit tests complete."/>
     </target>
 
 
