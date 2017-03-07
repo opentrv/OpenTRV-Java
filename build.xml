@@ -312,6 +312,15 @@ build.time=${build.time} UTC
     <!-- =================================================================== -->
     <target name="all"
         depends="clean,comms.jar.dbg,comms.jar.opt"
+        description="cleans, then does optimised/release build.">
+        <echo message="Builds complete."/>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- Builds and test debug and optimised code from scratch.              -->
+    <!-- =================================================================== -->
+    <target name="test"
+        depends="clean,all"
         description="cleans, then does optimised/release build and test">
         <echo message="Builds and tests complete."/>
     </target>
