@@ -18,12 +18,14 @@ Author(s) / Copyright (s): Damon Hart-Davis 2015
 package uk.org.opentrv.test.statsHandling;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeTrue;
 
 import java.util.Random;
 
 import org.junit.Test;
 
 import uk.org.opentrv.comms.statshandlers.StatsMessageWithMetadata;
+import uk.org.opentrv.comms.statshandlers.builtin.BasicCredentialsStore;
 import uk.org.opentrv.comms.statshandlers.builtin.twitter.SingleTwitterChannel;
 import uk.org.opentrv.comms.statshandlers.builtin.twitter.SingleTwitterChannelConfig;
 import uk.org.opentrv.comms.statshandlers.builtin.twitter.SingleTwitterChannelTemperature;
@@ -38,6 +40,7 @@ public class TwitterTest
     @Test
     public void testSingleTwitterChannel() throws Exception
         {
+    	assumeTrue(BasicCredentialsStore.isCredentialsStorePresent());
         final String hexID = "b39a";
         final SingleTwitterChannelConfig config = new SingleTwitterChannelConfig(hexID);
         try(final SingleTwitterChannel stc = new SingleTwitterChannelTemperature(config))

@@ -1,6 +1,7 @@
 package uk.org.opentrv.test.cfg;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeTrue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static uk.org.opentrv.comms.cfg.ConfigUtil.getAsString;
@@ -19,6 +20,7 @@ import uk.org.opentrv.comms.cfg.ConfigException;
 import uk.org.opentrv.comms.cfg.ConfigUtil;
 import uk.org.opentrv.comms.statshandlers.StatsHandler;
 import uk.org.opentrv.comms.statshandlers.StatsHandlerFactory;
+import uk.org.opentrv.comms.statshandlers.builtin.BasicCredentialsStore;
 
 public class CfgTest
     {
@@ -44,6 +46,7 @@ public class CfgTest
     @Test
     public void testDHDConfigParse() throws Exception
         {
+    	assumeTrue(BasicCredentialsStore.isCredentialsStorePresent());
         final Map<?,?> m = ConfigUtil.loadConfigFile(getDHDConfigReader());
         assertNotNull(m);
         // Make sure that the parse is basically correct...

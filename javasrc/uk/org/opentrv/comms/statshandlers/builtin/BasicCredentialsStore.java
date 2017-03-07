@@ -40,6 +40,13 @@ public final class BasicCredentialsStore
      */
     public static final File PRIVATE_CREDENTIALS_DIR = new File(System.getProperty("user.home"), ".V0p2Credentials");
 
+    /**Return true if credentials store appears to exist and be plausibly usable. */
+    public static boolean isCredentialsStorePresent()
+        {
+    	final File store = PRIVATE_CREDENTIALS_DIR;
+    	return(store.isDirectory() && store.canRead());
+        }
+
     /**Extract a (non-empty) set of non-empty auth tokens from the specified file, or null if none or if the filename is bad.
      * This does not throw an exception if it cannot find or open the specified file
      * (or the file name is null or empty)
