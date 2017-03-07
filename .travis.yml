@@ -1,8 +1,4 @@
 language: java
 
-env:
-  global:
-    - JAVA_OPTS="-Xmx1g"
-
 jdk:
   - oraclejdk8
