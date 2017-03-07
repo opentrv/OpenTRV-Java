@@ -283,7 +283,8 @@ build.time=${build.time} UTC
     <target name="test.dbg.run"
         depends="test.compile.dbg">
         <junit printsummary="on"
-            fork="false"
+            fork="true"
+        	maxmemory="256m"
             haltonfailure="yes">
             <classpath>
                 <pathelement path="${cp.dbg.test}"/>

@@ -370,7 +370,7 @@ public class ETVParseTest
      * <p>
      * Note 3: multiple code development versions applied to this valve during data set.
      */
-    /*@Test*/ public void testValveHugeLogParse() throws IOException
+    @Test public void testValveHugeLogParse() throws IOException
         {
         try(final Reader r = vlr.apply("0a45.json.gz"))
             {
