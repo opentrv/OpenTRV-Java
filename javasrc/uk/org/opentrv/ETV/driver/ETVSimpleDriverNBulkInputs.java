@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.stream.Collectors;
 
 import uk.org.opentrv.ETV.ETVHouseholdGroupSimpleSummaryStats;
@@ -35,6 +36,7 @@ import uk.org.opentrv.ETV.ETVPerHouseholdComputation;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationInput;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationResult;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputation.ETVPerHouseholdComputationSystemStatus;
+import uk.org.opentrv.ETV.ETVPerHouseholdComputation.SavingEnabledAndDataStatus;
 import uk.org.opentrv.ETV.ETVPerHouseholdComputationSimpleImpl;
 import uk.org.opentrv.ETV.filter.CommonSimpleResultFilters;
 import uk.org.opentrv.ETV.filter.StatusSegmentation;
@@ -157,7 +159,7 @@ public final class ETVSimpleDriverNBulkInputs
         // Not an error.
         if(!(new File(inDir, OTLogActivityParse.LOGDIR_PATH_TO_GROUPING_CSV)).exists())
             {
-            System.out.println("No grouping file in input dir, so no segmentation attempted: " + OTLogActivityParse.LOGDIR_PATH_TO_GROUPING_CSV);
+            System.out.println("No grouping file in input dir "+inDir+", so no segmentation attempted: " + OTLogActivityParse.LOGDIR_PATH_TO_GROUPING_CSV);
             return;
             }
 
@@ -166,7 +168,7 @@ public final class ETVSimpleDriverNBulkInputs
         final Map<String, ETVPerHouseholdComputationSystemStatus> byHouseholdSegmentation = OTLogActivityParse.loadAndParseAllOTLogs(HDDUtil.getDirSmartFileReader(inDir), NBulkKWHParseByID.DEFAULT_NB_TIMEZONE, stage1FilteredHouseIDs);
 
         // Output pre-segmented results per household
-        // to give an indication of which (don't) have enough control and non-control days
+        // to give an indication of which (don't) have enough control and non-control days.
         final List<ETVPerHouseholdComputationSystemStatus> rlPresegmented = new ArrayList<>(byHouseholdSegmentation.values());
         Collections.sort(rlPresegmented, new java.util.Comparator<ETVPerHouseholdComputationSystemStatus>(){
             @Override
@@ -187,6 +189,9 @@ public final class ETVSimpleDriverNBulkInputs
 
 //System.out.println(enoughControlAndNormal.iterator().next().getOptionalEnabledAndUsableFlagsByLocalDay());
 
+        // If true then provide extra 
+        final boolean verboseSeg = true;
+        
         // Analyse segmented data per household.
         // Inject the per-day savings-measures status into the input,
         // and use the split analysis.
@@ -196,10 +201,26 @@ public final class ETVSimpleDriverNBulkInputs
             final String houseID = statusByID.getHouseID();
             final ETVPerHouseholdComputationInput input = mhi.get(houseID);
             if(null == input) { throw new Error("should not happen"); }
+
+if(verboseSeg)
+{
+System.out.println("Computing for: " + houseID);
+final SortedMap<Integer, SavingEnabledAndDataStatus> statusByDay = statusByID.getOptionalEnabledAndUsableFlagsByLocalDay();
+//System.out.println(statusByDay);
+System.out.println("status and kWh and HDD by date (for usable days):");
+System.out.println("    date,status,kWh,HDD");
+for(Integer d : statusByDay.keySet())
+	{
+	final SavingEnabledAndDataStatus s = statusByDay.get(d);
+	if(SavingEnabledAndDataStatus.DontUse == s) { continue; }
+    System.out.println("    "+d+","+s+","+input.getKWhByLocalDay().get(d)+","+input.getHDDByLocalDay().get(d));
+	}
+}
+
             final ETVPerHouseholdComputationInput inputWithStatus =
                 StatusSegmentation.injectStatusInfo(input, statusByID);
             final ETVPerHouseholdComputationResult reanalysed = computationInstance.apply(inputWithStatus);
-//System.out.println(reanalysed.getRatiokWhPerHDDNotSmartOverSmart());
+//System.out.println("Efficacy: " + reanalysed.getRatiokWhPerHDDNotSmartOverSmart());
             rlSegmented.add(reanalysed);
             }
         // Output segmented results per household.
