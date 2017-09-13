@@ -1,4 +1,8 @@
-This is the OpenTRV (Open-Source Thermostatic Radiator Valve) project.
+[![Build Status](https://travis-ci.org/opentrv/OpenTRV-Java.svg?branch=master)](https://travis-ci.org/opentrv/OpenTRV-Java)
+
+# OpenTRV-Java
+
+This is the Java code for tje OpenTRV (Open-Source Thermostatic Radiator Valve) project.
 
 For more see:
 http://www.earth.org.uk/open-source-programmable-thermostatic-radiator-valve.html
